@@ -10,6 +10,9 @@ from loguru import logger
 from hiddifypanel.cache import cache, redis_client
 from hiddifypanel.models import *
 
+UPDATE_LOCK_SECONDS = 120  # how long an update is marked as being handled
+UPDATE_SEEN_SECONDS = 3600  # how long a finished update is remembered, to ignore Telegram's resends
+
 
 class _LazyBot:
     """Defers importing telebot (and creating its TeleBot/requests.Session) until
@@ -91,8 +94,20 @@ def panel_domain_name() -> str | None:
     return next((n for n in names if is_name(n)), names[0] if names else None)
 
 
+def register_bot_cached(set_hook=False, remove_hook=False) -> dict:
+    """register_bot, kept for 1000 s so panel starts do not call Telegram every time.
+
+    A failed attempt is not kept: the next start must reach Telegram again, otherwise one network
+    hiccup silences the bot until Redis is cleared.
+    """
+    result = _register_bot_cached(set_hook, remove_hook)
+    if not result.get("ok"):
+        _register_bot_cached.invalidate(set_hook, remove_hook)
+    return result
+
+
 @cache.cache(1000)
-def register_bot_cached(set_hook=False, remove_hook=False):
+def _register_bot_cached(set_hook=False, remove_hook=False):
     return register_bot(set_hook, remove_hook)
 
 
@@ -163,9 +178,15 @@ class TGBotResource(Resource):
             json_string = request.get_data().decode("utf-8")
             update = telebot.types.Update.de_json(json_string)
             # Telegram resends an update it did not see answered in time: handle each one once.
-            if not redis_client.set(f"tgbot:update:{update.update_id}", 1, nx=True, ex=3600):
+            # The mark only becomes long lived once the update is over, so one that a restart cut in
+            # the middle is picked up from the next resend instead of being dropped for an hour.
+            lock = f"tgbot:update:{update.update_id}"
+            if not redis_client.set(lock, 1, nx=True, ex=UPDATE_LOCK_SECONDS):
                 return ""
-            bot.process_new_updates([update])
+            try:
+                bot.process_new_updates([update])
+            finally:
+                redis_client.expire(lock, UPDATE_SEEN_SECONDS)
         except Exception:
             # Still 200: an error answer makes Telegram resend the same update again and again.
             logger.exception("Telegram update failed")
