@@ -20,9 +20,15 @@
         {% set qp.security = 'tls' %}
         {% set qp.alpn = ",".join(tls_layer.alpns()) %}
         {% if domain.allow_insecure %}
-            {% set qp.allowInsecure = 'true' %}
-            {% set qp.insecure = 'true' %}
-            {% set qp.pcs = ",".join(domain.cert.pinnedPeerCertSha256)%}
+            {# Xray >= 26.1.1 treats allowInsecure as a fatal removed feature; pin the peer cert instead. #}
+            {% if ctx.platform.xray.version > "0.0.0" and ctx.platform.xray.version < "26.1.1" %}
+                {% set qp.allowInsecure = 'true' %}
+                {% set qp.insecure = 'true' %}
+            {% else %}
+                {% set pins = domain.cert.pinnedPeerCertSha256 %}
+                {{ skip("Insecure TLS without a pinned peer certificate") if not pins }}
+                {% set qp.pcs = ",".join(pins) %}
+            {% endif %}
         {% endif %}
 
         {% if domain.extra.ech_config %}
