@@ -66,14 +66,18 @@ class XrayApi(DriverABS):
             out[str(tag)] = {"protocol": protocol, "flow": flow, "method": str(settings.get("method") or "")}
         return out
 
+    def _user_inbounds(self) -> dict[str, dict]:
+        """The inbounds of the generated config whose users the panel adds and removes live."""
+        return {t: info for t, info in self._inbound_meta().items() if info["protocol"] in _USER_PROTOCOLS and not (info["protocol"] == "shadowsocks" and not info["method"].startswith("2022-"))}
+
     def get_inbound_tags(self):
         try:
             xray_client = self.get_xray_client()
-            inbounds = {inb.name.split(">>>")[1] for inb in xray_client.stats_query("inbound")}
+            inbounds = [inb.name.split(">>>")[1] for inb in xray_client.stats_query("inbound") if ">>>" in inb.name]
         except Exception as e:
-            print(f"error in get inbound tags {e}")
-            inbounds = {}
-        return list(inbounds)
+            logger.warning(f"xray inbound tags unavailable: {e}")
+            inbounds = []
+        return list(set(inbounds))
 
     def __add_uuid_to_tag(self, uuid, t, *, protocol: str, flow: str, method: str = ""):
         xray_client = self.get_xray_client()
@@ -98,11 +102,8 @@ class XrayApi(DriverABS):
 
     def add_client(self, user):
         uuid = user.uuid
-        meta = self._inbound_meta()
         # The inbounds of the generated config: the stats list misses inbounds without traffic yet.
-        for t, info in meta.items():
-            if info["protocol"] not in _USER_PROTOCOLS or (info["protocol"] == "shadowsocks" and not info["method"].startswith("2022-")):
-                continue
+        for t, info in self._user_inbounds().items():
             try:
                 self.__add_uuid_to_tag(uuid, t, protocol=info["protocol"], flow=info.get("flow") or "", method=info["method"])
             except Exception as e:
@@ -116,7 +117,10 @@ class XrayApi(DriverABS):
 
     def _remove_client(self, uuid, tags=None, dolog=True):
         xray_client = self.get_xray_client()
-        tags = tags or self.get_inbound_tags()
+        if not tags:
+            # Both lists: stats misses inbounds with no traffic yet, so a user deleted there would keep
+            # working access; the generated config is where add_client put the user in the first place.
+            tags = set(self.get_inbound_tags()) | set(self._user_inbounds())
 
         for t in tags:
             try:
@@ -162,12 +166,12 @@ class XrayApi(DriverABS):
         for t in tags:
             cmd = ["/opt/hiddify-manager/services/xray/bin/xray", "api", "inbounduser", "--server=127.0.0.1:10085", f"-tag={t}"]
             try:
-                result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=15)
                 data = json.loads(result.stdout)
                 for u in data.get("users", []) or []:
                     email = u.get("email") or ""
                     if email:
                         users.add(email)
-            except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
-                print(f"inbounduser {t}: {e}")
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired, json.JSONDecodeError) as e:
+                logger.warning(f"xray inbounduser {t}: {e}")
         return list(users)

@@ -118,7 +118,7 @@ class Actions(FlaskView):
         # hiddify.add_temporary_access()
         file = "install.sh" if complete_install else "apply_configs.sh"
         try:
-            server_ip = urllib.request.urlopen("https://v4.ident.me/").read().decode("utf8")
+            server_ip = urllib.request.urlopen("https://v4.ident.me/", timeout=5).read().decode("utf8")
         except BaseException:
             server_ip = "server_ip"
 

@@ -542,7 +542,7 @@ def __get_ip_asn_api(ip: ipaddress.IPv4Address | ipaddress.IPv6Address | str) ->
     if not is_ip(ip):
         return ""
     endpoint = f"https://ipapi.co/{ip}/asn/"
-    return str(requests.get(endpoint).content)
+    return requests.get(endpoint, timeout=5).text.strip()
 
 
 @cache.cache(3600, modes=STATIC)
@@ -558,7 +558,7 @@ def resolve_domain_with_api(domain: str) -> str:
     if not domain:
         return ""
     endpoint = f"http://ip-api.com/json/{domain}?fields=query"
-    return str(requests.get(endpoint).json().get("query"))
+    return str(requests.get(endpoint, timeout=5).json().get("query") or "")
 
 
 @cache.cache(ttl=3600, modes=STATIC)

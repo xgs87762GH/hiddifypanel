@@ -18,16 +18,16 @@ def error(str):
 
 @cache.cache(ttl=60000, modes=STATIC)
 def get_latest_release_url(repo):
-    latest_url = requests.get(f"{repo}/releases/latest").url.strip()
-    version = latest_url.split("tag/")[1].strip()
-    return (latest_url, version)
+    """(release url, version) of the newest release; the version is empty when GitHub did not redirect to a tag."""
+    latest_url = requests.get(f"{repo}/releases/latest", timeout=15).url.strip()
+    return (latest_url, latest_url.partition("tag/")[2].strip())
 
 
 @cache.cache(ttl=600, modes=STATIC)
 def get_latest_release_version(repo_name):
     try:
         url = f"https://github.com/hiddify/{repo_name}/releases/latest"
-        response = requests.head(url, allow_redirects=False)
+        response = requests.head(url, allow_redirects=False, timeout=15)
 
         location_header = response.headers.get("Location")
         if location_header:
