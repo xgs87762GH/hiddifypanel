@@ -1,6 +1,7 @@
 <template>
   <PageHeader :title="t('template.listTitle')" />
   <ListFilterStatus :shown="filteredTemplates.length" :total="templates.length" :active="filtersActive" @reset="resetFilters" />
+  <Message v-if="loadError" severity="error" :closable="false">{{ loadError }}</Message>
   <Panel>
     <DataTable
       :value="filteredTemplates"
@@ -13,7 +14,7 @@
     >
       <template #empty>
         <ListNoMatch v-if="filtersActive" @reset="resetFilters" />
-        <span v-else-if="!loading">{{ t('common.none') }}</span>
+        <ListEmpty v-else-if="!loading" icon="pi pi-file" :title="t('common.none')" />
       </template>
       <template #header>
         <div class="flex justify-between items-center flex-wrap gap-3">
@@ -154,6 +155,8 @@
 <script setup lang="ts">
 import ListFilterStatus from '@/shared/components/ListFilterStatus.vue'
 import ListNoMatch from '@/shared/components/ListNoMatch.vue'
+import ListEmpty from '@/shared/components/ListEmpty.vue'
+import Message from 'primevue/message'
 import { useHashState } from '@/shared/composables/useHashState'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -193,6 +196,7 @@ const toast = useToast()
 
 const templates = ref<ProxyTemplate[]>([])
 const loading = ref(false)
+const loadError = ref<string | null>(null)
 const coreOptions = ref<string[]>([])
 const categoryOptions = ref<string[]>([])
 
@@ -229,13 +233,14 @@ function resetFilters() {
 
 async function load() {
   loading.value = true
+  loadError.value = null
   try {
     const meta = await customProxiesApi.meta()
     coreOptions.value = [...new Set([...meta.server_cores, ...meta.client_cores])].sort()
     categoryOptions.value = meta.template_categories ?? []
     templates.value = await proxyTemplatesApi.list()
   } catch {
-    toast.add({ severity: 'error', summary: t('common.loadFailed'), life: 5000 })
+    loadError.value = t('common.loadFailed')
   } finally {
     loading.value = false
   }

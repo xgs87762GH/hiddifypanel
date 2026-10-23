@@ -1,6 +1,7 @@
 <template>
   <PageHeader :title="t('baseConfig.listTitle')" />
   <ListFilterStatus :shown="filteredConfigs.length" :total="configs.length" :active="filtersActive" @reset="resetFilters" />
+  <Message v-if="loadError" severity="error" :closable="false">{{ loadError }}</Message>
   <Panel>
     <DataTable
       :value="filteredConfigs"
@@ -13,7 +14,7 @@
     >
       <template #empty>
         <ListNoMatch v-if="filtersActive" @reset="resetFilters" />
-        <span v-else-if="!loading">{{ t('common.none') }}</span>
+        <ListEmpty v-else-if="!loading" icon="pi pi-cog" :title="t('common.none')" />
       </template>
       <template #header>
         <div class="flex justify-between items-center flex-wrap gap-3">
@@ -200,6 +201,8 @@
 <script setup lang="ts">
 import ListFilterStatus from '@/shared/components/ListFilterStatus.vue'
 import ListNoMatch from '@/shared/components/ListNoMatch.vue'
+import ListEmpty from '@/shared/components/ListEmpty.vue'
+import Message from 'primevue/message'
 import { triStateCodec, useHashState } from '@/shared/composables/useHashState'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -241,6 +244,7 @@ const toast = useToast()
 const configs = ref<ProxyBaseConfig[]>([])
 const meta = ref<ProxyBaseConfigMeta | null>(null)
 const loading = ref(false)
+const loadError = ref<string | null>(null)
 
 const filterName = ref('')
 const filterDescription = ref('')
@@ -311,11 +315,12 @@ const filteredConfigs = computed(() =>
 
 async function load() {
   loading.value = true
+  loadError.value = null
   try {
     meta.value = await proxyBaseConfigsApi.meta()
     configs.value = await proxyBaseConfigsApi.list()
   } catch {
-    toast.add({ severity: 'error', summary: t('common.loadFailed'), life: 5000 })
+    loadError.value = t('common.loadFailed')
   } finally {
     loading.value = false
   }

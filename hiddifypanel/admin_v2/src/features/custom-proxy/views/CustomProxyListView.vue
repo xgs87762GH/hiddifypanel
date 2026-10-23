@@ -59,6 +59,7 @@
 
   </section>
   <ListFilterStatus :shown="filteredProxies.length" :total="proxies.length" :active="anyFilterActive" @reset="resetAllFilters" />
+  <Message v-if="loadError" severity="error" :closable="false">{{ loadError }}</Message>
   <Panel>
     <DataTable
       :value="filteredProxies"
@@ -74,7 +75,7 @@
     >
       <template #empty>
         <ListNoMatch v-if="anyFilterActive" @reset="resetAllFilters" />
-        <span v-else-if="!loading">{{ t('common.none') }}</span>
+        <ListEmpty v-else-if="!loading" icon="pi pi-server" :title="t('common.none')" />
       </template>
       <template #header>
         <div class="flex justify-between items-center flex-wrap gap-3">
@@ -406,6 +407,8 @@ import TreeSelect from 'primevue/treeselect'
 import type { TreeNode } from 'primevue/treenode'
 import ListFilterStatus from '@/shared/components/ListFilterStatus.vue'
 import ListNoMatch from '@/shared/components/ListNoMatch.vue'
+import ListEmpty from '@/shared/components/ListEmpty.vue'
+import Message from 'primevue/message'
 import PageHeader from '@/shared/components/PageHeader.vue'
 import { useHashState, triStateCodec, optionalNumberCodec, type HashCodec } from '@/shared/composables/useHashState'
 import { focusFirstInput } from '@/shared/utils/popover-focus'
@@ -496,6 +499,7 @@ const proxies = ref<CustomProxy[]>([])
 const meta = ref<CustomProxyMeta | null>(null)
 const bundleDialogVisible = ref(false)
 const loading = ref(false)
+const loadError = ref<string | null>(null)
 const modeOptions = ref<{ label: string; value: string }[]>([])
 const protoOptions = ref<{ label: string; value: string }[]>([])
 const coreOptions = ref<string[]>([])
@@ -848,6 +852,7 @@ const filteredProxies = computed(() =>
 
 async function load() {
   loading.value = true
+  loadError.value = null
   try {
     const [list, metaRes] = await Promise.all([customProxiesApi.list(), customProxiesApi.meta()])
     proxies.value = list
@@ -870,7 +875,7 @@ async function load() {
     coreOptions.value = [...cores].sort()
     categoryOptions.value = [...categories].sort()
   } catch {
-    toast.add({ severity: 'error', summary: t('common.loadFailed'), life: 5000 })
+    loadError.value = t('common.loadFailed')
   } finally {
     loading.value = false
   }
