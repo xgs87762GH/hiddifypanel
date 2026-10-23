@@ -24,9 +24,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, defineAsyncComponent, ref } from 'vue'
 import ConfirmDialog from 'primevue/confirmdialog'
-import DonationDialog from '@/shared/components/DonationDialog.vue'
+// 仅在捐赠动作触发时才加载：其内部的 qrcode 依赖不进入首包。
+const DonationDialog = defineAsyncComponent(() => import('@/shared/components/DonationDialog.vue'))
 import LegacyActionDialog from '@/shared/components/LegacyActionDialog.vue'
 import PwaInstallDialog from '@/shared/components/PwaInstallDialog.vue'
 import Toast from 'primevue/toast'
