@@ -162,7 +162,15 @@
           </div>
         </li>
       </TransitionGroup>
-      <ListNoMatch v-if="!rows.length" @reset="resetFilters" />
+      <ListEmpty
+        v-if="state.domains.length === 0"
+        icon="pi pi-globe"
+        :title="t('domains.emptyTitle')"
+        :hint="t('domains.emptyHint')"
+      >
+        <Button icon="pi pi-plus" :label="t('domains.add')" size="small" @click="wizardVisible = true" />
+      </ListEmpty>
+      <ListNoMatch v-else-if="!rows.length" @reset="resetFilters" />
     </template>
 
     <Menu :key="menuKey" ref="rowMenu" :model="rowItems" popup />
@@ -182,6 +190,7 @@
 <script setup lang="ts">
 import ListFilterStatus from '@/shared/components/ListFilterStatus.vue'
 import ListNoMatch from '@/shared/components/ListNoMatch.vue'
+import ListEmpty from '@/shared/components/ListEmpty.vue'
 import { useHashState } from '@/shared/composables/useHashState'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
