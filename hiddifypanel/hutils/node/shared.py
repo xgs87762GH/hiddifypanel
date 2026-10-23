@@ -4,7 +4,6 @@ import threading
 from collections.abc import Callable, Mapping
 from typing import Any
 
-from flask import copy_current_request_context
 from loguru import logger
 
 from hiddifypanel.models import ConfigEnum, hconfig
@@ -79,8 +78,23 @@ def get_panel_info_by_url(base_url: str, apikey: str | None = None) -> PanelInfo
 
 
 def run_node_op_in_bg(op: Callable[..., Any], *args: Any, **kwargs: Any) -> None:
-    @copy_current_request_context
-    def wrapped_op() -> None:
-        op(*args, **kwargs)
+    """Run ``op`` in a background thread that gets its own application context.
 
-    threading.Thread(target=wrapped_op).start()
+    The request context is deliberately not copied: its database session belongs to the request and is
+    not thread-safe, so sharing it here breaks both this thread and the request that started it.
+    """
+    from flask import current_app, has_app_context
+
+    if not has_app_context():
+        logger.warning(f"{op.__name__} needs an application context, it was not started in the background")
+        return
+    app = current_app._get_current_object()  # type: ignore[attr-defined]
+
+    def wrapped_op() -> None:
+        with app.app_context():
+            try:
+                op(*args, **kwargs)
+            except Exception:
+                logger.exception(f"Error in background node operation {op.__name__}")
+
+    threading.Thread(target=wrapped_op, daemon=True).start()

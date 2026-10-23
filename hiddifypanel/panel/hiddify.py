@@ -74,7 +74,15 @@ def quick_apply_users(domain: bool = False, users_only: bool = False):
             logger.info("apply users: already running, queued to run once more")
             return {"status": "queued"}
         _apply_users_state["running"] = True
-    threading.Thread(target=_apply_users_worker, daemon=True).start()
+    try:
+        threading.Thread(target=_apply_users_worker, daemon=True).start()
+    except Exception:
+        # A failed start would leave running=True forever, so every later call only
+        # returns "queued" and no config is ever applied until the panel restarts.
+        with _apply_users_lock:
+            _apply_users_state["running"] = False
+        logger.exception("apply users: worker thread could not be started")
+        raise
     return {"status": "success"}
 
 
