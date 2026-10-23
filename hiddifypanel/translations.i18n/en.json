@@ -1540,7 +1540,9 @@
         "title": "Add a domain",
         "tlsQ": "Which TLS?",
         "unlikely": "DNS does not match"
-      }
+      },
+      "emptyTitle": "No domains yet",
+      "emptyHint": "Add your first domain so users can connect."
     },
     "donation": {
       "close": "Close",

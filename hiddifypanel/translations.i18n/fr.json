@@ -1136,7 +1136,9 @@
         "title": "Ajouter un domaine",
         "tlsQ": "Quel TLS ?",
         "unlikely": "Le DNS ne correspond pas"
-      }
+      },
+      "emptyTitle": "Aucun domaine pour le moment",
+      "emptyHint": "Ajoutez votre premier domaine pour que les utilisateurs puissent se connecter."
     },
     "donation": {
       "close": "Fermer",
