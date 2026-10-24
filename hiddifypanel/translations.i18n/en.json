@@ -726,7 +726,9 @@
         "downloaded": "Backup downloaded",
         "failed": "Could not make the backup",
         "onServer": "Save on the server",
+        "onTelegram": "Save on the Telegram",
         "secret": "The file holds passwords, user links and private keys. Keep it somewhere safe.",
+        "sentTelegram": "Backup sent to your Telegram",
         "sub": "Everything in one file: settings, users, admins, domains, proxies and certificates.",
         "title": "Make a backup"
       },
@@ -1190,9 +1192,56 @@
         "checked": "Every config tested from the server · {ago}",
         "firstRun": "The first check is running; it takes a minute or two.",
         "never": "Not checked yet. Press “Check now”.",
+        "notTested": "Not tested",
         "note": "Tested with {user}'s subscription. A config that fails from the server itself never works for anyone; filtering in Iran is not tested here.",
+        "notice": {
+          "failed": "{n} of {total} configs do not work from the server.",
+          "where": "Details: Dashboard › Config health."
+        },
+        "problem": {
+          "certificate": {
+            "hint": "The certificate of {host} is missing, expired or made for another name. Check this domain in Domains and renew its certificate.",
+            "title": "The panel could not open its own subscription: the TLS certificate of {host} is not valid"
+          },
+          "core": {
+            "hint": "hiddify-core or Xray on the server could not read the subscription. Updating the panel usually fixes it.",
+            "title": "The config tester could not run"
+          },
+          "dns": {
+            "hint": "The server could not look up this domain. Check its DNS record: it must point to this server.",
+            "title": "The domain {host} could not be found"
+          },
+          "empty": {
+            "hint": "No usable config was found. Check that this app's protocols are on in Protocols and that the test user is active.",
+            "title": "The subscription has no config for this app"
+          },
+          "http": {
+            "hint": "The panel sent an HTTP error instead of the subscription. The panel's log shows why.",
+            "title": "The subscription page of {host} answered with an error"
+          },
+          "other": {
+            "hint": "The exact message is in the technical details below.",
+            "title": "The subscription could not be tested"
+          },
+          "timeout": {
+            "hint": "The server took too long to send it: it may be busy, or {host} may point to another server. Press “Check now” again in a minute.",
+            "title": "The panel's own subscription ({host}) did not answer in time"
+          },
+          "unreachable": {
+            "hint": "Nothing answered at this address. Check that {host} points to this server and that the panel's services (HAProxy, nginx) are running.",
+            "title": "The panel could not connect to {host}"
+          }
+        },
+        "reason": {
+          "closed": "The server closed the connection",
+          "noExit": "It connects, but traffic does not get out to the internet",
+          "refused": "The connection was refused",
+          "timeout": "No answer in time",
+          "tls": "The TLS handshake failed"
+        },
         "running": "Checking…",
         "subtitle": "Every config, tested from the server every 6 hours",
+        "technical": "Technical details",
         "title": "Config health",
         "working": "{ok} of {total} work"
       },
@@ -1336,7 +1385,7 @@
         "cdnIpScannerGo": "Open the scanner",
         "cdnIpScannerHint": "Scans Cloudflare IPs on your internet and saves the best ones here, per operator.",
         "domain": "Domain",
-        "domainInvalid": "That does not look like a domain",
+        "domainInvalid": "That does not look like a domain or an IP address",
         "domainRequired": "Enter a domain",
         "downloadDomain": "📈 Download domain",
         "downloadDomainHint": "Only for XHTTP: downloads can come from another domain than uploads. Harder to detect, often faster.",
@@ -1404,6 +1453,18 @@
       "noMatch": "No domain matches the filters",
       "noName": "(no name)",
       "notChanged": "Not changed",
+      "notice": {
+        "expired": "Its certificate has expired: apps refuse to connect.",
+        "failed": "It has no valid certificate: getting one failed.",
+        "invalid": "Its certificate is not valid for this domain.",
+        "missing": "It has no certificate yet.",
+        "rate_limited": "Getting its certificate is paused: the certificate authorities' rate limit was reached. It is tried again later.",
+        "renew_failed": "Its certificate is still valid, but renewing it failed.",
+        "saved": "Domains · saved with a warning",
+        "self_signed": "It has only a temporary self-signed certificate: apps warn or refuse.",
+        "title": "Domains · {domain}",
+        "where": "Details: Domains page."
+      },
       "openPanel": "Open the panel on this domain",
       "port": {
         "busy": "another program listens on it ({name})",
@@ -1523,7 +1584,7 @@
         },
         "modeQ": "How is it set up?",
         "moreSettings": "More settings",
-        "nameLead": "Type the domain or subdomain. We check its DNS to suggest the right mode.",
+        "nameLead": "Type the domain or subdomain, or an IPv4 / IPv6 address. We check its DNS to suggest the right mode.",
         "nameQ": "Which domain?",
         "next": "Next",
         "noCert": "No certificate request was needed.",
@@ -1778,9 +1839,28 @@
       },
       "justNow": "Just now",
       "lastSeen": "Last contact",
+      "live": {
+        "collecting": "Collecting live data… the charts fill in over the next minutes.",
+        "showLess": "Show less",
+        "showMore": "Show more",
+        "unavailable": "This node did not answer"
+      },
       "moreInfo": "More information",
       "neverSeen": "Never",
       "openAdmin": "Open",
+      "pingDialog": {
+        "avg": "avg",
+        "button": "Ping",
+        "hint": "{sent} sent, {received} answered · it keeps pinging until you close this window",
+        "loss": "loss",
+        "max": "max",
+        "min": "min",
+        "noAddress": "The node's address is not known",
+        "running": "pinging",
+        "tcp": "TCP (ICMP not possible)",
+        "timeout": "No answer",
+        "title": "Ping · {name}"
+      },
       "reachable": "Reachable",
       "refresh": "Refresh",
       "remove": "Remove",
@@ -2245,6 +2325,24 @@
       "wireguardTemplate": "WireGuard .conf template"
     },
     "pwa": {
+      "guide": {
+        "platform": "Your device",
+        "tabIos": "iPhone · Safari",
+        "tabAndroid": "Android · Chrome",
+        "tabDesktop": "{os} · Chrome",
+        "ios1": "In Safari, tap the ••• button in the bar at the bottom",
+        "ios2": "Tap Share",
+        "ios3": "Choose “Add to Home Screen”",
+        "ios4": "Tap Add: the panel is on your home screen",
+        "android1": "In Chrome, tap the ⋮ menu at the top",
+        "android2": "Choose “Add to home screen” (or “Install app”)",
+        "android3": "Tap Install: the panel opens like an app",
+        "computer": "Computer",
+        "desktop1": "In Chrome, click the install icon at the end of the address bar",
+        "desktop2": "Click Install",
+        "desktop3": "The panel opens in its own window, like an app"
+      },
+      "installNow": "Install now",
       "bannerText": "Open it from your home screen or desktop, in its own window, like an app.",
       "bannerTitle": "Install the panel as an app",
       "gotIt": "Got it",
@@ -2624,6 +2722,9 @@
       "openWeb": "Open in browser",
       "promptLead": "This panel has a Telegram bot, {bot}. Link it to your account:",
       "promptTitle": "Connect your Telegram?",
+      "stepCreate": "Create a new user right in the chat",
+      "stepStart": "Start the bot: its menu opens",
+      "stepUsers": "See your users and their usage",
       "reconnect": "Connect again",
       "scan": "Or scan this with your phone's camera."
     },
@@ -2669,6 +2770,12 @@
       "loadValues": "Load current values",
       "name": "Name",
       "skipHint": "Output SKIP or call skip() to skip rendering this proxy when a condition is not met"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "unread": "{n} new notification | {n} new notifications",
+      "new": "New",
+      "dismiss": "Dismiss"
     },
     "theme": {
       "caddy": "Smart Caddy theme",
@@ -3183,6 +3290,7 @@
     "backup_failed": "Backup failed.",
     "backup_working": "Preparing backup…",
     "btn_backup": "💾 Backup",
+    "btn_check": "🩺 Check status",
     "btn_new": "➕ New user",
     "btn_panel": "🖥 Open panel",
     "btn_status": "📊 Server status",

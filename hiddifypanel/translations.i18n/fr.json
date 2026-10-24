@@ -726,7 +726,9 @@
         "downloaded": "Sauvegarde téléchargée",
         "failed": "Impossible de créer la sauvegarde",
         "onServer": "Enregistrer sur le serveur",
+        "onTelegram": "Enregistrer sur Telegram",
         "secret": "Le fichier contient des mots de passe, des liens utilisateur et des clés privées. Conservez-le en lieu sûr.",
+        "sentTelegram": "Sauvegarde envoyée sur votre Telegram",
         "sub": "Tout dans un seul fichier : paramètres, utilisateurs, admins, domaines, proxies et certificats.",
         "title": "Créer une sauvegarde"
       },
@@ -1003,6 +1005,18 @@
       "noMatch": "Aucun domaine ne correspond aux filtres",
       "noName": "(sans nom)",
       "notChanged": "Inchangé",
+      "notice": {
+        "expired": "Son certificat a expiré : les applications refusent de se connecter.",
+        "failed": "Il n'a pas de certificat valide : l'obtention a échoué.",
+        "invalid": "Son certificat n'est pas valide pour ce domaine.",
+        "missing": "Il n'a pas encore de certificat.",
+        "rate_limited": "L'obtention du certificat est en pause : la limite des autorités de certification est atteinte. Nouvel essai plus tard.",
+        "renew_failed": "Son certificat est encore valide, mais le renouvellement a échoué.",
+        "saved": "Domaines · enregistré avec un avertissement",
+        "self_signed": "Il n'a qu'un certificat auto-signé temporaire : les applications avertissent ou refusent.",
+        "title": "Domaines · {domain}",
+        "where": "Détails : page Domaines."
+      },
       "openPanel": "Ouvrir le panneau sur ce domaine",
       "port": {
         "busy": "un autre programme l'écoute ({name})",
@@ -1286,9 +1300,28 @@
       },
       "justNow": "À l'instant",
       "lastSeen": "Dernier contact",
+      "live": {
+        "collecting": "Collecte des données en direct… les graphiques se remplissent dans les prochaines minutes.",
+        "showLess": "Afficher moins",
+        "showMore": "Afficher plus",
+        "unavailable": "Ce nœud n'a pas répondu"
+      },
       "moreInfo": "Plus d'informations",
       "neverSeen": "Jamais",
       "openAdmin": "Ouvrir",
+      "pingDialog": {
+        "avg": "moy",
+        "button": "Ping",
+        "hint": "{sent} envoyés, {received} réponses · le ping continue jusqu'à la fermeture de cette fenêtre",
+        "loss": "perte",
+        "max": "max",
+        "min": "min",
+        "noAddress": "L'adresse du nœud est inconnue",
+        "running": "ping en cours",
+        "tcp": "TCP (ICMP impossible)",
+        "timeout": "Pas de réponse",
+        "title": "Ping · {name}"
+      },
       "reachable": "Joignable",
       "refresh": "Actualiser",
       "remove": "Supprimer",
@@ -1930,6 +1963,9 @@
       "openWeb": "Ouvrir dans le navigateur",
       "promptLead": "Ce panneau a un bot Telegram, {bot}. Liez-le à votre compte :",
       "promptTitle": "Connecter votre Telegram ?",
+      "stepCreate": "Créez un utilisateur directement dans le chat",
+      "stepStart": "Démarrez le bot : son menu s’ouvre",
+      "stepUsers": "Voyez vos utilisateurs et leur consommation",
       "reconnect": "Se reconnecter",
       "scan": "Ou scannez ceci avec l'appareil photo de votre téléphone."
     },
@@ -1975,6 +2011,36 @@
       "loadValues": "Charger les valeurs actuelles",
       "name": "Nom",
       "skipHint": "Produisez SKIP ou appelez skip() pour ignorer le rendu de ce proxy lorsqu'une condition n'est pas remplie"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "unread": "{n} nouvelle notification | {n} nouvelles notifications",
+      "new": "Nouveau",
+      "dismiss": "Ignorer"
+    "pwa": {
+      "guide": {
+        "platform": "Votre appareil",
+        "tabIos": "iPhone · Safari",
+        "tabAndroid": "Android · Chrome",
+        "tabDesktop": "{os} · Chrome",
+        "ios1": "Dans Safari, touchez le bouton ••• de la barre du bas",
+        "ios2": "Touchez Partager",
+        "ios3": "Choisissez « Sur l'écran d'accueil »",
+        "ios4": "Touchez Ajouter : le panneau est sur l'écran d'accueil",
+        "android1": "Dans Chrome, touchez le menu ⋮ en haut",
+        "android2": "Choisissez « Ajouter à l'écran d'accueil » (ou « Installer l'application »)",
+        "android3": "Touchez Installer : le panneau s'ouvre comme une application",
+        "computer": "Ordinateur",
+        "desktop1": "Dans Chrome, cliquez sur l'icône d'installation au bout de la barre d'adresse",
+        "desktop2": "Cliquez sur Installer",
+        "desktop3": "Le panneau s'ouvre dans sa propre fenêtre, comme une application"
+      },
+      "gotIt": "Compris",
+      "installNow": "Installer maintenant",
+      "later": "Plus tard",
+      "never": "Ne plus afficher",
+      "text": "Gardez le panneau à portée d'un geste, comme toute application de votre téléphone ou ordinateur.",
+      "title": "Installer le panneau comme application"
     },
     "theme": {
       "dark": "Mode sombre",

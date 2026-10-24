@@ -726,7 +726,9 @@
         "downloaded": "Backup baixado",
         "failed": "Não foi possível fazer o backup",
         "onServer": "Salvar no servidor",
+        "onTelegram": "Salvar no Telegram",
         "secret": "O arquivo contém senhas, links de usuários e chaves privadas. Guarde-o em um local seguro.",
+        "sentTelegram": "Backup enviado para o seu Telegram",
         "sub": "Tudo em um único arquivo: configurações, usuários, administradores, domínios, proxies e certificados.",
         "title": "Fazer um backup"
       },
@@ -1003,6 +1005,18 @@
       "noMatch": "Nenhum domínio corresponde aos filtros",
       "noName": "(sem nome)",
       "notChanged": "Não alterado",
+      "notice": {
+        "expired": "O certificado expirou: os apps recusam a conexão.",
+        "failed": "Não tem certificado válido: a obtenção falhou.",
+        "invalid": "O certificado não é válido para este domínio.",
+        "missing": "Ainda não tem certificado.",
+        "rate_limited": "A obtenção do certificado está pausada: o limite das autoridades certificadoras foi atingido. Será tentado mais tarde.",
+        "renew_failed": "O certificado ainda é válido, mas a renovação falhou.",
+        "saved": "Domínios · salvo com um aviso",
+        "self_signed": "Tem só um certificado autoassinado temporário: os apps avisam ou recusam.",
+        "title": "Domínios · {domain}",
+        "where": "Detalhes: página Domínios."
+      },
       "openPanel": "Abrir o painel neste domínio",
       "port": {
         "busy": "outro programa a utiliza ({name})",
@@ -1286,9 +1300,28 @@
       },
       "justNow": "Agora mesmo",
       "lastSeen": "Último contato",
+      "live": {
+        "collecting": "Coletando dados ao vivo… os gráficos se preenchem nos próximos minutos.",
+        "showLess": "Mostrar menos",
+        "showMore": "Mostrar mais",
+        "unavailable": "Este nó não respondeu"
+      },
       "moreInfo": "Mais informações",
       "neverSeen": "Nunca",
       "openAdmin": "Abrir",
+      "pingDialog": {
+        "avg": "média",
+        "button": "Ping",
+        "hint": "{sent} enviados, {received} respondidos · continua até você fechar esta janela",
+        "loss": "perda",
+        "max": "máx",
+        "min": "mín",
+        "noAddress": "O endereço do nó não é conhecido",
+        "running": "pingando",
+        "tcp": "TCP (ICMP indisponível)",
+        "timeout": "Sem resposta",
+        "title": "Ping · {name}"
+      },
       "reachable": "Acessível",
       "refresh": "Atualizar",
       "remove": "Remover",
@@ -1930,6 +1963,9 @@
       "openWeb": "Abrir no navegador",
       "promptLead": "Este painel tem um bot do Telegram, {bot}. Vincule-o à sua conta:",
       "promptTitle": "Conectar seu Telegram?",
+      "stepCreate": "Crie um novo usuário direto no chat",
+      "stepStart": "Inicie o bot: o menu dele abre",
+      "stepUsers": "Veja seus usuários e o consumo deles",
       "reconnect": "Conectar novamente",
       "scan": "Ou escaneie isto com a câmera do seu celular."
     },
@@ -1975,6 +2011,36 @@
       "loadValues": "Carregar valores atuais",
       "name": "Nome",
       "skipHint": "Emita SKIP ou chame skip() para pular a renderização deste proxy quando uma condição não for atendida"
+    },
+    "notifications": {
+      "title": "Notificações",
+      "unread": "{n} nova notificação | {n} novas notificações",
+      "new": "Nova",
+      "dismiss": "Dispensar"
+    "pwa": {
+      "guide": {
+        "platform": "Seu dispositivo",
+        "tabIos": "iPhone · Safari",
+        "tabAndroid": "Android · Chrome",
+        "tabDesktop": "{os} · Chrome",
+        "ios1": "No Safari, toque no botão ••• na barra de baixo",
+        "ios2": "Toque em Compartilhar",
+        "ios3": "Escolha “Adicionar à Tela de Início”",
+        "ios4": "Toque em Adicionar: o painel fica na tela de início",
+        "android1": "No Chrome, toque no menu ⋮ no topo",
+        "android2": "Escolha “Adicionar à tela inicial” (ou “Instalar app”)",
+        "android3": "Toque em Instalar: o painel abre como um app",
+        "computer": "Computador",
+        "desktop1": "No Chrome, clique no ícone de instalar no fim da barra de endereço",
+        "desktop2": "Clique em Instalar",
+        "desktop3": "O painel abre na própria janela, como um app"
+      },
+      "gotIt": "Entendi",
+      "installNow": "Instalar agora",
+      "later": "Agora não",
+      "never": "Não mostrar novamente",
+      "text": "Deixe o painel a um toque, como qualquer app do seu telefone ou computador.",
+      "title": "Instalar o painel como app"
     },
     "theme": {
       "caddy": "Tema Smart Caddy",
