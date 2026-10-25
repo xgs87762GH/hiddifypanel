@@ -222,7 +222,7 @@ def get_ips_lazy(version: Literal[4, 6] | None = None) -> list[ipaddress.IPv4Add
 
 
 @cache.cache(ttl=600, modes=STATIC)
-def get_ip_str(version: Literal[4, 6], retry: int = 5) -> str | None:
+def get_ip_str(version: Literal[4, 6], retry: int = 2) -> str | None:
     ip = get_ip(version, retry)
     if ip is None:
         return None
@@ -230,7 +230,7 @@ def get_ip_str(version: Literal[4, 6], retry: int = 5) -> str | None:
 
 
 @cache.cache(ttl=600, modes=STATIC)
-def get_ip(version: Literal[4, 6], retry: int = 5) -> ipaddress.IPv4Address | ipaddress.IPv6Address | None:
+def get_ip(version: Literal[4, 6], retry: int = 2) -> ipaddress.IPv4Address | ipaddress.IPv6Address | None:
     ips = get_interface_public_ip(version)
     ip = None
     if ips:
@@ -241,7 +241,7 @@ def get_ip(version: Literal[4, 6], retry: int = 5) -> ipaddress.IPv4Address | ip
 
     if ip is None:
         try:
-            ip = urllib.request.urlopen(f"https://v{version}.ident.me/", timeout=2).read().decode("utf8")
+            ip = urllib.request.urlopen(f"https://v{version}.ident.me/", timeout=1).read().decode("utf8")
             if ip:
                 ip = ipaddress.ip_address(ip)
         except BaseException:
@@ -309,7 +309,9 @@ def get_random_domains(count: int = 1, retry: int = 2) -> list[str]:
         # measurements repeat domains: ask for a few times more than wanted (OONI answers at most 1000 per call)
         limit = min(max(100, count * 5), 1000)
         irurl = f"https://api.ooni.io/api/v1/measurements?probe_cc={region}&test_name=web_connectivity&anomaly=false&confirmed=false&failure=false&limit={limit}&offset={(2 - retry % 2) * 100}"
-        data_ir = requests.get(irurl, timeout=5 if count <= 100 else 30).json()
+        # Tightened from 5/30s: on restricted networks OONI is unreachable and we want to
+        # fail fast into the FAKE_SITES fallback instead of waiting out the full timeout.
+        data_ir = requests.get(irurl, timeout=3 if count <= 100 else 15).json()
         domains = [urlparse(d["input"]).netloc.lower() for d in data_ir.get("results", {}) if d.get("scores", {}).get("blocking_country") == 0.0]
         domains = list(dict.fromkeys(d for d in domains if d and not d.endswith(".ir") and ".gov" not in d))
         if len(domains) >= count:

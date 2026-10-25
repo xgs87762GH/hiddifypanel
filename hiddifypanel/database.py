@@ -78,7 +78,7 @@ def init_no_flask():
 
 def init_app(app):
 
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {**_engine_options(app.config.get("SQLALCHEMY_DATABASE_URI")), **(app.config.get("SQLALCHEMY_ENGINE_OPTIONS") or {})}
     db.init_app(app)
     with app.app_context():
