@@ -1197,6 +1197,7 @@
         "firstRun": "The first check is running; it takes a minute or two.",
         "never": "Not checked yet. Press “Check now”.",
         "notTested": "Not tested",
+        "unavailable": "Could not read the config health from the panel. Check the logs, then press “Check now”.",
         "note": "Tested with {user}'s subscription. A config that fails from the server itself never works for anyone; filtering in Iran is not tested here.",
         "notice": {
           "failed": "{n} of {total} configs do not work from the server.",

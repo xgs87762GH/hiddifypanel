@@ -99,8 +99,8 @@
         :value="tableRows"
         data-key="uuid"
         :lazy="!groupByOwner && !!sortField"
-        :paginator="paged && rows.length > pageSize"
-        :rows="paged ? pageSize : Math.max(rows.length, 1)"
+        :paginator="paged && rows.length > effectivePageSize"
+        :rows="effectivePageSize"
         :total-records="rows.length"
         paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
         :current-page-report-template="pageReport"
@@ -329,7 +329,7 @@
       </template>
       <ListNoMatch v-if="!rows.length && usersFiltered && state.users.length" @reset="resetUserFilters" />
       <div v-else-if="!rows.length" class="users-empty"><i class="pi pi-users" /><span>{{ t('users.none') }}</span></div>
-      <Paginator v-if="paged && rows.length > pageSize" v-model:first="first" :rows="pageSize" :total-records="rows.length" template="PrevPageLink CurrentPageReport NextPageLink" :current-page-report-template="pageReport" />
+      <Paginator v-if="paged && rows.length > effectivePageSize" v-model:first="first" :rows="effectivePageSize" :total-records="rows.length" template="PrevPageLink CurrentPageReport NextPageLink" :current-page-report-template="pageReport" />
     </div>
 
     <Menu ref="rowMenu" :model="menuItems" popup />
@@ -522,7 +522,10 @@ watch([groupByOwner, showDates, pageSize, autoRefresh, usageWidthPx], () => {
     /* private mode: not remembered */
   }
 })
-const paged = computed(() => pageSize.value > 0)
+/** "All" (0) still pages at this size: rendering a few thousand rows at once froze the tab. */
+const ALL_PAGE_SIZE = 500
+const effectivePageSize = computed(() => (pageSize.value > 0 ? pageSize.value : ALL_PAGE_SIZE))
+const paged = computed(() => pageSize.value > 0 || rows.value.length > ALL_PAGE_SIZE)
 /** PrimeVue fills {first} {last} {totalRecords}: hand them through vue-i18n untouched. */
 const pageReport = computed(() => t('users.pageReport', { first: '{first}', last: '{last}', totalRecords: '{totalRecords}' }))
 const pageOptions = computed(() => [
@@ -675,7 +678,7 @@ const sortedRows = computed<Row[]>(() => {
 /** A lazy table (a column sort) shows its rows as given: hand it the current page of the sorted list. */
 const tableRows = computed<Row[]>(() => {
   if (groupByOwner.value || !sortField.value) return rows.value
-  return paged.value ? sortedRows.value.slice(first.value, first.value + pageSize.value) : sortedRows.value
+  return paged.value ? sortedRows.value.slice(first.value, first.value + effectivePageSize.value) : sortedRows.value
 })
 const usersFiltered = computed(() => filter.value !== 'all' || Boolean(query.value.trim()) || pickedTags.value.length > 0)
 function resetUserFilters() {
@@ -717,7 +720,7 @@ async function bulkTag(id: number, on: boolean) {
 /** Phones: the current page, grouped when asked. */
 const pageRows = computed(() => {
   const list = groupByOwner.value ? [...rows.value].sort((a, b) => a.owner_key.localeCompare(b.owner_key)) : sortedRows.value
-  return paged.value ? list.slice(first.value, first.value + pageSize.value) : list
+  return paged.value ? list.slice(first.value, first.value + effectivePageSize.value) : list
 })
 const cardGroups = computed(() => {
   if (!groupByOwner.value) return [{ key: '', owner: '', users: pageRows.value }]

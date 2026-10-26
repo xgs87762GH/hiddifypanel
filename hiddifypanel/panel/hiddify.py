@@ -1,6 +1,7 @@
 import ipaddress
 import os
 import re
+import shlex
 import subprocess
 import threading
 from datetime import datetime, timedelta
@@ -35,11 +36,14 @@ def add_short_link(link: str, period_min: int = 10) -> tuple[str, int]:
     return short_link.add(link, period_min)
 
 
-def exec_command(cmd, cwd=None):
+def exec_command(cmd, cwd=None) -> bool:
+    """Start CMD in the background; False when it could not be started (logged, not swallowed)."""
     try:
-        subprocess.Popen(cmd.split(" "))  # run in background
-    except Exception as e:
-        print(e)
+        subprocess.Popen(shlex.split(cmd), cwd=cwd)
+        return True
+    except Exception:
+        logger.exception(f"exec_command failed: {cmd}")
+        return False
 
 
 _apply_users_lock = threading.Lock()

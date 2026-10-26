@@ -51,8 +51,9 @@ def is_panel_outdated() -> bool:
             if latest_v := get_latest_release_version("hiddifypanel"):
                 if compare_versions(latest_v, current_version) == 1:
                     return True
-    except:
-        pass
+    except Exception as e:
+        # Used to be a bare `except: pass`: a network hiccup looked like "the panel is up to date".
+        error(f"could not check for a newer panel: {e}")
     return False
 
 

@@ -302,7 +302,7 @@ class UserAdmin(AdminLTEModelView):
             model.max_ips = 1000
 
         # Show donation message
-        if len(User.query.all()) % 4 == 0:
+        if User.query.filter(User.deleted.is_(False)).count() % 4 == 0:
             hutils.flask.flash(('<div id="show-modal-donation"></div>'), " d-none")
 
         # Validate UUID

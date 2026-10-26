@@ -1391,8 +1391,10 @@ def current_db_version() -> int:
     try:
         if db_version := db.session.execute(db.text("select value from str_config where `key`='db_version'")).fetchall():
             return int(db_version[0][0])
-    except:
-        pass
+    except Exception:
+        # Still 0 (a fresh database has no str_config row either, and init must keep working there),
+        # but no longer silent: a transient failure here would replay every migration.
+        logger.exception("could not read db_version; treating as a fresh database")
     logger.warning("db version not found")
     return 0
 

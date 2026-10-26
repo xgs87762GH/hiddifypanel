@@ -32,7 +32,8 @@ class Dashboard(FlaskView):
             abort(403, _("Access Denied!"))
 
         child_id = request.args.get("child_id") or None
-        user_query = User.query
+        # Soft-deleted users must not be counted here (the default-user check below already filters them).
+        user_query = User.query.filter(User.deleted.is_(False))
         if admin_id:
             user_query = user_query.filter(User.added_by == admin_id)
         if hutils.node.is_parent():

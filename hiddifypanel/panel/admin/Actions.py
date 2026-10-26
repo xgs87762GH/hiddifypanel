@@ -75,13 +75,15 @@ class Actions(FlaskView):
             udp_ports.add(d.internal_port_hysteria2)
 
         def to_int(ports):
-            r = {}
+            # Was `r = {}` with `r.add(ip)` (AttributeError, swallowed) and no return: always None.
+            r = set()
             for p in ports:
                 try:
                     if ip := int(p):
                         r.add(ip)
-                except:
+                except (TypeError, ValueError):
                     pass
+            return r
 
         return {"tcp": to_int(tcp_ports), "udp": to_int(udp_ports)}
 

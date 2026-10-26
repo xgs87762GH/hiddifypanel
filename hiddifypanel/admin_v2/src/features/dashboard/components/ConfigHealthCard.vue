@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Button from 'primevue/button'
 import { getHttp } from '@/core/api/client'
-import { CONFIG_HEALTH_APPS as APP_NAMES, configHealth as state, configReason, loadConfigHealth, problemKind } from '@/shared/composables/useConfigHealth'
+import { CONFIG_HEALTH_APPS as APP_NAMES, configHealth as state, configHealthError as loadError, configReason, loadConfigHealth, problemKind } from '@/shared/composables/useConfigHealth'
 import { SERIES } from '../composables/useChartTheme'
 import DashCard from './DashCard.vue'
 
@@ -37,7 +37,12 @@ async function load() {
 }
 
 async function checkNow() {
-  await getHttp().post('config-health/')
+  try {
+    await getHttp().post('config-health/')
+  } catch {
+    loadError.value = true
+    return
+  }
   if (state.value) state.value.running = true
   window.clearTimeout(timer)
   timer = window.setTimeout(load, 5_000)
@@ -66,7 +71,9 @@ onBeforeUnmount(() => window.clearTimeout(timer))
       />
     </template>
 
-    <p v-if="!state?.last" class="text-muted-color text-sm m-0">{{ state?.running ? t('dashboard.health.firstRun') : t('dashboard.health.never') }}</p>
+    <!-- A failed request is not "never checked": say so, otherwise the card looks healthy -->
+    <p v-if="loadError" class="text-sm m-0 health__bad" role="alert">{{ t('dashboard.health.unavailable') }}</p>
+    <p v-else-if="!state?.last" class="text-muted-color text-sm m-0">{{ state?.running ? t('dashboard.health.firstRun') : t('dashboard.health.never') }}</p>
     <div v-else class="health">
       <div v-for="[name, app] in apps" :key="name" class="health__app">
         <button type="button" class="health__row" :disabled="!app.failed.length" @click="open = open === name ? null : name">

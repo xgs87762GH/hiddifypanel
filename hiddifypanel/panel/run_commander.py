@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+import sys
 import threading
 
 from loguru import logger
@@ -37,7 +38,8 @@ def commander(command: Command, run_in_background=True, **kwargs: str | int) -> 
         **kwargs: Additional arguments to pass to the commander. Accepts the following:
                   port for the temporary-access command.
     """
-    base_cmd: list[str] = ["sudo", os.path.join(os.environ["HIDDIFY_CONFIG_PATH"], "scripts/common/commander.py")]
+    # sys.executable: this panel's own venv (…/.venv313 or …/.venv), so the script's shebang is not relied on.
+    base_cmd: list[str] = ["sudo", sys.executable, os.path.join(os.environ["HIDDIFY_CONFIG_PATH"], "scripts/common/commander.py")]
     logger.info(f"commander {command} called with kwargs: {kwargs}")
     if command == Command.apply:
         base_cmd.append("apply")

@@ -225,7 +225,9 @@ def init_app(app):
     @login_manager.unauthorized_handler
     def unauthorized():
         if g.user_agent['is_browser']:
-            return redirect(hurl_for('common_bp.LoginView:basic_0', force=1, next={request.path}))
+            # `next` used to be the set literal {request.path}: it arrived as "{'/zh/user/'}" and every
+            # consumer of it got a garbage target.
+            return redirect(hurl_for('common_bp.LoginView:basic_0', force=1, next=request.path))
 
         else:
             abort(401, "Unauthorized")

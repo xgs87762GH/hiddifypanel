@@ -181,8 +181,12 @@ def start_in_background(app) -> bool:
         return False
 
     def work():
-        with app.app_context():
-            run_locked()
+        try:
+            with app.app_context():
+                run_locked()
+        except Exception:
+            # Without this the thread died silently and the page said "running" until the key expired.
+            logger.exception("config health check failed")
 
     threading.Thread(target=work, name="config-health", daemon=True).start()
     return True

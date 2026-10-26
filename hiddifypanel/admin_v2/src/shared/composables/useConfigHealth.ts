@@ -22,11 +22,16 @@ export const CONFIG_HEALTH_APPS: Record<string, string> = { xray: 'Xray (v2rayN,
 
 export const configHealth = ref<HealthState | null>(null)
 
+/** The last load failed (network error, 500): the card must say so instead of looking like "never checked". */
+export const configHealthError = ref(false)
+
 export async function loadConfigHealth(): Promise<HealthState | null> {
   try {
     configHealth.value = (await getHttp().get<HealthState>('config-health/')).data
+    configHealthError.value = false
   } catch {
     configHealth.value = null
+    configHealthError.value = true
   }
   return configHealth.value
 }

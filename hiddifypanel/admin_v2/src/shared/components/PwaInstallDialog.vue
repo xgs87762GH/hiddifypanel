@@ -89,13 +89,20 @@ function offer() {
   visible.value = true
 }
 
+let offerTimer = 0
 onMounted(() => {
   narrowQuery.addEventListener('change', onNarrow)
-  window.setTimeout(offer, 1200) // after the page has drawn (the browser's install event can come a little later too)
+  offerTimer = window.setTimeout(offer, 1200) // after the page has drawn (the browser's install event can come a little later too)
 })
-onBeforeUnmount(() => narrowQuery.removeEventListener('change', onNarrow))
+onBeforeUnmount(() => {
+  narrowQuery.removeEventListener('change', onNarrow)
+  window.clearTimeout(offerTimer)
+})
 // Opened on another page first: the guide waits for the dashboard.
-watch(() => route.name, () => window.setTimeout(offer, 600))
+watch(() => route.name, () => {
+  window.clearTimeout(offerTimer)
+  offerTimer = window.setTimeout(offer, 600)
+})
 watch(visible, (open) => open && readIcon())
 
 function close() {
