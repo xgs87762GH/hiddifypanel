@@ -23,7 +23,12 @@ jobs:
       - name: Generate Changelog
         run: |
           .github/release_message.sh > release_message.md
-          echo "ref_name=${{ github.ref_name }} ${{ github.ref-name }} ${{ contains('dev', github.ref_name) }} ${{ contains(github.ref_name,'dev') }}"
+          echo "ref_name=${{ github.ref_name }} ${{ github.ref-name }}"
+      - name: Use curated notes when present
+        # A hand written .github/release_notes/<tag>.md wins over the generated changelog
+        run: |
+          notes=".github/release_notes/${GITHUB_REF_NAME}.md"
+          if [ -f "$notes" ]; then cp "$notes" release_message.md; fi
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -31,6 +36,9 @@ jobs:
           body_path: release_message.md
 
   deploy:
+    # Upstream publishes the panel to PyPI here. The fork must not: the PyPI name belongs
+    # to hiddify, and the Manager installs the panel from this repository's source.
+    if: ${{ false }}
     needs: release
     runs-on: ubuntu-latest
     steps:
