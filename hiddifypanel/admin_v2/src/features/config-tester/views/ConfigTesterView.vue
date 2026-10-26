@@ -621,7 +621,9 @@ async function rerunMany(list: Row[], opts: { repeats?: number; replaceAt?: numb
     if (r.kind === 'clash') {
       const fromOriginal = r.original && typeof r.original === 'object' && !Array.isArray(r.original) ? (r.original as JsonObject) : undefined
       const fromRun = Array.isArray(r.run_config?.proxies) ? (r.run_config.proxies[0] as JsonObject | undefined) : undefined
-      config = { proxy: fromOriginal ?? fromRun }
+      const proxy = fromOriginal ?? fromRun
+      // Nothing to wrap: keep the config it had instead of sending `{proxy: undefined}`.
+      if (proxy) config = { proxy }
     }
     return { index: r.index, name: r.name, kind: r.kind, tag: r.tag, original: r.original, config, content: source.value === 'parsed' ? edits.value[r.index] : (jsonEdited.value ?? undefined) }
   })

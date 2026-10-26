@@ -136,7 +136,8 @@ export function replaceOperatorIps(text: string, operators: OperatorKey[], ips: 
   const kept = targets.length
     ? rows.flatMap((r) => {
         if (!r.operators.length) return [r] // bare addresses: still for the others
-        const rest = r.operators.filter((c) => !targets.includes(c))
+        // OTHER is never in targets, so it always stays in the rest of the row.
+        const rest = r.operators.filter((c) => c === OTHER || !targets.includes(c))
         return rest.length ? [{ host: r.host, operators: rest }] : []
       })
     : rows.filter((r) => r.operators.length)

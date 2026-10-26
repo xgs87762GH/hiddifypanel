@@ -257,6 +257,20 @@ const state = ref<DomainsState | null>(null)
 // The notifications follow the list (a certificate obtained or failed, a domain removed)
 watch(state, () => void loadDomainProblems())
 
+/** Delayed feedback below: it may fire after the page is gone, so every timer is cleared on unmount. */
+const timers = new Set<number>()
+function later(fn: () => void, ms: number) {
+  const id = window.setTimeout(() => {
+    timers.delete(id)
+    fn()
+  }, ms)
+  timers.add(id)
+}
+onBeforeUnmount(() => {
+  timers.forEach((id) => window.clearTimeout(id))
+  timers.clear()
+})
+
 /** How to reorder, once in this browser: when the list first shows at least two domains (something to reorder). */
 const GUIDE_KEY = 'hiddify.domains.guide.seen'
 const guideVisible = ref(false)
@@ -277,7 +291,7 @@ function guideSeen() {
 const stopGuideWatch = watch(state, (s) => {
   if (!s || s.domains.length < 2) return
   stopGuideWatch()
-  if (!guideWasSeen()) window.setTimeout(() => (guideVisible.value = true), 700)
+  if (!guideWasSeen()) later(() => (guideVisible.value = true), 700)
 })
 /** Loaded after the list so the page shows right away. */
 const options = ref<DomainsOptions | null>(null)
@@ -449,7 +463,7 @@ function apply(next: DomainsState) {
 function flash(id: number | null | undefined) {
   if (!id) return
   justChanged.value = id
-  window.setTimeout(() => (justChanged.value = null), 2200)
+  later(() => (justChanged.value = null), 2200)
 }
 
 async function loadOptions() {
@@ -558,7 +572,7 @@ const copiedId = ref<number | null>(null)
 async function copyAddress(d: DomainRow) {
   await copy(d.domain)
   copiedId.value = d.id
-  window.setTimeout(() => copiedId.value === d.id && (copiedId.value = null), 1500)
+  later(() => copiedId.value === d.id && (copiedId.value = null), 1500)
 }
 
 function onDrop(target: DomainRow) {

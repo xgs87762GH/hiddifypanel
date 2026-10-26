@@ -159,7 +159,8 @@ function decodeSsAuth(user: string, password: string): { user: string; password:
   if (colon > 0 && /^[a-z0-9+-]+$/i.test(decoded.slice(0, colon))) {
     return { user: '', password: decoded.slice(colon + 1), method: decoded.slice(0, colon) }
   }
-  return parseUserPassword(blob, 'ss')
+  // No `method:password` shape: shadowsocks has no method here, the caller falls back to its default.
+  return { ...parseUserPassword(blob, 'ss'), method: '' }
 }
 
 function parseQuery(search: string): { params: QueryParam[]; extra: string } {

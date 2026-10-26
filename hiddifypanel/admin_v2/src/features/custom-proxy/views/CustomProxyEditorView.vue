@@ -263,7 +263,7 @@
               >
                 <Select
                   id="proxy-tcp-udp"
-                  v-model="form.server_config.tcp_udp"
+                  v-model="form.server_config!.tcp_udp"
                   :options="tcpUdpOptions"
                   option-label="label"
                   option-value="value"
@@ -279,7 +279,7 @@
               >
                 <Select
                   id="proxy-download-tcp-udp"
-                  v-model="form.server_config.download_tcp_udp"
+                  v-model="form.server_config!.download_tcp_udp"
                   :options="tcpUdpOptions"
                   option-label="label"
                   option-value="value"

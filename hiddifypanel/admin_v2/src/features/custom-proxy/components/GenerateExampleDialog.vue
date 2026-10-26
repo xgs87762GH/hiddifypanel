@@ -23,6 +23,7 @@ import {
   type CustomProxyMeta,
   type DomainOption,
   type GeneratedSection,
+  type GenerateExampleInput,
   type GenerateExampleResult,
   type PanelUserOption,
   type RenderErrorDetail,
@@ -131,8 +132,8 @@ function resolvedUserAgent(): string {
   return preset?.value ?? uaPresets.value[0]?.value ?? ''
 }
 
-function buildPayload() {
-  const payload: Record<string, unknown> = {
+function buildPayload(): GenerateExampleInput {
+  const payload: GenerateExampleInput = {
     custom_proxy_id: props.proxyId,
     ip: ip.value.trim(),
     user_agent: resolvedUserAgent(),
@@ -314,7 +315,7 @@ function parsedSublinkLinks(section: GeneratedSection | null | undefined): Prett
 }
 
 watch(
-  () => props.visible,
+  () => visible.value,
   (open) => {
     if (!open) return
     result.value = null

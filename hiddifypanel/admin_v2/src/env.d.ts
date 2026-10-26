@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+import type { AdminMenuGroup, PanelNotice } from '@/core/panelShell'
+
 interface ImportMetaEnv {
   readonly VITE_API_BASE?: string
   readonly VITE_API_TARGET?: string
@@ -17,16 +19,9 @@ declare global {
     __ROUTER_BASE__?: string
     __LOCALE__?: string
     __PROXY_PATH__?: string
-    __ADMIN_MENU__?: Array<{
-      label: string
-      items: Array<Record<string, unknown>>
-    }>
-    __ADMIN_NOTICES__?: Array<{
-      severity: string
-      summary: string
-      detail?: string
-      toast?: boolean
-    }>
+    /** The server's menu (v2_menu.py), typed where it is consumed instead of a loose record. */
+    __ADMIN_MENU__?: AdminMenuGroup[]
+    __ADMIN_NOTICES__?: PanelNotice[]
     __PANEL_MODE__?: string
     __ACCOUNT_MODE__?: string
     __NEEDS_QUICK_SETUP__?: boolean

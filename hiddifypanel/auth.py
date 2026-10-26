@@ -304,9 +304,29 @@ def auth_before_request():
         return redirect(next_url)
 
 
+def _is_login_page_request() -> bool:
+    """The sign-in page itself (`/<proxy>/` or `/<proxy>/l/...`).
+
+    A browser resends a rejected Authorization header on every request, the login page included.
+    Redirecting the login page back to itself is what turned wrong credentials into a redirect loop.
+    """
+    path = (request.path or "").strip("/")
+    proxy = str(g.get("proxy_path") or "").strip("/")
+    if proxy:
+        if path == proxy:
+            return True
+        if not path.startswith(f"{proxy}/"):
+            return False
+        path = path[len(proxy) + 1 :]
+    return path in ("", "l") or path.startswith("l/")
+
+
 def logout_redirect():
     print(f"Incorrect user {current_account}.... loggining out")
     logout_user()
+    if _is_login_page_request():
+        # Already there: one more redirect to the same page would loop. Let the login page render instead.
+        return None
     return redirect_to_login()
 
 

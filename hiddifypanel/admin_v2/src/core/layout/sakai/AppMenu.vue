@@ -7,6 +7,12 @@ const { menuGroups } = useAdminMenu()
 
 <template>
   <ul class="layout-menu">
-    <AppMenuItem v-for="item in menuGroups" :key="item.label" :item="item" :root="true" />
+    <!-- AppMenuItem reads the node generically (path/url/action/badge), so it takes the loose shape. -->
+    <AppMenuItem
+      v-for="item in menuGroups"
+      :key="item.label"
+      :item="item as unknown as Record<string, unknown>"
+      :root="true"
+    />
   </ul>
 </template>

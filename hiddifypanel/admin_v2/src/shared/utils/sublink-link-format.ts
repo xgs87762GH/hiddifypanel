@@ -106,7 +106,10 @@ function migrateLegacyOptions(
     }
   }
   if (!migrated.base64_format && migrated.vmess_format) {
-    migrated.base64_format = { ...migrated.vmess_format }
+    migrated.base64_format = {
+      protocol: migrated.vmess_format.protocol ?? DEFAULT_BASE64_FORMAT.protocol,
+      content: migrated.vmess_format.content ?? DEFAULT_BASE64_FORMAT.content,
+    }
   }
   if (migrated.uri_format) {
     const uri = migrated.uri_format as UriLinkFormat & { tag?: string; pass?: string }
