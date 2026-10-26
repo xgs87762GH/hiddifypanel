@@ -126,7 +126,7 @@
           </div>
         </template>
         <template #body="{ data }">
-          <Tag :value="data.core" :style="coreTagStyle(data.core)" class="core-tag" />
+          <Tag :value="coreName(data.core)" :style="coreTagStyle(data.core)" class="core-tag" />
         </template>
       </Column>
       <Column field="version" sortable>
@@ -205,6 +205,7 @@ import ListEmpty from '@/shared/components/ListEmpty.vue'
 import Message from 'primevue/message'
 import { triStateCodec, useHashState } from '@/shared/composables/useHashState'
 import { computed, onMounted, ref } from 'vue'
+import { coreName } from '@/shared/utils/protocols'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDangerConfirm } from '@/shared/composables/useDangerConfirm'

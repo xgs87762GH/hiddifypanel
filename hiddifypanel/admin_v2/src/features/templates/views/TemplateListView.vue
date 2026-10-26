@@ -98,7 +98,7 @@
           </div>
         </template>
         <template #body="{ data }">
-          <Tag :value="data.core" :style="coreTagStyle(data.core)" class="core-tag" />
+          <Tag :value="coreName(data.core)" :style="coreTagStyle(data.core)" class="core-tag" />
         </template>
       </Column>
       <Column field="category" sortable>
@@ -141,7 +141,7 @@
   <Popover ref="corePopover" @show="focusFirstInput(corePopover)">
     <div class="flex flex-col gap-2 min-w-44">
       <label class="text-sm font-medium">{{ t('template.core') }}</label>
-      <Listbox v-model="filterCore" :options="coreOptions" filter :filter-placeholder="t('common.search')" list-style="max-height: 16rem" class="w-full" @change="corePopover.hide()" />
+      <Listbox v-model="filterCore" :options="coreOptions" :option-label="coreName" filter :filter-placeholder="t('common.search')" list-style="max-height: 16rem" class="w-full" @change="corePopover.hide()" />
     </div>
   </Popover>
   <Popover ref="categoryPopover" @show="focusFirstInput(categoryPopover)">
@@ -159,6 +159,7 @@ import ListEmpty from '@/shared/components/ListEmpty.vue'
 import Message from 'primevue/message'
 import { useHashState } from '@/shared/composables/useHashState'
 import { computed, onMounted, ref } from 'vue'
+import { coreName } from '@/shared/utils/protocols'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDangerConfirm } from '@/shared/composables/useDangerConfirm'
