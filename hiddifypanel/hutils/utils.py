@@ -26,7 +26,9 @@ def get_latest_release_url(repo):
 @cache.cache(ttl=600, modes=STATIC)
 def get_latest_release_version(repo_name):
     try:
-        url = f"https://github.com/hiddify/{repo_name}/releases/latest"
+        # Check YOUR fork's releases, never the official org (an official release
+        # with a higher number must not mark this customized panel as outdated).
+        url = f"https://github.com/xgs87762GH/{repo_name}/releases/latest"
         response = requests.head(url, allow_redirects=False, timeout=15)
 
         location_header = response.headers.get("Location")
