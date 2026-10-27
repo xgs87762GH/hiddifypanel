@@ -3453,7 +3453,7 @@
       "label": "🆗 允许无效的 SNI"
     },
     "anytls_enable": {
-      "description": "启用 AnyTLS 协议",
+      "description": "伪装成普通 TLS 的入站协议；适合需要 TLS 外观、又不想单独配证书的场景。",
       "label": "AnyTLS"
     },
     "auto_update": {
@@ -3536,7 +3536,7 @@
       "label": "DNSTT"
     },
     "dnstt_enable": {
-      "description": "启用 DNSTT 协议",
+      "description": "把流量藏进 DNS 查询；仅在常规端口被严控、且你能配好权威 DNS 时考虑，延迟通常较高。",
       "label": "启用 DNSTT"
     },
     "dnstt_private_key": {
@@ -3580,11 +3580,11 @@
       "label": "常规设置"
     },
     "grpc_enable": {
-      "description": "gRPC 是一个现代开源高性能远程过程调用 (RPC) 框架。它可以在支持的 CDN 中使用",
+      "description": "用 gRPC/HTTP2 承载代理，常可过支持 gRPC 的 CDN；客户端与域名需一并支持。",
       "label": "➿ gRPC"
     },
     "h2_enable": {
-      "description": "启用 HTTP/2 协议",
+      "description": "HTTP/2 传输；多与 TLS/CDN 组合。部分场景已由 XHTTP 等方案替代，按客户端兼容性选用。",
       "label": "🔵 h2"
     },
     "health_secret_path": {
@@ -3608,11 +3608,11 @@
       "label": "🔎 HTTP 端口"
     },
     "http_proxy_enable": {
-      "description": "通过允许此操作，您的用户可以使用未加密的 HTTP 端口连接到系统。 （不建议）",
+      "description": "允许客户端走未加密的 HTTP 端口（含 80）。明文易被识别与劫持，一般不建议开启。",
       "label": "☑️ 允许 HTTP 连接"
     },
     "httpupgrade_enable": {
-      "description": "HTTPUpgrade 在直接使用连接之前完成 HTTP 1.1 升级请求和响应。它与 WebSocket 类似，它创建了一个方向通道，可以通过许多反向代理和 CDN 转发，而无需处理围绕 WebSocket 协议本身的所有问题。<br />\n⚠️<strong>不适用于基于 Xray 的客户端。仅支持 HiddifyNext、Singbox 和 V2fly 客户端。</strong> <a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/Basic-Concepts/#http-upgrade\" target=\"_blank\"><strong>（阅读更多）</strong></a>",
+      "description": "先完成 HTTP/1.1 Upgrade 再隧道传输，类似 WebSocket、易过反向代理/CDN。<br />⚠️<strong>不适用于基于 Xray 的客户端。仅支持 HiddifyNext、Singbox 和 V2fly 客户端。</strong> <a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/Basic-Concepts/#http-upgrade\" target=\"_blank\"><strong>（阅读更多）</strong></a>",
       "label": "🆙 HTTPUpgrade 方法"
     },
     "hysteria": {
@@ -3624,8 +3624,8 @@
       "label": "⬇️ Hysteria 下载 (mbps)"
     },
     "hysteria_enable": {
-      "description": "启用基于 UDP 的 Hysteria 协议",
-      "label": "启用歇斯底里2"
+      "description": "基于 UDP 的 Hysteria2，弱网/高丢包下往往更稳；需放行 UDP，且部分网络会拦 UDP。",
+      "label": "启用 Hysteria2"
     },
     "hysteria_obfs_enable": {
       "description": " 启用 Hysteria 混淆（Salamander）",
@@ -3707,7 +3707,7 @@
       "label": "⚡️ Mieru"
     },
     "mieru_enable": {
-      "description": "Meiru 是一种快速代理",
+      "description": "Mieru 代理：偏速度与直连场景；确认客户端已支持后再开。",
       "label": "⚡️ 启用 Mieru"
     },
     "mieru_handshake": {
@@ -3742,7 +3742,7 @@
       "label": "⬇️ MUX Brutal 下载 (mbps)"
     },
     "mux_brutal_enable": {
-      "description": "启用 TCP-Brutal 拥塞控制算法",
+      "description": "为 Mux 启用 TCP Brutal 拥塞控制，偏激进抢带宽；仅在明确需要且客户端支持时开启。",
       "label": "☣️ MUX Brutal"
     },
     "mux_brutal_up_mbps": {
@@ -3750,7 +3750,7 @@
       "label": "⬆️ MUX Brutal 上传 (mbps)"
     },
     "mux_enable": {
-      "description": "Mux 需要兼容的客户端。Hiddify Next 和 Singbox 中的 Mux 与 XRay 不兼容。 <a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/How-MUX-works-and-its-usage/\" target=\"_blank\">（阅读更多）</a>",
+      "description": "多路复用可减少握手次数，但要求客户端实现一致。 Hiddify Next / sing-box 的 Mux 与 Xray 不兼容，混用会失败。 <a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/How-MUX-works-and-its-usage/\" target=\"_blank\">（阅读更多）</a>",
       "label": "Ⓜ️ MUX（⚠️ 与某些客户端不兼容）"
     },
     "mux_max_connections": {
@@ -3766,7 +3766,7 @@
       "label": "↘️ MUX 最小流"
     },
     "mux_padding_enable": {
-      "description": "MUX Padding 描述",
+      "description": "给 Mux 流量加填充以打乱包长特征；有额外开销，按实测决定是否开启。",
       "label": "⟹ MUX Padding"
     },
     "mux_protocol": {
@@ -3774,7 +3774,7 @@
       "label": "♍️ MUX 协议"
     },
     "naive_enable": {
-      "description": "Naive 使用与 Chrome 完全相同的协议栈以避免被检测",
+      "description": "流量形态接近浏览器 HTTPS（Chromium 栈），偏抗检测；需匹配的客户端与合适域名。",
       "label": "🛡 启用 Naive"
     },
     "naive_port": {
@@ -3893,7 +3893,7 @@
       "label": "🔏 客户端的代理路径"
     },
     "quic_enable": {
-      "description": "启用 QUIC 协议",
+      "description": "基于 QUIC（UDP）的传输；握手快，但易被只放行 TCP 的网络阻断。",
       "label": "🟡 QUIC"
     },
     "reality": {
@@ -3901,7 +3901,7 @@
       "label": "Reality"
     },
     "reality_enable": {
-      "description": "启用 Reality Protocol",
+      "description": "借用真实站点的 TLS 指纹，降低「自签证书」特征；需配置可用的目标站与配套客户端。",
       "label": "🔴 Reality"
     },
     "reality_fallback_domain": {
@@ -3953,7 +3953,7 @@
       "label": "Shadowsocks"
     },
     "shadowsocks2022_enable": {
-      "description": "Shadowsocks 2022 是一种用于 TCP 和 UDP 流量的安全代理协议。代理流量与随机字节流无法区分，因此可以绕过依赖 DPI（深度数据包检测）的防火墙和互联网审查程序",
+      "description": "SS2022：TCP/UDP 代理，流量接近随机字节流，可规避简单 DPI；密钥与客户端版本需匹配。",
       "label": "⭕️ Shadowsocks 2022"
     },
     "shadowsocks2022_method": {
@@ -3969,7 +3969,7 @@
       "label": "ShadowTLS"
     },
     "shadowtls_enable": {
-      "description": "ShadowTLS 是一种新协议，但它可以使用 FakeTLS 向政府隐藏流量",
+      "description": "在真实 TLS 握手外观下转发；类似 Trojan 思路但不必自备证书，需设好伪装域名。",
       "label": "☑️ShadowTLS"
     },
     "shadowtls_fakedomain": {
@@ -3985,11 +3985,11 @@
       "label": "👁️‍🗨️ 在子链接中显示用法"
     },
     "snell_enable": {
-      "description": "启用 Snell 协议",
+      "description": "Surge 系轻量协议（v5/v6）。 需要 hiddify-core 内嵌 sing-box ≥ 1.14；现行正式包多为 1.13，开启后订阅可能有节点但服务端端口起不来。",
       "label": "Snell"
     },
     "socks_enable": {
-      "description": "启用 Socks 协议",
+      "description": "标准 SOCKS 入站，便于局域网或其它工具对接；单独暴露到公网风险较高，请配合访问控制。",
       "label": "Socks"
     },
     "special_port": {
@@ -4001,7 +4001,7 @@
       "label": "🚀 速度测试"
     },
     "splithttp_enable": {
-      "description": "XHTTP 允许分离下载和上传流，统一 gRPC、H2、H1，并且也支持 Quic。",
+      "description": "XHTTP：可拆分上下行，并统一覆盖 gRPC/H2/H1（及 QUIC 等能力），按模板与客户端选用。",
       "label": "启用 XHTTP"
     },
     "ssfaketls": {
@@ -4009,7 +4009,7 @@
       "label": "Shadowsocks FakeTLS"
     },
     "ssfaketls_enable": {
-      "description": "不推荐简单的 OBFS 协议",
+      "description": "简易 FakeTLS/OBFS，特征偏老、不推荐作为主力；优先 Reality、ShadowTLS 或现代 TLS 方案。",
       "label": "🆎 Shadowsocks FakeTLS（简单 OBFS）"
     },
     "ssfaketls_fakedomain": {
@@ -4053,7 +4053,7 @@
       "label": "SSH 主机 RSA 公钥"
     },
     "ssh_server_enable": {
-      "description": "SSH Proxy 与原来的 SSH Server 完全不同",
+      "description": "面板内的 SSH 代理隧道（不能当系统 SSH 登服务器执行命令）；需专用支持该协议的客户端。",
       "label": "✔️ 启用 SSH 代理"
     },
     "ssh_server_port": {
@@ -4073,7 +4073,7 @@
       "label": "SSR"
     },
     "ssr_enable": {
-      "description": "ShadowsocksR 是原始 Shadowsocks 项目的 Fork，号称在安全性和稳定性方面更胜一筹。未测试。不支持记账。",
+      "description": "ShadowsocksR（旧 Fork）：未充分测试且不支持记账；一般无需开启，优先 SS2022 / VLESS 等。",
       "label": "S​​SR"
     },
     "ssr_fakedomain": {
@@ -4105,11 +4105,11 @@
       "label": "⚙️ XRay 完整配置链接"
     },
     "sub_singbox_ssh_enable": {
-      "description": "启用 Sing-box SSH 订阅端点",
+      "description": "在订阅里暴露 sing-box 可用的 SSH 代理节点；仅在你确实要用 SSH 代理客户端时开启。",
       "label": "启用 Sing-box SSH 订阅"
     },
     "tcp_enable": {
-      "description": "启用 TCP 协议",
+      "description": "原生 TCP 传输；简单直接，无 CDN 封装时特征更明显，常作其它传输的基础选项。",
       "label": "🟠 TCP"
     },
     "telegram": {
@@ -4129,7 +4129,7 @@
       "label": "🔐 Telegram 机器人代币"
     },
     "telegram_enable": {
-      "description": "Telegram MTProto 用于将 Telegram Proxy 封装为 tls 流量",
+      "description": "为 Telegram 提供 MTProto 代理，并可做成 TLS 外观；只服务 Telegram，不是通用代理。<br>⚠️ <span style=\"color:#d32f2f;\"><strong>需要 Direct 或 Relay 域名</strong></span>",
       "label": "✔️ 启用 Telegram MTProto"
     },
     "telegram_fakedomain": {
@@ -4153,11 +4153,11 @@
       "label": "TLS ECH 值"
     },
     "tls_ech_enable": {
-      "description": "将 ECH 添加到生成的 TLS 订阅链接中",
+      "description": "在生成的 TLS 订阅里带上 ECH 参数，减轻 SNI 明文暴露；需客户端与解析链路支持 ECH。",
       "label": "🔐 启用 TLS ECH"
     },
     "tls_fragment_enable": {
-      "description": "在某些情况下，它可以绕过 SNI 黑名单系统。 <a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/How-the-TLS-Trick-works-and-its-usage/\" target=\"_blank\">（阅读更多）</a>",
+      "description": "TLS 分片，部分环境可绕过基于 SNI 的封锁；效果因网络而异，可能增加延迟。 <a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/How-the-TLS-Trick-works-and-its-usage/\" target=\"_blank\">（阅读更多）</a>",
       "label": "⏯ TLS Fragment"
     },
     "tls_fragment_packets": {
@@ -4177,7 +4177,7 @@
       "label": "🔠 TLS 混合 SNI 大小写"
     },
     "tls_padding_enable": {
-      "description": "启用 TLS 碎片填充。 <a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/How-the-TLS-Trick-works-and-its-usage/#tls-padding\" target=\"_blank\">（阅读更多）</a>",
+      "description": "为 TLS 握手增加填充，改变包长特征；常与 Fragment 等技巧配合，按实测取舍。 <a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/How-the-TLS-Trick-works-and-its-usage/#tls-padding\" target=\"_blank\">（阅读更多）</a>",
       "label": "♒️ TLS Padding"
     },
     "tls_padding_length": {
@@ -4201,7 +4201,7 @@
       "label": "Torrent 块配置"
     },
     "trojan_enable": {
-      "description": "启用 Trojan 协议",
+      "description": "以 TLS 网站流量为外观的经典协议；需有效证书或配套传输，兼容面较广。",
       "label": "🟤 Trojan"
     },
     "tuic": {
@@ -4209,7 +4209,7 @@
       "label": "⚫️ TUIC"
     },
     "tuic_enable": {
-      "description": "它是一个基于UDP的协议，类似于QUIC",
+      "description": "跑在 QUIC 上的代理，强调低握手延迟；依赖 UDP，防火墙不友好时请改用 TCP 系协议。",
       "label": "启用 TUIC"
     },
     "tuic_port": {
@@ -4244,7 +4244,7 @@
       "label": "VLess 解密"
     },
     "vless_enable": {
-      "description": "启用 VLess 协议",
+      "description": "轻量 VLESS，常与 Reality / XHTTP / WS 等组合，是当前主流选择之一。",
       "label": "⚫️ VLess"
     },
     "vless_encryption": {
@@ -4256,7 +4256,7 @@
       "label": "VLess 流控"
     },
     "vmess_enable": {
-      "description": "据多位人士透露，VMess 导致该系统被政府检测到。所以不推荐",
+      "description": "老牌协议，特征相对更易被识别；多数环境不推荐再开，优先 VLESS 等方案。",
       "label": "🟣 VMess"
     },
     "warp-https-domain-for-warp-site": "用于 WARP 站点路由的 HTTPS 域名",
@@ -4285,7 +4285,7 @@
       "label": "🐉 WireGuard"
     },
     "wireguard_enable": {
-      "description": "WireGuard 是基于 UDP 的协议。（⚠️ 它在<a href=\"https://github.com/hiddify/hiddify-next\" target=\"_blank\">Hiddify Next</a>中运行）",
+      "description": "基于 UDP 的 WireGuard 入站；请确认客户端（如 <a href=\"https://github.com/hiddify/hiddify-next\" target=\"_blank\">Hiddify Next</a>）支持后再用。",
       "label": "启用 WireGuard"
     },
     "wireguard_ipv4": {
@@ -4317,7 +4317,7 @@
       "label": "🔀 在 QUIC 端口上多路复用 WireGuard"
     },
     "ws_enable": {
-      "description": "Websocket 通过 HTTP 创建一个隧道，可用于 CDN",
+      "description": "WebSocket 隧道，易过 HTTP CDN；需正确 Host/路径，并注意 CDN 超时与回源设置。",
       "label": "🔰 Websocket"
     },
     "xhttp_different_up_down_enable": {
@@ -4325,7 +4325,7 @@
       "label": "🈁 XHTTP with different upload/download"
     },
     "xhttp_enable": {
-      "description": "该协议通过单独的渠道发送和接收信息 ",
+      "description": "XHTTP（Split HTTP）：上下行可分离。<br />⚠️ <strong>基于 sing-box 的客户端通常不支持；请使用 Hiddify 应用或基于 Xray 的客户端。</strong>",
       "label": "🈁 Split HTTP"
     },
     "xtls_enable": {

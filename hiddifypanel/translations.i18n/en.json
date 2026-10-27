@@ -3662,7 +3662,7 @@
       "label": "🆗 Allow Invalid SNI"
     },
     "anytls_enable": {
-      "description": "Enable AnyTLS protocol",
+      "description": "Inbound that looks like ordinary TLS; useful when you want a TLS appearance without managing a separate cert stack.",
       "label": "AnyTLS"
     },
     "auto_update": {
@@ -3745,7 +3745,7 @@
       "label": "DNSTT"
     },
     "dnstt_enable": {
-      "description": "Enable DNSTT protocol",
+      "description": "Tunnels traffic inside DNS queries. Consider only when normal ports are tightly blocked and you control authoritative DNS; latency is usually high.",
       "label": "DNSTT Enable"
     },
     "dnstt_private_key": {
@@ -3789,11 +3789,11 @@
       "label": "General Settings"
     },
     "grpc_enable": {
-      "description": "gRPC is a modern open source high performance Remote Procedure Call (RPC) framework. It can be used in supported CDNs",
+      "description": "Carries the proxy over gRPC/HTTP2; often works through CDNs that support gRPC. Client and domain must match.",
       "label": "➿ gRPC"
     },
     "h2_enable": {
-      "description": "Enable HTTP/2 Protocol",
+      "description": "HTTP/2 transport, typically with TLS/CDN. In some setups XHTTP (and similar) supersedes it—pick by client support.",
       "label": "🔵 h2"
     },
     "health_secret_path": {
@@ -3817,11 +3817,11 @@
       "label": "🔎 HTTP Ports"
     },
     "http_proxy_enable": {
-      "description": "By allowing this, your users can connect to the system with Unencrypted HTTP Port. (Not Recommended)",
+      "description": "Allows clients on cleartext HTTP ports (including 80). Easy to detect and hijack; usually leave off.",
       "label": "☑️ Allow HTTP Connection"
     },
     "httpupgrade_enable": {
-      "description": "HTTPUpgrade complete a HTTP 1.1 Upgrade request and response before using the connection directly. It is similar to WebSocket in the way it create an direction channel that can be forwarded by many reverse proxies and CDNs, without the need to deal with all the issue around WebSocket Protocol itself.<br />\n⚠️ <strong>Not Available in Xray based Clients. Only <a href=\"https://app.hiddify.com\" target=\"_blank\">Hiddify</a>, Singbox, and V2fly clients are supported.</strong>&nbsp;<a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/Basic-Concepts/#http-upgrade\" target=\"_blank\"><strong>(Read More)</strong></a>",
+      "description": "HTTP/1.1 Upgrade then tunnel—WebSocket-like and CDN/reverse-proxy friendly.<br />⚠️ <strong>Not available in Xray-based clients. Only <a href=\"https://app.hiddify.com\" target=\"_blank\">Hiddify</a>, Singbox, and V2fly clients are supported.</strong>&nbsp;<a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/Basic-Concepts/#http-upgrade\" target=\"_blank\"><strong>(Read More)</strong></a>",
       "label": "🆙 HTTPUpgrade Method"
     },
     "hysteria": {
@@ -3833,7 +3833,7 @@
       "label": "⬇️ Hysteria Download (mbps)"
     },
     "hysteria_enable": {
-      "description": "To Enable UDP based Hysteria Protocol",
+      "description": "UDP-based Hysteria2; often better on lossy links. Needs UDP allowed; some networks block UDP entirely.",
       "label": "⚫️ Hysteria 2"
     },
     "hysteria_obfs_enable": {
@@ -3916,7 +3916,7 @@
       "label": "⚡️ Mieru"
     },
     "mieru_enable": {
-      "description": "Meiru is a Fast Proxy",
+      "description": "Mieru proxy: speed-oriented / direct-path use cases. Enable only if your clients support it.",
       "label": "⚡️ Enable Mieru"
     },
     "mieru_handshake": {
@@ -3951,7 +3951,7 @@
       "label": "⬇️ MUX Brutal Download (mbps)"
     },
     "mux_brutal_enable": {
-      "description": "Enables TCP-Brutal congestion control algorithm",
+      "description": "Enables TCP Brutal congestion control for Mux (aggressive bandwidth). Turn on only when needed and clients support it.",
       "label": "☣️ MUX Brutal"
     },
     "mux_brutal_up_mbps": {
@@ -3959,7 +3959,7 @@
       "label": "⬆️ MUX Brutal Upload (mbps)"
     },
     "mux_enable": {
-      "description": "Mux needs compatible clients. Mux in <a href=\"https://app.hiddify.com\" target=\"_blank\">Hiddify</a> and Singbox are not compatible with XRay.&nbsp;<a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/How-MUX-works-and-its-usage/\" target=\"_blank\">(Read More)</a>",
+      "description": "Multiplexing cuts handshakes but clients must speak the same Mux. Mux in <a href=\"https://app.hiddify.com\" target=\"_blank\">Hiddify</a> / sing-box is not compatible with Xray.&nbsp;<a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/How-MUX-works-and-its-usage/\" target=\"_blank\">(Read More)</a>",
       "label": "Ⓜ️ MUX (⚠️ Incompatible With Some Clients)"
     },
     "mux_max_connections": {
@@ -3975,7 +3975,7 @@
       "label": "↘️ MUX Min Streams"
     },
     "mux_padding_enable": {
-      "description": "MUX Padding description",
+      "description": "Pads Mux traffic to blur packet sizes; adds overhead—enable after measuring on your path.",
       "label": "⟹ MUX Padding"
     },
     "mux_protocol": {
@@ -3983,7 +3983,7 @@
       "label": "♍️ MUX Protocol"
     },
     "naive_enable": {
-      "description": "Naive is using exact Chrome stack to avoid detection",
+      "description": "Traffic shaped like browser HTTPS (Chromium stack) for lower detectability. Needs matching clients and a suitable domain.",
       "label": "🛡 Enable Naive"
     },
     "naive_port": {
@@ -4102,7 +4102,7 @@
       "label": "🔏 Proxy Path for Clients"
     },
     "quic_enable": {
-      "description": "Enable QUIC Protocol",
+      "description": "QUIC (UDP) transport: fast handshake, but networks that only allow TCP will break it.",
       "label": "🟡 QUIC"
     },
     "reality": {
@@ -4110,7 +4110,7 @@
       "label": "Reality"
     },
     "reality_enable": {
-      "description": "Enable Reality Protocol",
+      "description": "Borrows a real site’s TLS fingerprint to avoid “self-signed cert” tells. Needs a valid target site and compatible clients.",
       "label": "🔴 Reality"
     },
     "reality_fallback_domain": {
@@ -4162,7 +4162,7 @@
       "label": "Shadowsocks"
     },
     "shadowsocks2022_enable": {
-      "description": "Shadowsocks 2022 is a secure Proxy Protocol for TCP and UDP traffic. The proxy traffic is indistinguishable from a random byte stream, and therefore can circumvent firewalls and Internet censors that rely on DPI (Deep Packet Inspection)",
+      "description": "SS2022 for TCP/UDP; looks like a random byte stream to simple DPI. Keep key and client version in sync.",
       "label": "⭕️ Shadowsocks 2022"
     },
     "shadowsocks2022_method": {
@@ -4178,7 +4178,7 @@
       "label": "ShadowTLS"
     },
     "shadowtls_enable": {
-      "description": "ShadowTLS Is a new Protocol but it can hide the traffic from the government using FakeTLS",
+      "description": "Forwards behind a real TLS handshake look (Trojan-like without your own cert). Configure the camouflage domain carefully.",
       "label": "☑️ ShadowTLS"
     },
     "shadowtls_fakedomain": {
@@ -4194,11 +4194,11 @@
       "label": "👁️‍🗨️ Show Usage in Sublink"
     },
     "snell_enable": {
-      "description": "Enable Snell protocol",
+      "description": "Lightweight Surge-family protocol (v5/v6). Needs hiddify-core built with sing-box ≥ 1.14; shipping builds are often still 1.13, so nodes may appear in the sub while server ports never listen.",
       "label": "Snell"
     },
     "socks_enable": {
-      "description": "Enable Socks protocol",
+      "description": "Standard SOCKS inbound for LAN or other tools. Exposing it on the public Internet without access control is risky.",
       "label": "Socks"
     },
     "special_port": {
@@ -4210,7 +4210,7 @@
       "label": "🚀 Speed Test"
     },
     "splithttp_enable": {
-      "description": "XHTTP allowing seperate download and upload stream and uniforming gRPC, H2, H1 and also support Quic.",
+      "description": "XHTTP: optional split up/down and unified gRPC/H2/H1 (plus QUIC where applicable). Follow templates and client support.",
       "label": "Enable XHTTP"
     },
     "ssfaketls": {
@@ -4218,7 +4218,7 @@
       "label": "Shadowsocks FakeTLS"
     },
     "ssfaketls_enable": {
-      "description": "Simple OBFS Protocol is Not Recommended",
+      "description": "Legacy FakeTLS/OBFS—outdated fingerprint; prefer Reality, ShadowTLS, or modern TLS stacks.",
       "label": "🆎 Shadowsocks FakeTLS (Simple OBFS)"
     },
     "ssfaketls_fakedomain": {
@@ -4262,7 +4262,7 @@
       "label": "SSH Host RSA Public Key"
     },
     "ssh_server_enable": {
-      "description": "SSH Proxy is completely different than original SSH Server",
+      "description": "In-panel SSH proxy tunnel (not the OS SSH daemon—no shell on the server). Needs a client that speaks this proxy mode.",
       "label": "✔️ SSH Proxy"
     },
     "ssh_server_port": {
@@ -4282,7 +4282,7 @@
       "label": "SSR"
     },
     "ssr_enable": {
-      "description": "ShadowsocksR is a Fork of the original Shadowsocks project, claimed to be superior in terms of security and stability. Not tested. Not support accounting.",
+      "description": "ShadowsocksR (legacy fork): not well tested and no accounting. Usually leave off; prefer SS2022 / VLESS.",
       "label": "SSR"
     },
     "ssr_fakedomain": {
@@ -4314,11 +4314,11 @@
       "label": "⚙️ XRay Full Config Link"
     },
     "sub_singbox_ssh_enable": {
-      "description": "Enable Sing-box SSH subscription endpoint",
+      "description": "Exposes sing-box SSH proxy nodes in the subscription. Enable only if you actually use SSH-proxy clients.",
       "label": "Enable Sing-box SSH Sub"
     },
     "tcp_enable": {
-      "description": "Enables TCP Protocol",
+      "description": "Plain TCP transport—simple, but more obvious without CDN wrapping. Often a base option next to other transports.",
       "label": "🟠 TCP"
     },
     "telegram": {
@@ -4338,7 +4338,7 @@
       "label": "🔐 Telegram Bot Token"
     },
     "telegram_enable": {
-      "description": "Telegram MTProxy hidden as TLS to the Telegram fake domain (tg://proxy links, served by telemt)<br>⚠️ <span style=\"color:#d32f2f;\"><strong>Needs a Direct or Relay domain</strong></span>",
+      "description": "MTProto proxy for Telegram (optionally TLS-shaped). Telegram-only—not a general-purpose proxy.<br>⚠️ <span style=\"color:#d32f2f;\"><strong>Needs a Direct or Relay domain</strong></span>",
       "label": "✔️ MTProxy FakeTLS Enable"
     },
     "telegram_fakedomain": {
@@ -4362,11 +4362,11 @@
       "label": "TLS ECH Value"
     },
     "tls_ech_enable": {
-      "description": "Adds ECH to generated TLS subscription links",
+      "description": "Adds ECH parameters to generated TLS subscription links to hide SNI where the client and resolver support ECH.",
       "label": "🔐 Enable TLS ECH"
     },
     "tls_fragment_enable": {
-      "description": "Under some circumstances, it can bypass the SNI blacklist system. <a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/How-the-TLS-Trick-works-and-its-usage/\" target=\"_blank\">(Read More)</a>",
+      "description": "TLS record fragmentation; can help against some SNI blacklists. Results vary and latency may rise. <a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/How-the-TLS-Trick-works-and-its-usage/\" target=\"_blank\">(Read More)</a>",
       "label": "⏯ TLS Fragment"
     },
     "tls_fragment_packets": {
@@ -4386,7 +4386,7 @@
       "label": "🔠 TLS Mixed SNI Case"
     },
     "tls_padding_enable": {
-      "description": "Enables Padding for TLS Fragmentation. <a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/How-the-TLS-Trick-works-and-its-usage/#tls-padding\" target=\"_blank\">(Read More)</a>",
+      "description": "Pads the TLS handshake to change packet sizes; often paired with Fragment—validate on your path. <a href=\"https://hiddify.com/manager/basic-concepts-and-troubleshooting/How-the-TLS-Trick-works-and-its-usage/#tls-padding\" target=\"_blank\">(Read More)</a>",
       "label": "♒️ TLS Padding"
     },
     "tls_padding_length": {
@@ -4410,7 +4410,7 @@
       "label": "Torrent Block Configuration"
     },
     "trojan_enable": {
-      "description": "Enables Trojan Protocol",
+      "description": "Classic TLS-looking proxy. Needs a proper cert or matching transport; wide client support.",
       "label": "🟤 Trojan"
     },
     "tuic": {
@@ -4418,7 +4418,7 @@
       "label": "TUIC"
     },
     "tuic_enable": {
-      "description": "It is a UDP based protocol similar to QUIC",
+      "description": "QUIC-based proxy aimed at low handshake latency. Needs UDP; use TCP-family protocols if UDP is blocked.",
       "label": "⚫️ TUIC"
     },
     "tuic_port": {
@@ -4453,7 +4453,7 @@
       "label": "VLess decryption"
     },
     "vless_enable": {
-      "description": "Enable VLess Protocol",
+      "description": "Lightweight VLESS, often paired with Reality / XHTTP / WS—one of the usual defaults today.",
       "label": "⚫️ VLess"
     },
     "vless_encryption": {
@@ -4465,7 +4465,7 @@
       "label": "VLess flow"
     },
     "vmess_enable": {
-      "description": "Active VMess Protocol",
+      "description": "Older protocol with a more recognizable fingerprint. Generally leave off; prefer VLESS and similar.",
       "label": "🟣 VMess"
     },
     "warp-https-domain-for-warp-site": "HTTPS domain used for WARP site routing",
@@ -4494,7 +4494,7 @@
       "label": "WireGuard"
     },
     "wireguard_enable": {
-      "description": "WireGuard is UDP based protocol. (⚠️ It is Working In <a href=\"https://app.hiddify.com/\" target=\"_blank\">Hiddify</a>)",
+      "description": "UDP WireGuard inbound. Confirm client support (e.g. <a href=\"https://app.hiddify.com/\" target=\"_blank\">Hiddify</a>) before enabling.",
       "label": "🐉 WireGuard"
     },
     "wireguard_ipv4": {
@@ -4526,7 +4526,7 @@
       "label": "🔀 Multiplex WireGuard on QUIC Port"
     },
     "ws_enable": {
-      "description": "Websocket creates a tunnel over HTTP that is useful to be used in CDN",
+      "description": "WebSocket tunnel—CDN-friendly over HTTP. Set Host/path correctly and watch CDN timeouts.",
       "label": "🔰 Websocket"
     },
     "xhttp_different_up_down_enable": {
@@ -4534,7 +4534,7 @@
       "label": "🈁 XHTTP with different upload/download"
     },
     "xhttp_enable": {
-      "description": "This Protocol send and receive information in individual channels.<br />\n⚠️ <strong>Not Supported in SignBox based Clients. Only <a href=\"https://app.hiddify.com\" target=\"_blank\">Hiddify</a> App, and XRay base Clients are supported.</strong>",
+      "description": "XHTTP (split HTTP): optional separate up/down channels.<br />⚠️ <strong>Not supported in sing-box based clients. Only <a href=\"https://app.hiddify.com\" target=\"_blank\">Hiddify</a> App and Xray-based clients are supported.</strong>",
       "label": "🈁 XHTTP"
     },
     "xtls_enable": {
