@@ -3,6 +3,26 @@ import type { AdditionalConfig } from '@/shared/utils/additional-configs'
 
 export type AdminMode = 'super_admin' | 'admin' | 'agent'
 
+/** Grantable actions (see hiddifypanel.admin_capabilities). */
+export type AdminCapability =
+  | 'add_sub_admins'
+  | 'override_preferred_outbound'
+  | 'add_extra_sublinks'
+  | 'modify_user_extra'
+  | 'modify_domains'
+  | 'modify_outbounds'
+
+export const ADMIN_CAPABILITIES: AdminCapability[] = [
+  'add_sub_admins',
+  'override_preferred_outbound',
+  'add_extra_sublinks',
+  'modify_user_extra',
+  'modify_domains',
+  'modify_outbounds',
+]
+
+export type AdminCapabilities = Record<AdminCapability, boolean>
+
 /** Limits of one admin; they count its users and all its sub-admins' users. Null fields: no limit. */
 export interface AdminLimits {
   max_users: number
@@ -35,6 +55,7 @@ export interface AdminRow {
   comment: string
   mode: AdminMode
   can_add_admin: boolean
+  capabilities: AdminCapabilities
   /** Null for the tree root (the signed-in admin). */
   parent_uuid: string | null
   parent_name: string | null
@@ -70,6 +91,7 @@ export interface AdminsTree {
   /** A node: admins come from the parent panel and cannot be changed here. */
   read_only?: boolean
   my_limits: AdminLimits | null
+  my_capabilities: AdminCapabilities
   link_domains: LinkDomain[]
   outbounds: OutboundOption[]
   admins: AdminRow[]
@@ -80,6 +102,7 @@ export interface AdminPayload {
   comment?: string
   uuid?: string
   can_add_admin?: boolean
+  capabilities?: Partial<AdminCapabilities>
   parent_uuid?: string
   max_users?: number
   max_active_users?: number
@@ -100,11 +123,22 @@ export interface AdminCredentials {
   alias?: string
 }
 
-export interface MyAccount {
+/** The user page's customization an admin sets for its users (and its sub-admins' users): hconfig key -> value. */
+export type OverrideKey = 'branding_title' | 'branding_site' | 'branding_freetext' | 'lang' | 'user_page_url'
+export type OverrideSettings = Partial<Record<OverrideKey, string>>
+export interface OverrideInfo {
+  /** Mine; a key left out: from the admins above, else the panel's setting. */
+  override_settings: OverrideSettings
+  /** What my users see where I set nothing. */
+  override_defaults: OverrideSettings
+}
+
+export interface MyAccount extends OverrideInfo {
   uuid: string
   name: string
   mode: AdminMode
   can_add_admin: boolean
+  capabilities: AdminCapabilities
   parent_name: string | null
   has_password: boolean
   /** Strong enough for an alias (and required for any new password). */
@@ -169,6 +203,10 @@ export const adminsApi = {
   async saveMyConfigs(rows: AdditionalConfig[]): Promise<AdditionalConfig[]> {
     const { data } = await getHttp().put<{ additional_configs: AdditionalConfig[] }>('admins/me/additional-configs/', { additional_configs: rows })
     return data.additional_configs
+  },
+  async saveMyOverrides(values: OverrideSettings): Promise<OverrideInfo> {
+    const { data } = await getHttp().put<OverrideInfo>('admins/me/override-settings/', { override_settings: values })
+    return data
   },
   async changeMyPassword(currentPassword: string, newPassword: string): Promise<void> {
     await getHttp().put('admins/me/password/', { current_password: currentPassword, new_password: newPassword })

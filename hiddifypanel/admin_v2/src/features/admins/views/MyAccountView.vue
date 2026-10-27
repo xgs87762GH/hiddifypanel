@@ -134,17 +134,17 @@
         </section>
 
         <!-- Default outbound -->
-        <section class="account-card">
+        <section v-if="me.outbounds.length || me.capabilities?.override_preferred_outbound" class="account-card">
           <header class="account-card__head">
             <span class="account-card__icon account-card__icon--configs"><i class="pi pi-directions" /></span>
             <div class="flex-1 min-w-0">
               <h3 class="account-card__title">{{ t('account.outboundTitle') }}</h3>
-              <p class="account-card__sub">{{ t('account.outboundSub') }}</p>
+              <p class="account-card__sub">{{ me.capabilities?.override_preferred_outbound ? t('account.outboundSub') : t('account.outboundReadOnly') }}</p>
             </div>
           </header>
           <template v-if="me.outbounds.length">
-            <DefaultOutboundSelect v-model="myOutbound" :outbounds="me.outbounds" :inherited="me.inherited_outbound" :disabled="savingOutbound" input-id="my-outbound" />
-            <div class="account-card__foot">
+            <DefaultOutboundSelect v-model="myOutbound" :outbounds="me.outbounds" :inherited="me.inherited_outbound" :disabled="savingOutbound || !me.capabilities?.override_preferred_outbound" input-id="my-outbound" />
+            <div v-if="me.capabilities?.override_preferred_outbound" class="account-card__foot">
               <small v-if="outboundDirty" class="text-muted-color">{{ t('account.configsUnsaved') }}</small>
               <Button icon="pi pi-check" :label="t('common.save')" :loading="savingOutbound" :disabled="!outboundDirty" @click="saveOutbound" />
             </div>
@@ -153,7 +153,7 @@
         </section>
 
         <!-- Configs for my users -->
-        <section class="account-card">
+        <section v-if="me.capabilities?.add_extra_sublinks" class="account-card">
           <header class="account-card__head">
             <span class="account-card__icon account-card__icon--configs"><i class="pi pi-paperclip" /></span>
             <div class="flex-1 min-w-0">
@@ -170,6 +170,24 @@
           </div>
         </section>
       </div>
+
+      <!-- My users' page: brand, support, language, custom page -->
+      <section v-if="me.capabilities?.modify_user_extra" class="account-card account-userpage">
+        <header class="account-card__head">
+          <span class="account-card__icon account-card__icon--configs"><i class="pi pi-palette" /></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="account-card__title">{{ t('account.userPage.title') }}</h3>
+            <p class="account-card__sub">{{ t('account.userPage.sub') }}</p>
+          </div>
+          <span v-if="overrideCount" class="account-chip">{{ overrideCount }}</span>
+        </header>
+        <p v-if="!overrideCount" class="account-empty"><i class="pi pi-inbox" />{{ t('account.userPage.none') }}</p>
+        <p v-else class="account-empty account-empty--solid"><i class="pi pi-palette" />{{ t('account.userPage.count', { n: overrideCount }, overrideCount) }}</p>
+        <div class="account-card__foot">
+          <Button icon="pi pi-pencil" :label="t('account.userPage.edit')" outlined @click="userPageDialog = true" />
+        </div>
+      </section>
+      <UserPageForm v-if="me.capabilities?.modify_user_extra" v-model:visible="userPageDialog" :info="me" :languages="me.languages" @saved="onOverridesSaved" />
 
       <!-- Telegram bot (when the panel has one) -->
       <TelegramConnect v-if="telegramInfo" :connected="me.telegram_connected" class="account-telegram" @check="reloadMe" />
@@ -245,7 +263,8 @@ import { telegramInfo } from '@/core/panelShell'
 import InputText from 'primevue/inputtext'
 import { ALIAS_MIN, aliasProblem, generatePassword, isStrongPassword } from '@/shared/utils/password-strength'
 import { cleanConfigRows, configRowProblem, type AdditionalConfig } from '@/shared/utils/additional-configs'
-import { adminsApi, meterTone, type MyAccount } from '@/features/admins/api'
+import { adminsApi, meterTone, type MyAccount, type OverrideInfo } from '@/features/admins/api'
+import UserPageForm from '@/features/admins/components/UserPageForm.vue'
 
 
 const { t } = useI18n()
@@ -328,6 +347,12 @@ async function saveConfigs() {
 }
 
 const isSuper = computed(() => me.value?.mode === 'super_admin')
+
+const userPageDialog = ref(false)
+const overrideCount = computed(() => Object.keys(me.value?.override_settings ?? {}).length)
+function onOverridesSaved(info: OverrideInfo) {
+  if (me.value) me.value = { ...me.value, ...info }
+}
 const nearLimit = computed(() => {
   const m = me.value
   if (!m?.limits) return false
@@ -737,6 +762,9 @@ onMounted(load)
   background: var(--p-content-background);
   border: 1px solid var(--p-content-border-color);
   animation: account-in 0.4s ease both;
+}
+.account-userpage {
+  margin-top: 1rem;
 }
 .account-card + .account-card {
   animation-delay: 80ms;

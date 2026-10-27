@@ -25,12 +25,73 @@ from hiddifypanel.proxy_v3.tls_store_sync import import_legacy_certificates, mig
 MAX_DB_VERSION = 200
 
 
+def _v189(child_id):
+    """no_inbound builtins (node-configs, additional-config) used tls_layer=http and were gated by
+    http_proxy_enable; parent/child subscriptions then omitted node configs. Align with user-configs."""
+    sync_builtin_presets(child_id)
+    from hiddifypanel.models.custom_proxy import CustomProxy, TlsLayer
+    from hiddifypanel.proxy_v3.template_catalog.custom_proxy_builtin import set_field_override
+
+    for slug in ("node-configs", "additional-config", "user-configs"):
+        for row in CustomProxy.query.filter(CustomProxy.child_id == child_id, CustomProxy.slug == slug).all():
+            if row.tls_layer != TlsLayer.tls:
+                row.tls_layer = TlsLayer.tls
+            if (row.builtin_overrides or {}).get("tls_layer"):
+                set_field_override(row, "tls_layer", False)
+
+
+def _v188(child_id):
+    """#5622: builtin user-configs used tls_layer=http, so http_proxy_enable=false silently dropped
+    Additional configs from every client format; hiddify-core user_configs.j2 also set the list outside
+    the blocks Jinja actually renders. Preset is now tls; sync refreshes the client template."""
+    sync_builtin_presets(child_id)
+    from hiddifypanel.models.custom_proxy import CustomProxy, TlsLayer
+    from hiddifypanel.proxy_v3.template_catalog.custom_proxy_builtin import set_field_override
+
+    for row in CustomProxy.query.filter(CustomProxy.child_id == child_id, CustomProxy.slug == "user-configs").all():
+        # Catalog sync already flips tls_layer; clear a leftover override so future syncs stay clean.
+        if row.tls_layer != TlsLayer.tls:
+            row.tls_layer = TlsLayer.tls
+        if (row.builtin_overrides or {}).get("tls_layer"):
+            set_field_override(row, "tls_layer", False)
+
+
+def _v187(child_id):
+    """Per-admin capabilities JSON (grantable by parents; see hiddifypanel.admin_capabilities). Fills from
+    mode + can_add_admin so existing panels keep their behaviour, except agents lose preferred-outbound
+    write (Hiddify-Manager#5645)."""
+    if child_id != 0:
+        return
+    from hiddifypanel import admin_capabilities as caps
+    from hiddifypanel.models.admin import AdminMode, AdminUser
+
+    add_column(AdminUser.capabilities)
+    for admin in AdminUser.query_with_deleted().all():
+        admin.capabilities = caps.defaults_for_mode(admin.mode, can_add_admin=bool(admin.can_add_admin))
+        if admin.mode == AdminMode.super_admin:
+            admin.can_add_admin = True
+        else:
+            admin.can_add_admin = caps.sync_can_add_admin(admin.capabilities)
+
+
+def _v186(child_id):
+    """VLESS has no encryption key. _v133 generated one, which an imported panel never had: Xray then
+    stays activating, and clients from the previous panel cannot connect. ``none`` is what Xray accepts."""
+    set_hconfig(ConfigEnum.vless_encryption, "", child_id, commit=False)
+    set_hconfig(ConfigEnum.vless_decryption, "none", child_id, commit=False)
+
+
+def _v185(child_id):
+    """Superseded by _v182 (the old ShadowTLS / SS FakeTLS fake domains are converted, not removed)."""
+
+
 def _v184(child_id):
     """A custom user page: the URL of a static site the panel serves as the user page (empty: the built-in one)."""
     if child_id != 0:
         return
     add_config_if_not_exist(ConfigEnum.user_page_url, "", child_id)
-    
+
+
 def _v183(child_id):
     """Telegram MTProxy, ShadowTLS and SS FakeTLS are SNI proxies on the domains assigned to them: no separate fake
     domains. Each row that mirrored an old *_fakedomain setting (any node) becomes an ordinary domain, fake TLS, assigned
@@ -50,10 +111,6 @@ def _v183(child_id):
         row.fake_mode = FakeMode.fake
     for key in (ConfigEnum.telegram_fakedomain, ConfigEnum.shadowtls_fakedomain, ConfigEnum.ssfaketls_fakedomain):
         set_hconfig(key, "", child_id, commit=False)
-
-
-def _v181(child_id):
-    """Superseded by _v182 (the old ShadowTLS / SS FakeTLS fake domains are converted, not removed)."""
 
 
 def _v180(child_id):
@@ -331,9 +388,10 @@ END
 
 def _v133(child_id):
     set_hconfig(ConfigEnum.vless_flow, value="xtls-rprx-vision")
-    vless_encryption, vless_decryption = hutils.crypto.vless_encryption_decryption(quantum=False)
-    set_hconfig(ConfigEnum.vless_encryption, vless_encryption)
-    set_hconfig(ConfigEnum.vless_decryption, vless_decryption)
+    # Leave encryption unset. A generated key is not in a backup from an older panel, so Xray
+    # stays activating and those clients cannot connect. _v186 clears keys already written.
+    set_hconfig(ConfigEnum.vless_encryption, "")
+    set_hconfig(ConfigEnum.vless_decryption, "none")
 
 
 def _v130(child_id):
@@ -699,7 +757,6 @@ def _v74(child_id):
     set_hconfig(ConfigEnum.shadowsocks2022_enable, False)
     set_hconfig(ConfigEnum.path_httpupgrade, hutils.random.get_random_string(7, 15))
     # db.session.bulk_save_objects(get_proxy_rows_v1())
-
 
 
 def _v71(child_id):

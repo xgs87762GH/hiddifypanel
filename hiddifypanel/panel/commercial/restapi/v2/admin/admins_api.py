@@ -11,10 +11,12 @@ from apiflask import abort
 from flask import request
 from flask.views import MethodView
 
+from hiddifypanel import admin_capabilities as caps
 from hiddifypanel import admin_credentials as creds
 from hiddifypanel import g, hutils
 from hiddifypanel.auth import login_required
 from hiddifypanel.database import db
+from hiddifypanel import admin_overrides
 from hiddifypanel.models import AdminUser, ConfigEnum, Domain, DomainType, User, hconfig
 from hiddifypanel.models.admin import AdminMode
 from hiddifypanel.models.config_enum import Lang
@@ -45,7 +47,7 @@ def _is_super(admin: AdminUser) -> bool:
 
 
 def _can_create(actor: AdminUser) -> bool:
-    return _is_super(actor) or bool(actor.can_add_admin)
+    return caps.has(actor, caps.ADD_SUB_ADMINS)
 
 
 def _admin_link(admin: AdminUser) -> str:
@@ -194,7 +196,8 @@ def _row(admin: AdminUser, actor: AdminUser, stats: dict, sub_admins: int, visib
         "name": admin.name,
         "comment": admin.comment or "",
         "mode": str(admin.mode),
-        "can_add_admin": bool(admin.can_add_admin),
+        "can_add_admin": caps.has(admin, caps.ADD_SUB_ADMINS),
+        "capabilities": caps.of(admin),
         # The tree root (the signed-in admin) has no parent in this view.
         "parent_uuid": parent.uuid if parent and not is_me and parent.id in visible_ids else None,
         "parent_name": parent.name if parent else None,
@@ -207,6 +210,7 @@ def _row(admin: AdminUser, actor: AdminUser, stats: dict, sub_admins: int, visib
         "sub_admins": sub_admins,
         # Added to the subscription of every user of this admin and its sub-admins.
         "additional_configs": user_configs.clean_rows(admin.additional_configs or [])[0],
+        **_override_info(admin),
         # Outbound id this admin's users use unless they choose another (null: automatic / inherited).
         "default_outbound": admin.default_outbound_id,
         "inherited_outbound": _inherited_outbound(admin),
@@ -268,11 +272,16 @@ def _clean_payload(body: dict, *, target: AdminUser | None) -> dict:
             abort(400, "This UUID is already used")
         out["uuid"] = value
 
-    if "can_add_admin" in body:
-        want = bool(body.get("can_add_admin"))
-        if want and not _can_create(actor):
+    # Capabilities (and legacy can_add_admin → add_sub_admins). Never raise own power; never grant what you lack.
+    if "capabilities" in body or "can_add_admin" in body:
+        proposed = dict(body.get("capabilities") or {})
+        if "can_add_admin" in body and caps.ADD_SUB_ADMINS not in proposed:
+            proposed[caps.ADD_SUB_ADMINS] = bool(body.get("can_add_admin"))
+        merged = caps.merge_for_actor(actor, proposed, existing=None if creating else caps.of(target), creating=creating)
+        if merged[caps.ADD_SUB_ADMINS] and not caps.has(actor, caps.ADD_SUB_ADMINS):
             abort(403, "You can not allow adding sub-admins")
-        out["can_add_admin"] = want
+        out["capabilities"] = merged
+        out["can_add_admin"] = caps.sync_can_add_admin(merged)
 
     if not (target is not None and _is_super(target)):
         for key in (*REQUIRED_LIMITS, *OPTIONAL_LIMITS):
@@ -298,7 +307,7 @@ def _clean_payload(body: dict, *, target: AdminUser | None) -> dict:
             abort(403, "The parent must be you or one of your sub-admins")
         if target is not None and parent.id in target.recursive_sub_admins_ids():
             abort(400, "An admin can not be moved under itself or its sub-admins")
-        if not (_is_super(parent) or parent.can_add_admin) and parent.id != actor.id:
+        if not caps.has(parent, caps.ADD_SUB_ADMINS) and parent.id != actor.id:
             abort(400, "The parent admin is not allowed to have sub-admins")
         out["parent_admin_uuid"] = parent.uuid
     return out
@@ -309,6 +318,22 @@ def _configs_or_400(body: dict) -> list[list[str]]:
     if problems:
         abort(400, "Additional configs: " + "; ".join(problems[:5]))
     return rows
+
+
+def _overrides_or_400(body: dict) -> dict[str, str]:
+    values, problems = admin_overrides.clean(body.get("override_settings"))
+    if problems:
+        abort(400, "Invalid settings: " + ", ".join(problems))
+    return values
+
+
+def _override_info(admin: AdminUser) -> dict:
+    """The user page's customization of ``admin`` and what its users see where it sets nothing (from above)."""
+    parent = admin.parent_admin if admin.parent_admin_id != admin.id else None
+    return {
+        "override_settings": admin_overrides.clean(admin.override_settings)[0],
+        "override_defaults": {str(k): str(getattr(v, "value", v) or "") for k in admin_overrides.OVERRIDABLE if (v := (admin_overrides.admin_value(parent, k) if parent else None) or hconfig(k)) is not None},
+    }
 
 
 def _credentials(admin: AdminUser, password: str) -> dict:
@@ -331,6 +356,7 @@ class AdminsTreeApi(MethodView):
             "can_create": _can_create(actor) and not node_read_only.is_read_only(),
             "read_only": node_read_only.is_read_only(),
             "my_limits": _limits(actor),
+            "my_capabilities": caps.of(actor),
             "link_domains": _link_domains(),
             "outbounds": _outbound_options(),
             "admins": [_row(a, actor, stats[a.id], subs.get(a.id, 0), visible) for a in admins],
@@ -344,11 +370,26 @@ class AdminsTreeApi(MethodView):
             abort(403, "You don't have permission to add admins")
         body = request.get_json(silent=True) or {}
         payload = _clean_payload(body, target=None)
-        configs = _configs_or_400(body) if "additional_configs" in body else []
+        if "additional_configs" in body:
+            caps.require(caps.ADD_EXTRA_SUBLINKS)
+            configs = _configs_or_400(body)
+        else:
+            configs = []
+        if "override_settings" in body:
+            caps.require(caps.MODIFY_USER_EXTRA)
+        if "default_outbound" in body:
+            caps.require(caps.OVERRIDE_PREFERRED_OUTBOUND)
+        if "capabilities" not in payload:
+            payload["capabilities"] = caps.merge_for_actor(actor, {}, existing=None, creating=True)
+            payload["can_add_admin"] = caps.sync_can_add_admin(payload["capabilities"])
         payload.setdefault("uuid", str(uuid_lib.uuid4()))
         payload["mode"] = AdminMode.agent
         admin = AdminUser.add_or_update(commit=False, **payload)
+        admin.capabilities = payload.get("capabilities") or caps.of(admin)
+        admin.can_add_admin = caps.sync_can_add_admin(admin.capabilities)
         admin.additional_configs = configs
+        if "override_settings" in body:
+            admin.override_settings = _overrides_or_400(body)
         if "default_outbound" in body:
             _apply_default_outbound(admin, body.get("default_outbound"))
         password = _new_password()
@@ -373,11 +414,20 @@ class AdminTreeItemApi(MethodView):
         body = request.get_json(silent=True) or {}
         payload = _clean_payload(body, target=admin)
         if "additional_configs" in body:
+            caps.require(caps.ADD_EXTRA_SUBLINKS)
             admin.additional_configs = _configs_or_400(body)
+        if "override_settings" in body:
+            caps.require(caps.MODIFY_USER_EXTRA)
+            admin.override_settings = _overrides_or_400(body)
         if "alias" in body:
             _apply_alias(admin, body.get("alias"))
         if "default_outbound" in body:
+            caps.require(caps.OVERRIDE_PREFERRED_OUTBOUND)
             _apply_default_outbound(admin, body.get("default_outbound"))
+        if "capabilities" in payload:
+            admin.capabilities = payload.pop("capabilities")
+            admin.can_add_admin = caps.sync_can_add_admin(admin.capabilities)
+            payload["can_add_admin"] = admin.can_add_admin
         if "comment" in payload:
             admin.comment = payload.pop("comment")  # upsert skips empty text
         AdminUser.add_or_update(commit=False, old_uuid=admin.uuid, uuid=admin.uuid, **payload)
@@ -422,6 +472,7 @@ class MyAdminAccountApi(MethodView):
             "name": actor.name,
             "mode": str(actor.mode),
             "can_add_admin": _can_create(actor),
+            "capabilities": caps.of(actor),
             "parent_name": parent.name if parent and parent.id != actor.id else None,
             "has_password": bool(actor.password),
             "strong_password": creds.is_strong(actor.password, avoid=creds.admin_avoid(actor)),
@@ -438,6 +489,7 @@ class MyAdminAccountApi(MethodView):
             "stats": stats[actor.id],
             "sub_admins": len(admins) - 1,
             "additional_configs": user_configs.clean_rows(actor.additional_configs or [])[0],
+            **_override_info(actor),
             "default_outbound": actor.default_outbound_id,
             "inherited_outbound": _inherited_outbound(actor),
             "outbounds": _outbound_options(),
@@ -452,6 +504,7 @@ class MyAdminConfigsApi(MethodView):
     def put(self):
         """My account: additional configs for all users of the signed-in admin and its sub-admins"""
         node_read_only.deny_write_on_node()
+        caps.require(caps.ADD_EXTRA_SUBLINKS)
         actor: AdminUser = g.account
         actor.additional_configs = _configs_or_400(request.get_json(silent=True) or {})
         db.session.commit()
@@ -459,11 +512,25 @@ class MyAdminConfigsApi(MethodView):
         return {"additional_configs": actor.additional_configs}
 
 
+class MyAdminOverridesApi(MethodView):
+    decorators = [login_required(ALL_ROLES)]
+
+    def put(self):
+        """My account: my users' page customization (title, support link and text, language, custom page); empty: from above"""
+        node_read_only.deny_write_on_node()
+        caps.require(caps.MODIFY_USER_EXTRA)
+        actor: AdminUser = g.account
+        actor.override_settings = _overrides_or_400(request.get_json(silent=True) or {})
+        db.session.commit()
+        return _override_info(actor)
+
+
 class MyAdminOutboundApi(MethodView):
     decorators = [login_required(ALL_ROLES)]
 
     def put(self):
         """My account: the default outbound of my users (and my sub-admins' users)"""
+        caps.require(caps.OVERRIDE_PREFERRED_OUTBOUND)
         actor: AdminUser = g.account
         _apply_default_outbound(actor, (request.get_json(silent=True) or {}).get("default_outbound"))
         db.session.commit()

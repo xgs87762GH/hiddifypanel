@@ -16,6 +16,7 @@ from apiflask import abort
 from flask import request
 from flask.views import MethodView
 
+from hiddifypanel import admin_capabilities as caps
 from hiddifypanel import g, hutils
 from hiddifypanel.auth import login_required
 from hiddifypanel.database import db
@@ -134,6 +135,7 @@ def _meta(admins: dict[int, AdminUser]) -> dict[str, Any]:
         ],
         "outbounds": [{"id": o.id, "name": o.name, "mode": str(o.mode), "enabled": bool(o.enabled)} for o in outbounds],
         "can_add": actor.can_have_more_users() and not node_read_only.is_read_only(),
+        "capabilities": caps.of(actor),
         "read_only": node_read_only.is_read_only(),
     }
 
@@ -198,6 +200,7 @@ def _apply_fields(user: User, body: dict[str, Any], *, creating: bool) -> None:
     # Extra params: the JSON editor's keys plus the ones the form manages.
     extra = user.extra_params_json()
     if "extra_params" in body:
+        caps.require(caps.MODIFY_USER_EXTRA)
         raw = body.get("extra_params")
         try:
             parsed = json.loads(raw) if isinstance(raw, str) else (raw or {})
@@ -207,6 +210,7 @@ def _apply_fields(user: User, body: dict[str, Any], *, creating: bool) -> None:
             abort(400, "Extra params must be a JSON object")
         extra = {k: v for k, v in extra.items() if k in MANAGED_EXTRA} | {k: v for k, v in parsed.items() if k not in MANAGED_EXTRA}
     if "preferred_outbound" in body:
+        caps.require(caps.OVERRIDE_PREFERRED_OUTBOUND)
         oid = body.get("preferred_outbound")
         if oid in (None, "", 0):
             extra.pop("preferred_outbound", None)
@@ -216,6 +220,7 @@ def _apply_fields(user: User, body: dict[str, Any], *, creating: bool) -> None:
                 abort(400, "Unknown outbound")
             extra["preferred_outbound"] = int(oid)
     if user_configs.EXTRA_KEY in body:
+        caps.require(caps.ADD_EXTRA_SUBLINKS)
         rows, problems = user_configs.clean_rows(body.get(user_configs.EXTRA_KEY))
         if problems:
             abort(400, "Additional configs: " + "; ".join(problems[:5]))
@@ -376,3 +381,78 @@ class UsersBulkApi(MethodView):
         db.session.commit()
         _after_change(users)
         return {"count": len(users)}
+
+
+MAX_BULK_CREATE = 100
+
+
+def _bulk_user_name(prefix: str, index: int, count: int) -> str:
+    """``prefix-01`` … when creating many; the bare prefix when ``count`` is 1."""
+    if count == 1:
+        return prefix[:512]
+    width = len(str(count))
+    suffix = f"-{index:0{width}d}"
+    return f"{prefix[: max(1, 512 - len(suffix))]}{suffix}"
+
+
+class UsersBulkCreateApi(MethodView):
+    decorators = [login_required(ALL_ROLES)]
+
+    def post(self):
+        """Users page: create many users with the same package; names are ``prefix-01`` … ``prefix-N``."""
+        node_read_only.deny_write_on_node()
+        body = request.get_json(silent=True) or {}
+        actor: AdminUser = g.account
+        prefix = str(body.get("name") or "").strip()
+        if not prefix:
+            abort(400, "Name is required")
+        try:
+            count = int(body.get("count") or 0)
+        except (TypeError, ValueError):
+            abort(400, "count must be a number")
+        if not 1 <= count <= MAX_BULK_CREATE:
+            abort(400, f"count must be between 1 and {MAX_BULK_CREATE}")
+
+        template = {
+            "comment": body.get("comment"),
+            "usage_limit_GB": body.get("usage_limit_GB", 100),
+            "package_days": body.get("package_days", 30),
+            "enable": body.get("enable", True),
+            "mode": body.get("mode", UserMode.no_reset),
+            "owner_uuid": body.get("owner_uuid"),
+            "preferred_outbound": body.get("preferred_outbound"),
+            "additional_configs": body.get("additional_configs"),
+            "extra_params": body.get("extra_params"),
+        }
+        # Drop keys the client did not send so _apply_fields keeps its "optional" behaviour.
+        for key in ("comment", "owner_uuid", "preferred_outbound", "additional_configs", "extra_params"):
+            if key not in body:
+                template.pop(key, None)
+
+        created: list[User] = []
+        try:
+            for i in range(1, count + 1):
+                if not actor.can_have_more_users():
+                    db.session.rollback()
+                    abort(
+                        400,
+                        "User limit reached: you (or an admin above you) reached the max users, active users or total traffic"
+                        if i == 1
+                        else f"Not enough room for {count} users",
+                    )
+                user = User(uuid=str(uuid_lib.uuid4()), added_by=actor.id, enable=True, mode=UserMode.no_reset, current_usage=0)
+                row = {**template, "name": _bulk_user_name(prefix, i, count)}
+                _apply_fields(user, row, creating=True)
+                db.session.add(user)
+                db.session.flush()
+                created.append(user)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            raise
+
+        if hconfig(ConfigEnum.first_setup):
+            set_hconfig(ConfigEnum.first_setup, False)
+        _after_change(created)
+        admins = _admins_map()
+        return {"users": [_detail(u, admins) for u in created], "count": len(created)}
