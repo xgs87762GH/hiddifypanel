@@ -388,7 +388,31 @@
       "title": "我的账户",
       "under": "在 {name} 之下",
       "unlimited": "无限制",
-      "wrongCurrent": "当前密码错误"
+      "wrongCurrent": "当前密码错误",
+      "outboundReadOnly": "由上级管理员设置；你可以看到但不能修改。",
+      "userPage": {
+        "advanced": "高级",
+        "badUrl": "请输入以 https:// 开头的完整地址",
+        "brandTitle": "品牌标题",
+        "brandTitleHint": "显示在用户页顶部、欢迎语之前。",
+        "count": "已自定义 {n} 项 | 已自定义 {n} 项",
+        "customPage": "自定义用户页",
+        "customPageHint": "静态站点地址，将替代默认用户页显示（例如部署在 GitHub Pages 上的 hiddify-user-front）。面板会从自己的域名提供该页面。",
+        "edit": "自定义",
+        "empty": "未设置",
+        "inherit": "当前：{value}",
+        "intro": "字段留空则保持用户现有设置（字段中会显示当前值）。",
+        "lang": "用户页语言",
+        "langHint": "适用于尚未自行选择语言的用户。",
+        "none": "未做更改：用户看到的是面板默认页面。",
+        "saved": "用户页已保存",
+        "sub": "你的用户（以及下级管理员的用户）在用户页上看到的内容。留空的字段使用面板设置。",
+        "supportLink": "支持链接",
+        "supportLinkHint": "显示在支持框中，例如你的 Telegram 频道或群聊。",
+        "supportText": "支持框文案",
+        "supportTextHint": "显示在用户页的支持框中，允许 HTML。",
+        "title": "我的用户页"
+      }
     },
     "actions": {
       "applyConfigs": "应用配置",
@@ -509,7 +533,13 @@
         "superNoLimits": "超级管理员没有限制。",
         "upTo": "最多 {max}（您的限制）",
         "uuidHint": "自动生成。仅在需要重用已知 ID 时才修改。",
-        "uuidInvalid": "这不是有效的 UUID"
+        "uuidInvalid": "这不是有效的 UUID",
+        "capabilities": "权限",
+        "capabilitiesCount": "{n} 项权限 | {n} 项权限",
+        "capabilitiesDone": "完成",
+        "capabilitiesEdit": "编辑权限",
+        "capabilitiesHint": "点按以更改此管理员可执行的操作。你只能授予自己拥有的权限。",
+        "capabilitiesNone": "无特殊权限"
       },
       "limit": {
         "max_active_users": "最大活跃用户数",
@@ -565,7 +595,23 @@
       },
       "title": "管理员",
       "you": "您",
-      "readOnlyNode": "管理员在父面板上管理：此处为只读展示。"
+      "readOnlyNode": "管理员在父面板上管理：此处为只读展示。",
+      "capability": {
+        "add_extra_sublinks": "添加额外订阅链接",
+        "add_sub_admins": "添加子管理员",
+        "modify_domains": "管理域名",
+        "modify_outbounds": "管理出站",
+        "modify_user_extra": "自定义用户页",
+        "override_preferred_outbound": "更改首选出站"
+      },
+      "capabilityHint": {
+        "add_extra_sublinks": "为其用户附加额外配置或订阅链接。",
+        "add_sub_admins": "在你设定的限额内创建自己的代理。",
+        "modify_domains": "在本面板添加和编辑域名。",
+        "modify_outbounds": "配置服务器出站（WARP、SOCKS 等）。",
+        "modify_user_extra": "更改用户页的品牌与额外参数。",
+        "override_preferred_outbound": "选择用户流量从哪个出站离开。"
+      }
     },
     "appTitle": "HiddifyManager",
     "apply": {
@@ -904,7 +950,54 @@
         "running": "检查中…",
         "subtitle": "每个配置，每 6 小时从服务器测试一次",
         "title": "配置健康",
-        "working": "{total} 个中 {ok} 个可用"
+        "working": "{total} 个中 {ok} 个可用",
+        "notTested": "未测试",
+        "notice": {
+          "failed": "{total} 个配置中有 {n} 个无法从服务器正常工作。",
+          "where": "详情：仪表盘 › 配置健康。"
+        },
+        "problem": {
+          "certificate": {
+            "hint": "{host} 的证书缺失、过期或与名称不匹配。请在「域名」中检查并续期证书。",
+            "title": "面板无法打开自己的订阅：{host} 的 TLS 证书无效"
+          },
+          "core": {
+            "hint": "服务器上的 hiddify-core 或 Xray 无法读取订阅。更新面板通常可修复。",
+            "title": "配置测试器无法运行"
+          },
+          "dns": {
+            "hint": "服务器无法解析此域名。请检查 DNS 记录是否指向本服务器。",
+            "title": "找不到域名 {host}"
+          },
+          "empty": {
+            "hint": "未找到可用配置。请检查「协议」中是否已开启该应用的协议，以及测试用户是否有效。",
+            "title": "此应用的订阅中没有配置"
+          },
+          "http": {
+            "hint": "面板返回了 HTTP 错误而不是订阅。原因见面板日志。",
+            "title": "{host} 的订阅页返回了错误"
+          },
+          "other": {
+            "hint": "确切信息见下方技术详情。",
+            "title": "无法测试该订阅"
+          },
+          "timeout": {
+            "hint": "服务器响应过慢：可能正忙，或 {host} 指向了其他服务器。请一分钟后再点「立即检查」。",
+            "title": "面板自身订阅（{host}）未及时响应"
+          },
+          "unreachable": {
+            "hint": "该地址无响应。请确认 {host} 指向本服务器，且面板服务（HAProxy、nginx）正在运行。",
+            "title": "面板无法连接到 {host}"
+          }
+        },
+        "reason": {
+          "closed": "服务器关闭了连接",
+          "noExit": "已连接，但流量无法出到互联网",
+          "refused": "连接被拒绝",
+          "timeout": "未及时收到应答",
+          "tls": "TLS 握手失败"
+        },
+        "technical": "技术详情"
       }
     },
     "domain": {
@@ -989,7 +1082,33 @@
         "tlsMode": "TLS 模式",
         "cdnIpScanner": "用扫描器查找可用 IP",
         "cdnIpScannerGo": "打开扫描器",
-        "cdnIpScannerHint": "在你的网络上扫描 Cloudflare IP，并按运营商将最优的保存到此处。"
+        "cdnIpScannerHint": "在你的网络上扫描 Cloudflare IP，并按运营商将最优的保存到此处。",
+        "fragment": "TLS Fragment",
+        "fragmentDelays": "延迟",
+        "fragmentDelaysHint": "一个或多个间隔，逗号分隔（FinalMask delays）。",
+        "fragmentHint": "仅覆盖此 CDN 域名的面板 TLS Fragment 设置。不同运营商与 CDN 常需要不同的长度/延迟。",
+        "fragmentInheritDetail": "面板默认：{state}（{size}，{sleep}，{packets}）。长度/延迟/数据包留空则使用这些值。",
+        "fragmentInheritHint": "跟随面板 TLS Fragment 设置。",
+        "fragmentLengths": "长度",
+        "fragmentLengthsHint": "一个或多个范围，逗号分隔（FinalMask lengths）。",
+        "fragmentMaxSplit": "最大分片数",
+        "fragmentMode": {
+          "inherit": "使用面板设置",
+          "off": "始终关闭",
+          "on": "始终开启"
+        },
+        "fragmentModeHint": {
+          "off": "即使面板设置为开，此域名也强制关闭分片。",
+          "on": "即使面板设置为关，此域名也强制开启分片。"
+        },
+        "fragmentModeLabel": "模式",
+        "fragmentOff": "关",
+        "fragmentOn": "开",
+        "fragmentPackets": "数据包",
+        "fragmentPacketsHint": "通常为 tlshello，或 1-3。",
+        "fragmentScannerGo": "在扫描器中试用预设",
+        "fragmentSize": "长度",
+        "fragmentSleep": "延迟"
       },
       "getCert": "获取证书",
       "guide": {
@@ -1189,7 +1308,45 @@
         "unlikely": "DNS 不匹配"
       },
       "emptyTitle": "还没有域名",
-      "emptyHint": "添加第一个域名，用户才能连接。"
+      "emptyHint": "添加第一个域名，用户才能连接。",
+      "tricks": {
+        "custom": {
+          "hint": "粘贴任意 FinalMaskObject（tcp / udp / quicParams）",
+          "invalidJson": "不是有效的 JSON",
+          "mustObject": "必须是 JSON 对象（不能是数组）",
+          "name": "自定义",
+          "tune": "自定义 FinalMask",
+          "tuneHint": "直接编辑 FinalMask JSON。它会存为 tricks.finalmask 并原样发给客户端。"
+        },
+        "docs": "FinalMask 文档",
+        "lead": "此 CDN 域名的可选客户端 FinalMask。可选用模板或粘贴自定义对象。",
+        "off": "无",
+        "offHint": "无技巧 — 正常 TLS 握手",
+        "presets": {
+          "1-3": "数据包 1-3",
+          "coarse": "粗粒度",
+          "default": "默认",
+          "fine": "细粒度",
+          "multi": "多段",
+          "tight": "紧凑"
+        },
+        "preview": "客户端将得到的内容",
+        "title": "技巧",
+        "tlsFragment": {
+          "delays": "延迟",
+          "delaysHint": "分片间隔毫秒数，逗号分隔（例如 50-200）。",
+          "hint": "拆分 TLS ClientHello（FinalMask fragment）",
+          "lengths": "长度",
+          "lengthsHint": "每片字节范围，逗号分隔（例如 10-100 或 3-5, 6-8）。",
+          "maxSplit": "最大分片数",
+          "maxSplitHint": "最多分成几片（例如 3-6）。",
+          "name": "TLS Fragment",
+          "packets": "数据包",
+          "packetsHint": "tlshello = 首个 TLS 记录；1-3 = 前几个 TCP 包。",
+          "tune": "调整分片",
+          "tuneHint": "从预设开始，再按需编辑长度/延迟。值写入 finalmask.tcp[].settings。"
+        }
+      }
     },
     "donation": {
       "close": "关闭",
@@ -2348,7 +2505,8 @@
         "uuidInvalid": "这不是有效的 UUID",
         "waitingText": "{n} 天从首次连接时开始。",
         "waitingUnlimited": "从首次连接时开始，且永不过期。",
-        "who": "谁"
+        "who": "谁",
+        "outboundReadOnly": "你可以看到首选出站，但只有拥有权限的管理员才能更改。"
       },
       "groupByOwner": "按管理员分组",
       "groupCount": "{n} 个用户 | {n} 个用户",
@@ -2429,7 +2587,27 @@
       "title": "用户",
       "autoRefresh": "自动刷新",
       "autoRefreshOff": "关",
-      "readOnlyNode": "用户在父面板上管理：此处为只读展示。"
+      "readOnlyNode": "用户在父面板上管理：此处为只读展示。",
+      "bulkCreate": {
+        "copy": "全部复制",
+        "count": "数量",
+        "countHint": "介于 1 与 {max} 之间",
+        "create": "创建 {n} 个用户 | 创建 {n} 个用户",
+        "domain": "链接域名",
+        "done": "已创建 {n} 个用户 | 已创建 {n} 个用户",
+        "download": "下载 .txt",
+        "links": "链接",
+        "linksSubtitle": "{n} 条链接可复制 | {n} 条链接可复制",
+        "linksTitle": "用户链接",
+        "menu": "批量添加用户",
+        "prefix": "名称前缀",
+        "prefixHint": "每个用户命名为 prefix-01、prefix-02、…",
+        "prefixPlaceholder": "例如 USER-30d",
+        "preview": "名称预览",
+        "subtitle": "所有人使用同一套餐。名称 = 前缀 + 编号。",
+        "title": "批量添加用户",
+        "who": "所属"
+      }
     },
     "utils": {
       "addQuery": "添加查询",
@@ -2744,7 +2922,37 @@
       "viewScript": "查看脚本",
       "vpnWarning": "此浏览器不在面板所在国家：可能开启了 VPN 或代理。请关闭它，否则你测试的是 VPN 而非你的运营商。",
       "waiting": "等待命令运行…",
-      "yourNetwork": "你的网络（依面板所见）"
+      "yourNetwork": "你的网络（依面板所见）",
+      "fragment": {
+        "applied": "已在 {domain} 上保存「{name}」",
+        "apply": "应用",
+        "current": "此域名当前设置",
+        "currentBtn": "已应用",
+        "disabled": "关",
+        "enabled": "开",
+        "lead": "CDN 域名常需要各自的 TLS Fragment（FinalMask）参数。选择域名、试用预设，再用配置测试器或该运营商网络上的客户端检查。",
+        "mode": {
+          "inherit": "关",
+          "off": "关",
+          "on": "开"
+        },
+        "noCdn": "请先添加 CDN 或 worker 域名。",
+        "presets": {
+          "1-3": "数据包 1-3",
+          "coarse": "粗粒度长度",
+          "default": "默认",
+          "fine": "细粒度 / 短间隔",
+          "multi": "多长度",
+          "off": "关",
+          "offHint": "为此域名禁用分片",
+          "tight": "紧凑（小且快）"
+        },
+        "presetsHint": "在此域名上应用 FinalMask TLS Fragment 技巧，然后从你关心的运营商网络测试。",
+        "presetsTitle": "预设",
+        "testHint": "分片无法在浏览器 IP 扫描中测量。应用后请用配置测试器或该网络上的客户端查看哪个预设有效。"
+      },
+      "pickDomain": "选择 CDN 域名",
+      "tabFragment": "分片"
     },
     "configTester": {
       "advanced": "更多选项",
@@ -3376,7 +3584,8 @@
     "users_count": "{n} 个用户",
     "users_empty": "这里没有用户。",
     "users_line": "共 <b>{total}</b> · 活跃 <b>{active}</b>",
-    "users_title": "用户"
+    "users_title": "用户",
+    "btn_check": "🩺 检查状态"
   },
   "cdn": "🔀 CDN（Cloudflare 代理，...）",
   "cf-delete": {

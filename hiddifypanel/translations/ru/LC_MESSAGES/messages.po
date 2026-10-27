@@ -1330,6 +1330,83 @@ msgstr "Без ограничений"
 msgid "adminV2.account.wrongCurrent"
 msgstr "Текущий пароль неверный"
 
+msgid "adminV2.account.outboundReadOnly"
+msgstr ""
+"Задано администратором выше вас; вы видите это, но не можете изменить."
+
+msgid "adminV2.account.userPage.advanced"
+msgstr "Дополнительно"
+
+msgid "adminV2.account.userPage.badUrl"
+msgstr "Введите полный адрес, начинающийся с https://"
+
+msgid "adminV2.account.userPage.brandTitle"
+msgstr "Название бренда"
+
+msgid "adminV2.account.userPage.brandTitleHint"
+msgstr ""
+"Показывается вверху пользовательской страницы, перед приветственным текстом."
+
+msgid "adminV2.account.userPage.count"
+msgstr "{n} элемент настроен | {n} элементов настроено"
+
+msgid "adminV2.account.userPage.customPage"
+msgstr "Своя пользовательская страница"
+
+msgid "adminV2.account.userPage.customPageHint"
+msgstr ""
+"Адрес статического сайта, который показывается вместо пользовательской "
+"страницы (например, ваша сборка hiddify-user-front на GitHub Pages). Панель "
+"отдаёт его со своего домена."
+
+msgid "adminV2.account.userPage.edit"
+msgstr "Настроить"
+
+msgid "adminV2.account.userPage.empty"
+msgstr "Не задано"
+
+msgid "adminV2.account.userPage.inherit"
+msgstr "Сейчас: {value}"
+
+msgid "adminV2.account.userPage.intro"
+msgstr ""
+"Оставьте поле пустым, чтобы сохранить то, что пользователи видят сейчас "
+"(показано в поле)."
+
+msgid "adminV2.account.userPage.lang"
+msgstr "Язык пользовательской страницы"
+
+msgid "adminV2.account.userPage.langHint"
+msgstr "Для пользователей, которые ещё не выбрали свой язык."
+
+msgid "adminV2.account.userPage.none"
+msgstr "Ничего не изменено: ваши пользователи видят страницу панели."
+
+msgid "adminV2.account.userPage.saved"
+msgstr "Пользовательская страница сохранена"
+
+msgid "adminV2.account.userPage.sub"
+msgstr ""
+"Что видят ваши пользователи (и пользователи ваших субадминов) на своей "
+"странице. Пустые поля берут настройки панели."
+
+msgid "adminV2.account.userPage.supportLink"
+msgstr "Ссылка поддержки"
+
+msgid "adminV2.account.userPage.supportLinkHint"
+msgstr ""
+"Показывается в блоке поддержки, например ваш канал или чат в Telegram."
+
+msgid "adminV2.account.userPage.supportText"
+msgstr "Текст блока поддержки"
+
+msgid "adminV2.account.userPage.supportTextHint"
+msgstr ""
+"Показывается в блоке поддержки на пользовательской странице. Разрешён HTML."
+
+msgid "adminV2.account.userPage.title"
+msgstr "Страница моих пользователей"
+
 msgid "adminV2.actions.applyConfigs"
 msgstr "Применить конфигурации"
 
@@ -1683,6 +1760,26 @@ msgstr ""
 msgid "adminV2.admins.form.uuidInvalid"
 msgstr "Это недопустимый UUID"
 
+msgid "adminV2.admins.form.capabilities"
+msgstr "Права"
+
+msgid "adminV2.admins.form.capabilitiesCount"
+msgstr "{n} право | {n} прав"
+
+msgid "adminV2.admins.form.capabilitiesDone"
+msgstr "Готово"
+
+msgid "adminV2.admins.form.capabilitiesEdit"
+msgstr "Изменить права"
+
+msgid "adminV2.admins.form.capabilitiesHint"
+msgstr ""
+"Нажмите, чтобы изменить, что разрешено этому администратору. Вы можете "
+"выдать только те права, которые есть у вас."
+
+msgid "adminV2.admins.form.capabilitiesNone"
+msgstr "Нет особых прав"
+
 msgid "adminV2.admins.limit.max_active_users"
 msgstr "Макс. активных пользователей"
 
@@ -1820,6 +1917,49 @@ msgstr "Админы"
 
 msgid "adminV2.admins.you"
 msgstr "Вы"
+
+msgid "adminV2.admins.capability.add_extra_sublinks"
+msgstr "Добавлять дополнительные ссылки подписки"
+
+msgid "adminV2.admins.capability.add_sub_admins"
+msgstr "Добавлять субадминов"
+
+msgid "adminV2.admins.capability.modify_domains"
+msgstr "Управлять доменами"
+
+msgid "adminV2.admins.capability.modify_outbounds"
+msgstr "Управлять исходящими"
+
+msgid "adminV2.admins.capability.modify_user_extra"
+msgstr "Настраивать пользовательскую страницу"
+
+msgid "adminV2.admins.capability.override_preferred_outbound"
+msgstr "Менять предпочтительный исходящий"
+
+msgid "adminV2.admins.capabilityHint.add_extra_sublinks"
+msgstr ""
+"Подключать дополнительные конфиги или ссылки подписки для их пользователей."
+
+msgid "adminV2.admins.capabilityHint.add_sub_admins"
+msgstr "Создавать своих агентов в заданных вами пределах."
+
+msgid "adminV2.admins.capabilityHint.modify_domains"
+msgstr "Добавлять и редактировать домены на этой панели."
+
+msgid "adminV2.admins.capabilityHint.modify_outbounds"
+msgstr "Настраивать исходящие сервера (WARP, SOCKS, …)."
+
+msgid "adminV2.admins.capabilityHint.modify_user_extra"
+msgstr ""
+"Менять брендинг и дополнительные параметры на пользовательской странице."
+
+msgid "adminV2.admins.capabilityHint.override_preferred_outbound"
+msgstr "Выбирать, через какой исходящий уходит трафик пользователя."
+
+msgid "adminV2.admins.readOnlyNode"
+msgstr ""
+"Администраторы управляются на родительской панели: здесь они показаны только"
+" для просмотра."
 
 msgid "adminV2.appTitle"
 msgstr "HiddifyManager"
@@ -1964,6 +2104,18 @@ msgstr "Показать журнал"
 
 msgid "adminV2.apply.log.showingEnd"
 msgstr "показан конец"
+
+msgid "adminV2.apply.log.telegram"
+msgstr "Отправить в мой Telegram"
+
+msgid "adminV2.apply.log.telegramConnect"
+msgstr "Сначала подключите Telegram в «Мой аккаунт»"
+
+msgid "adminV2.apply.log.telegramFailed"
+msgstr "Не удалось отправить в Telegram"
+
+msgid "adminV2.apply.log.telegramSent"
+msgstr "{name} отправлен в ваш Telegram"
 
 msgid "adminV2.apply.log.terminal"
 msgstr "журнал"
@@ -2236,10 +2388,16 @@ msgstr "Не удалось создать резервную копию"
 msgid "adminV2.backup.save.onServer"
 msgstr "Сохранить на сервере"
 
+msgid "adminV2.backup.save.onTelegram"
+msgstr "Сохранить в Telegram"
+
 msgid "adminV2.backup.save.secret"
 msgstr ""
 "Файл содержит пароли, ссылки пользователей и приватные ключи. Храните его в "
 "безопасном месте."
+
+msgid "adminV2.backup.save.sentTelegram"
+msgstr "Резервная копия отправлена в ваш Telegram"
 
 msgid "adminV2.backup.save.sub"
 msgstr ""
@@ -2378,6 +2536,12 @@ msgstr "Проверка пройдена"
 
 msgid "adminV2.common.yes"
 msgstr "Да"
+
+msgid "adminV2.common.close"
+msgstr "Закрыть"
+
+msgid "adminV2.common.none"
+msgstr "Нет"
 
 msgid "adminV2.dashboard.allNodes"
 msgstr "Все узлы"
@@ -2707,6 +2871,129 @@ msgstr "Онлайн за неделю"
 msgid "adminV2.dashboard.yesterday"
 msgstr "Вчера"
 
+msgid "adminV2.dashboard.health.checkNow"
+msgstr "Проверить сейчас"
+
+msgid "adminV2.dashboard.health.checked"
+msgstr "Все конфиги проверены с сервера · {ago}"
+
+msgid "adminV2.dashboard.health.firstRun"
+msgstr "Идёт первая проверка; это займёт минуту или две."
+
+msgid "adminV2.dashboard.health.never"
+msgstr "Ещё не проверялось. Нажмите «Проверить сейчас»."
+
+msgid "adminV2.dashboard.health.notTested"
+msgstr "Не протестировано"
+
+msgid "adminV2.dashboard.health.note"
+msgstr ""
+"Проверено по подписке пользователя {user}. Конфиг, который не работает с "
+"самого сервера, не заработает ни у кого; фильтрация в Иране здесь не "
+"проверяется."
+
+msgid "adminV2.dashboard.health.notice.failed"
+msgstr "{n} из {total} конфигов не работают с сервера."
+
+msgid "adminV2.dashboard.health.notice.where"
+msgstr "Подробности: Панель › Здоровье конфигов."
+
+msgid "adminV2.dashboard.health.problem.certificate.hint"
+msgstr ""
+"Сертификат {host} отсутствует, истёк или выдан на другое имя. Проверьте этот"
+" домен в разделе «Домены» и обновите сертификат."
+
+msgid "adminV2.dashboard.health.problem.certificate.title"
+msgstr ""
+"Панель не смогла открыть свою подписку: TLS-сертификат {host} недействителен"
+
+msgid "adminV2.dashboard.health.problem.core.hint"
+msgstr ""
+"hiddify-core или Xray на сервере не смогли прочитать подписку. Обычно "
+"помогает обновление панели."
+
+msgid "adminV2.dashboard.health.problem.core.title"
+msgstr "Тестер конфигов не смог запуститься"
+
+msgid "adminV2.dashboard.health.problem.dns.hint"
+msgstr ""
+"Сервер не смог найти этот домен. Проверьте DNS-запись: она должна указывать "
+"на этот сервер."
+
+msgid "adminV2.dashboard.health.problem.dns.title"
+msgstr "Домен {host} не найден"
+
+msgid "adminV2.dashboard.health.problem.empty.hint"
+msgstr ""
+"Не найдено ни одного рабочего конфига. Проверьте, что протоколы этого "
+"приложения включены в «Протоколы», и что тестовый пользователь активен."
+
+msgid "adminV2.dashboard.health.problem.empty.title"
+msgstr "В подписке нет конфига для этого приложения"
+
+msgid "adminV2.dashboard.health.problem.http.hint"
+msgstr "Панель вернула HTTP-ошибку вместо подписки. Причина — в логе панели."
+
+msgid "adminV2.dashboard.health.problem.http.title"
+msgstr "Страница подписки {host} ответила ошибкой"
+
+msgid "adminV2.dashboard.health.problem.other.hint"
+msgstr "Точное сообщение — в технических подробностях ниже."
+
+msgid "adminV2.dashboard.health.problem.other.title"
+msgstr "Подписку не удалось проверить"
+
+msgid "adminV2.dashboard.health.problem.timeout.hint"
+msgstr ""
+"Сервер слишком долго отдавал ответ: возможно, он загружен, или {host} "
+"указывает на другой сервер. Через минуту снова нажмите «Проверить сейчас»."
+
+msgid "adminV2.dashboard.health.problem.timeout.title"
+msgstr "Собственная подписка панели ({host}) не ответила вовремя"
+
+msgid "adminV2.dashboard.health.problem.unreachable.hint"
+msgstr ""
+"По этому адресу никто не ответил. Проверьте, что {host} указывает на этот "
+"сервер и что службы панели (HAProxy, nginx) запущены."
+
+msgid "adminV2.dashboard.health.problem.unreachable.title"
+msgstr "Панель не смогла подключиться к {host}"
+
+msgid "adminV2.dashboard.health.reason.closed"
+msgstr "Сервер закрыл соединение"
+
+msgid "adminV2.dashboard.health.reason.noExit"
+msgstr "Подключается, но трафик не выходит в интернет"
+
+msgid "adminV2.dashboard.health.reason.refused"
+msgstr "В соединении отказано"
+
+msgid "adminV2.dashboard.health.reason.timeout"
+msgstr "Нет ответа вовремя"
+
+msgid "adminV2.dashboard.health.reason.tls"
+msgstr "Сбой TLS-рукопожатия"
+
+msgid "adminV2.dashboard.health.running"
+msgstr "Проверка…"
+
+msgid "adminV2.dashboard.health.subtitle"
+msgstr "Каждый конфиг, проверка с сервера каждые 6 часов"
+
+msgid "adminV2.dashboard.health.technical"
+msgstr "Технические подробности"
+
+msgid "adminV2.dashboard.health.title"
+msgstr "Здоровье конфигов"
+
+msgid "adminV2.dashboard.health.unavailable"
+msgstr ""
+"Не удалось прочитать здоровье конфигов из панели. Проверьте логи, затем "
+"нажмите «Проверить сейчас»."
+
+msgid "adminV2.dashboard.health.working"
+msgstr "{ok} из {total} работают"
+
 msgid "adminV2.domain.addFailed"
 msgstr "Не удалось добавить домен"
 
@@ -2790,6 +3077,15 @@ msgstr "Порт 80 должен быть доступен из интернет
 msgid "adminV2.domains.cert.waiting"
 msgstr "Получение сертификата…"
 
+msgid "adminV2.domains.cert.rateLimited"
+msgstr "Лимит запросов у центра сертификации"
+
+msgid "adminV2.domains.cert.rateLimitedHint"
+msgstr ""
+"Let's Encrypt и ZeroSSL отказали: недавно запрашивалось слишком много "
+"сертификатов. Пока используется самоподписанный; панель повторит попытку "
+"сама, когда лимит спадёт."
+
 msgid "adminV2.domains.copyDomain"
 msgstr "Копировать домен"
 
@@ -2817,7 +3113,7 @@ msgid "adminV2.domains.field.aliasHint"
 msgstr "Показывается в приложениях пользователей вместо домена."
 
 msgid "adminV2.domains.field.cdnIp"
-msgstr "🔂 Принудительно использовать в конфигурациях эти IP / домены"
+msgstr "Принудительно использовать в конфигурациях эти IP / домены"
 
 msgid "adminV2.domains.field.cdnIpHint"
 msgstr ""
@@ -2834,7 +3130,7 @@ msgid "adminV2.domains.field.domainRequired"
 msgstr "Введите домен"
 
 msgid "adminV2.domains.field.downloadDomain"
-msgstr "📈 Домен загрузки"
+msgstr "Домен загрузки"
 
 msgid "adminV2.domains.field.downloadDomainHint"
 msgstr ""
@@ -2842,7 +3138,7 @@ msgstr ""
 "обнаружить, часто быстрее."
 
 msgid "adminV2.domains.field.ech"
-msgstr "🔐 ECH"
+msgstr "ECH"
 
 msgid "adminV2.domains.field.echHint"
 msgstr "Получать и использовать Encrypted Client Hello для этого домена CDN."
@@ -2860,7 +3156,7 @@ msgid "adminV2.domains.field.extraObject"
 msgstr "Должен быть JSON-объект"
 
 msgid "adminV2.domains.field.fronting"
-msgstr "🎭 Domain fronting"
+msgstr "Domain fronting"
 
 msgid "adminV2.domains.field.frontingHint"
 msgstr ""
@@ -2900,7 +3196,7 @@ msgstr ""
 "«Дополнительно» → «Принудительные IP»."
 
 msgid "adminV2.domains.field.resolveIp"
-msgstr "🔢 Разрешать IP"
+msgstr "Разрешать IP"
 
 msgid "adminV2.domains.field.resolveIpHint"
 msgstr ""
@@ -2935,14 +3231,130 @@ msgstr ""
 msgid "adminV2.domains.field.tlsMode"
 msgstr "Режим TLS"
 
+msgid "adminV2.domains.field.cdnIpScanner"
+msgstr "Найти рабочие IP сканером"
+
+msgid "adminV2.domains.field.cdnIpScannerGo"
+msgstr "Открыть сканер"
+
+msgid "adminV2.domains.field.cdnIpScannerHint"
+msgstr ""
+"Сканирует IP Cloudflare в вашей сети и сохраняет лучшие здесь, по "
+"операторам."
+
+msgid "adminV2.domains.field.fragment"
+msgstr "TLS Fragment"
+
+msgid "adminV2.domains.field.fragmentDelays"
+msgstr "Задержки"
+
+msgid "adminV2.domains.field.fragmentDelaysHint"
+msgstr "Один или несколько интервалов через запятую (задержки FinalMask)."
+
+msgid "adminV2.domains.field.fragmentHint"
+msgstr ""
+"Переопределить настройку TLS Fragment панели только для этого CDN-домена. "
+"Разным операторам и CDN часто нужны разные значения size / delay."
+
+msgid "adminV2.domains.field.fragmentInheritDetail"
+msgstr ""
+"По умолчанию панели: {state} ({size}, {sleep}, {packets}). Оставьте "
+"size/sleep/packets пустыми, чтобы использовать эти значения."
+
+msgid "adminV2.domains.field.fragmentInheritHint"
+msgstr "Следует настройке TLS Fragment панели."
+
+msgid "adminV2.domains.field.fragmentLengths"
+msgstr "Длины"
+
+msgid "adminV2.domains.field.fragmentLengthsHint"
+msgstr "Один или несколько диапазонов через запятую (длины FinalMask)."
+
+msgid "adminV2.domains.field.fragmentMaxSplit"
+msgstr "Макс. разбиение"
+
+msgid "adminV2.domains.field.fragmentMode.inherit"
+msgstr "Как в панели"
+
+msgid "adminV2.domains.field.fragmentMode.off"
+msgstr "Всегда выкл."
+
+msgid "adminV2.domains.field.fragmentMode.on"
+msgstr "Всегда вкл."
+
+msgid "adminV2.domains.field.fragmentModeHint.off"
+msgstr ""
+"Fragment принудительно выключен для этого домена, даже если в панели он "
+"включён."
+
+msgid "adminV2.domains.field.fragmentModeHint.on"
+msgstr ""
+"Fragment принудительно включён для этого домена, даже если в панели он "
+"выключен."
+
+msgid "adminV2.domains.field.fragmentModeLabel"
+msgstr "Режим"
+
+msgid "adminV2.domains.field.fragmentOff"
+msgstr "выкл."
+
+msgid "adminV2.domains.field.fragmentOn"
+msgstr "вкл."
+
+msgid "adminV2.domains.field.fragmentPackets"
+msgstr "Пакеты"
+
+msgid "adminV2.domains.field.fragmentPacketsHint"
+msgstr "Обычно tlshello или 1-3."
+
+msgid "adminV2.domains.field.fragmentScannerGo"
+msgstr "Попробовать пресеты в сканере"
+
+msgid "adminV2.domains.field.fragmentSize"
+msgstr "Длины"
+
+msgid "adminV2.domains.field.fragmentSleep"
+msgstr "Задержки"
+
 msgid "adminV2.domains.getCert"
 msgstr "Получить сертификат"
 
+msgid "adminV2.domains.guide.dragText"
+msgstr ""
+"Строки раздвигаются; на компьютере можно также выбрать ручку и нажать ↑ или "
+"↓."
+
+msgid "adminV2.domains.guide.dragTitle"
+msgstr "Перетащите вверх или вниз и отпустите"
+
+msgid "adminV2.domains.guide.gotIt"
+msgstr "Понятно"
+
+msgid "adminV2.domains.guide.grabText"
+msgstr "Значок ☰ в начале строки — мышью или пальцем."
+
+msgid "adminV2.domains.guide.grabTitle"
+msgstr "Возьмите домен за ручку"
+
+msgid "adminV2.domains.guide.lead"
+msgstr ""
+"Порядок важен: конфиги перечисляют домены в этом порядке, а первый "
+"используется для ссылок на панель."
+
+msgid "adminV2.domains.guide.orderText"
+msgstr ""
+"Он сохраняется сразу: конфиги пользователей теперь идут в этом порядке."
+
+msgid "adminV2.domains.guide.orderTitle"
+msgstr "Это новый порядок"
+
+msgid "adminV2.domains.guide.title"
+msgstr "Расставьте домены по порядку"
+
 msgid "adminV2.domains.howto"
 msgstr ""
-"Порядок важен: перетащите (или используйте стрелки) для сортировки. "
-"Конфигурации перечисляют домены в этом порядке, а первый используется для "
-"ссылок панели."
+"Порядок важен: перетащите за ручку ☰, чтобы отсортировать. Конфигурации "
+"перечисляют домены в этом порядке, а первый используется для ссылок панели."
 
 msgid "adminV2.domains.howtoFiltered"
 msgstr "Очистите поиск и фильтры, чтобы изменить порядок."
@@ -3016,6 +3428,40 @@ msgstr "(без имени)"
 
 msgid "adminV2.domains.notChanged"
 msgstr "Не изменено"
+
+msgid "adminV2.domains.notice.expired"
+msgstr "Срок действия сертификата истёк: приложения не подключаются."
+
+msgid "adminV2.domains.notice.failed"
+msgstr "Нет действительного сертификата: получить его не удалось."
+
+msgid "adminV2.domains.notice.invalid"
+msgstr "Сертификат недействителен для этого домена."
+
+msgid "adminV2.domains.notice.missing"
+msgstr "Сертификата пока нет."
+
+msgid "adminV2.domains.notice.rate_limited"
+msgstr ""
+"Получение сертификата приостановлено: достигнут лимит центров сертификации. "
+"Попытка будет позже."
+
+msgid "adminV2.domains.notice.renew_failed"
+msgstr "Сертификат ещё действует, но продлить его не удалось."
+
+msgid "adminV2.domains.notice.saved"
+msgstr "Домены · сохранено с предупреждением"
+
+msgid "adminV2.domains.notice.self_signed"
+msgstr ""
+"Есть только временный самоподписанный сертификат: приложения предупреждают "
+"или отказывают."
+
+msgid "adminV2.domains.notice.title"
+msgstr "Домены · {domain}"
+
+msgid "adminV2.domains.notice.where"
+msgstr "Подробнее: страница «Домены»."
 
 msgid "adminV2.domains.openPanel"
 msgstr "Открыть панель на этом домене"
@@ -3187,6 +3633,15 @@ msgstr "Действителен"
 
 msgid "adminV2.domains.tls.validHint"
 msgstr "Настоящий сертификат; продлевается автоматически."
+
+msgid "adminV2.domains.tls.failed"
+msgstr "Сертификат не получен"
+
+msgid "adminV2.domains.tls.rateLimited"
+msgstr "Лимит запросов"
+
+msgid "adminV2.domains.tls.renewFailed"
+msgstr "Действителен · обновление не удалось"
 
 msgid "adminV2.domains.tlsMode.dns"
 msgstr "DNS"
@@ -3388,8 +3843,114 @@ msgstr "Какой TLS?"
 msgid "adminV2.domains.wizard.unlikely"
 msgstr "DNS не совпадает"
 
+msgid "adminV2.domains.emptyTitle"
+msgstr "Доменов пока нет"
+
+msgid "adminV2.domains.emptyHint"
+msgstr "Добавьте первый домен, чтобы пользователи могли подключаться."
+
+msgid "adminV2.domains.tricks.custom.hint"
+msgstr "Вставьте любой FinalMaskObject (tcp / udp / quicParams)"
+
+msgid "adminV2.domains.tricks.custom.invalidJson"
+msgstr "Некорректный JSON"
+
+msgid "adminV2.domains.tricks.custom.mustObject"
+msgstr "Должен быть JSON-объект (не массив)"
+
+msgid "adminV2.domains.tricks.custom.name"
+msgstr "Свой"
+
+msgid "adminV2.domains.tricks.custom.tune"
+msgstr "Свой FinalMask"
+
+msgid "adminV2.domains.tricks.custom.tuneHint"
+msgstr ""
+"Редактируйте JSON FinalMask напрямую. Хранится как tricks.finalmask и "
+"отправляется клиентам как есть."
+
+msgid "adminV2.domains.tricks.docs"
+msgstr "Документация FinalMask"
+
+msgid "adminV2.domains.tricks.lead"
+msgstr ""
+"Необязательный клиентский FinalMask для этого CDN-домена. Выберите шаблон "
+"или вставьте свой объект."
+
+msgid "adminV2.domains.tricks.off"
+msgstr "Нет"
+
+msgid "adminV2.domains.tricks.offHint"
+msgstr "Без трюка — обычное TLS-рукопожатие"
+
+msgid "adminV2.domains.tricks.presets.1-3"
+msgstr "Пакеты 1-3"
+
+msgid "adminV2.domains.tricks.presets.coarse"
+msgstr "Грубый"
+
+msgid "adminV2.domains.tricks.presets.default"
+msgstr "По умолчанию"
+
+msgid "adminV2.domains.tricks.presets.fine"
+msgstr "Тонкий"
+
+msgid "adminV2.domains.tricks.presets.multi"
+msgstr "Мульти"
+
+msgid "adminV2.domains.tricks.presets.tight"
+msgstr "Плотный"
+
+msgid "adminV2.domains.tricks.preview"
+msgstr "Что получают клиенты"
+
+msgid "adminV2.domains.tricks.title"
+msgstr "Трюки"
+
+msgid "adminV2.domains.tricks.tlsFragment.delays"
+msgstr "Задержки"
+
+msgid "adminV2.domains.tricks.tlsFragment.delaysHint"
+msgstr "Миллисекунды между частями, через запятую (например 50-200)."
+
+msgid "adminV2.domains.tricks.tlsFragment.hint"
+msgstr "Разбивает TLS ClientHello (фрагмент FinalMask)"
+
+msgid "adminV2.domains.tricks.tlsFragment.lengths"
+msgstr "Длины"
+
+msgid "adminV2.domains.tricks.tlsFragment.lengthsHint"
+msgstr ""
+"Диапазоны байт на часть, через запятую (например 10-100 или 3-5, 6-8)."
+
+msgid "adminV2.domains.tricks.tlsFragment.maxSplit"
+msgstr "Макс. разбиение"
+
+msgid "adminV2.domains.tricks.tlsFragment.maxSplitHint"
+msgstr "Сколько частей максимум (например 3-6)."
+
+msgid "adminV2.domains.tricks.tlsFragment.name"
+msgstr "TLS Fragment"
+
+msgid "adminV2.domains.tricks.tlsFragment.packets"
+msgstr "Пакеты"
+
+msgid "adminV2.domains.tricks.tlsFragment.packetsHint"
+msgstr "tlshello = первая TLS-запись; 1-3 = первые несколько TCP-пакетов."
+
+msgid "adminV2.domains.tricks.tlsFragment.tune"
+msgstr "Настроить фрагмент"
+
+msgid "adminV2.domains.tricks.tlsFragment.tuneHint"
+msgstr ""
+"Начните с пресета, затем при необходимости правьте длины / задержки. "
+"Значения попадают в finalmask.tcp[].settings."
+
 msgid "adminV2.donation.close"
 msgstr "Закрыть"
+
+msgid "adminV2.donation.contact"
+msgstr "Если можете помочь, свяжитесь с нами: {email}"
 
 msgid "adminV2.donation.copied"
 msgstr "Адрес {name} скопирован"
@@ -3400,16 +3961,46 @@ msgstr "Скопировано"
 msgid "adminV2.donation.copyAddress"
 msgstr "Скопировать адрес {name}"
 
+msgid "adminV2.donation.help.content"
+msgstr "Авторы контента"
+
+msgid "adminV2.donation.help.flutter"
+msgstr "Flutter-разработчик"
+
+msgid "adminV2.donation.help.go"
+msgstr "Go-разработчик"
+
+msgid "adminV2.donation.help.python"
+msgstr "Python-разработчик"
+
+msgid "adminV2.donation.help.share"
+msgstr "Поделиться Hiddify Manager с друзьями"
+
+msgid "adminV2.donation.help.swift"
+msgstr "Swift-разработчик"
+
 msgid "adminV2.donation.networkHint"
 msgstr ""
 "Отправляйте каждую монету только в сети, указанной рядом с её названием: "
 "перевод в другой сети будет потерян."
+
+msgid "adminV2.donation.otherHelp"
+msgstr "Другая помощь"
+
+msgid "adminV2.donation.paymentMethods"
+msgstr "Способы оплаты"
 
 msgid "adminV2.donation.qr"
 msgstr "QR-код"
 
 msgid "adminV2.donation.qrOf"
 msgstr "QR-код адреса {name}"
+
+msgid "adminV2.donation.showLess"
+msgstr "Свернуть"
+
+msgid "adminV2.donation.showMore"
+msgstr "Показать больше"
 
 msgid "adminV2.donation.showQr"
 msgstr "Показать QR-код для {name}"
@@ -3605,6 +4196,21 @@ msgstr "Шаблоны"
 msgid "adminV2.menu.utils"
 msgstr "Утилиты"
 
+msgid "adminV2.menu.cleanIp"
+msgstr "Сканер"
+
+msgid "adminV2.menu.configTester"
+msgstr "Тестер конфигов"
+
+msgid "adminV2.menu.ssh"
+msgstr "SSH-терминал"
+
+msgid "adminV2.menu.textDecoders"
+msgstr "Декодеры текста"
+
+msgid "adminV2.menu.tools"
+msgstr "Инструменты"
+
 msgid "adminV2.nodeHome.connectedTo"
 msgstr "Этот узел подключён к родительской панели"
 
@@ -3729,6 +4335,53 @@ msgid "adminV2.nodes.errors.unreachable"
 msgstr ""
 "Не удалось связаться с узлом. Проверьте ссылку и убедитесь, что узел в сети."
 
+msgid "adminV2.nodes.errors.node_auth"
+msgstr "Нода не приняла админ-ссылку. Скопируйте админ-ссылку ноды ещё раз."
+
+msgid "adminV2.nodes.errors.node_connection"
+msgstr ""
+"Соединение между этой панелью и нодой оборвалось во время регистрации (нода "
+"могла перезапустить веб-сервер). Попробуйте через минуту."
+
+msgid "adminV2.nodes.errors.node_no_domain"
+msgstr ""
+"У ноды нет основного домена с действительным сертификатом. Сначала добавьте "
+"его на ноде."
+
+msgid "adminV2.nodes.errors.node_no_parent_url"
+msgstr "Нода не знает адрес этой панели."
+
+msgid "adminV2.nodes.errors.node_node_data"
+msgstr "Нода не смогла сохранить данные, полученные от этой панели."
+
+msgid "adminV2.nodes.errors.node_old"
+msgstr "Нода слишком старая, чтобы добавить её отсюда. Сначала обновите ноду."
+
+msgid "adminV2.nodes.errors.node_parent_bad_answer"
+msgstr ""
+"Эта панель дала ноде ответ, который та не смогла прочитать. Обновите обе "
+"панели до одной версии."
+
+msgid "adminV2.nodes.errors.node_parent_connection"
+msgstr ""
+"Нода не смогла достучаться до этой панели. Проверьте, что адрес этой панели "
+"открывается с сервера ноды."
+
+msgid "adminV2.nodes.errors.node_parent_rejected"
+msgstr ""
+"Нода достучалась до этой панели, но панель её отклонила. Подробности — в "
+"деталях."
+
+msgid "adminV2.nodes.errors.node_parent_timeout"
+msgstr ""
+"Нода пыталась зарегистрироваться у этой панели, но панель не ответила "
+"вовремя (вероятно, занята сохранением данных ноды). Попробуйте снова."
+
+msgid "adminV2.nodes.errors.node_timeout"
+msgstr ""
+"Нода не ответила вовремя. Возможно, она занята или перезапускается: "
+"проверьте её и попробуйте снова."
+
 msgid "adminV2.nodes.info.fromNode"
 msgstr "Последнее сообщение от узла"
 
@@ -3758,6 +4411,19 @@ msgstr "Только что"
 msgid "adminV2.nodes.lastSeen"
 msgstr "Последний контакт"
 
+msgid "adminV2.nodes.live.collecting"
+msgstr ""
+"Собираем данные в реальном времени… графики заполнятся в ближайшие минуты."
+
+msgid "adminV2.nodes.live.showLess"
+msgstr "Показать меньше"
+
+msgid "adminV2.nodes.live.showMore"
+msgstr "Показать больше"
+
+msgid "adminV2.nodes.live.unavailable"
+msgstr "Этот узел не ответил"
+
 msgid "adminV2.nodes.moreInfo"
 msgstr "Дополнительная информация"
 
@@ -3766,6 +4432,40 @@ msgstr "Никогда"
 
 msgid "adminV2.nodes.openAdmin"
 msgstr "Открыть"
+
+msgid "adminV2.nodes.pingDialog.avg"
+msgstr "сред."
+
+msgid "adminV2.nodes.pingDialog.button"
+msgstr "Пинг"
+
+msgid "adminV2.nodes.pingDialog.hint"
+msgstr ""
+"Отправлено {sent}, ответов {received} · пинг идёт, пока вы не закроете окно"
+
+msgid "adminV2.nodes.pingDialog.loss"
+msgstr "потери"
+
+msgid "adminV2.nodes.pingDialog.max"
+msgstr "макс."
+
+msgid "adminV2.nodes.pingDialog.min"
+msgstr "мин."
+
+msgid "adminV2.nodes.pingDialog.noAddress"
+msgstr "Адрес узла неизвестен"
+
+msgid "adminV2.nodes.pingDialog.running"
+msgstr "пинг идёт"
+
+msgid "adminV2.nodes.pingDialog.tcp"
+msgstr "TCP (ICMP недоступен)"
+
+msgid "adminV2.nodes.pingDialog.timeout"
+msgstr "Нет ответа"
+
+msgid "adminV2.nodes.pingDialog.title"
+msgstr "Пинг · {name}"
 
 msgid "adminV2.nodes.reachable"
 msgstr "Доступен"
@@ -3845,6 +4545,27 @@ msgstr "Узлы"
 
 msgid "adminV2.nodes.unreachable"
 msgstr "Недоступен"
+
+msgid "adminV2.nodes.errorReg"
+msgstr "Id регистрации {id} (есть в строках логов обеих панелей)"
+
+msgid "adminV2.nodes.errorSide.between"
+msgstr "Ошибка на пути между этой панелью и нодой"
+
+msgid "adminV2.nodes.errorSide.node"
+msgstr "Ошибка на ноде"
+
+msgid "adminV2.nodes.errorSide.parent"
+msgstr "Ошибка на этой панели"
+
+msgid "adminV2.nodes.syncInfo"
+msgstr "Подробности синхронизации"
+
+msgid "adminV2.nodes.syncInfoTitle"
+msgstr "Подробности синхронизации: {name}"
+
+msgid "adminV2.nodes.syncInfoUnavailable"
+msgstr "Ноду не удалось опросить"
 
 msgid "adminV2.outbounds.add"
 msgstr "Добавить исходящее подключение"
@@ -4081,7 +4802,7 @@ msgid "adminV2.outbounds.mode.psiphon"
 msgstr "Psiphon"
 
 msgid "adminV2.outbounds.mode.socks"
-msgstr "SOCKS"
+msgstr "Socks"
 
 msgid "adminV2.outbounds.mode.tor"
 msgstr "Tor"
@@ -4175,10 +4896,16 @@ msgstr "{name} сохранено"
 msgid "adminV2.outbounds.subtitle"
 msgstr ""
 "Выберите по порядку, куда трафик выходит с этого сервера: через WARP, "
-"напрямую, блокировка или выход через SOCKS, Tor или Psiphon."
+"напрямую, блокировка или выход через Socks, Tor или Psiphon."
 
 msgid "adminV2.outbounds.title"
 msgstr "Исходящие подключения"
+
+msgid "adminV2.outbounds.torMissing"
+msgstr ""
+"Tor включён, но программа `tor` не установлена на этом сервере, поэтому она "
+"не попадает в конфиги. Установите Tor (напр. apt install tor) и примените "
+"конфиги."
 
 msgid "adminV2.passwordRules.common"
 msgstr "не распространённый пароль"
@@ -4659,7 +5386,7 @@ msgid "adminV2.proxy.linkTemplate"
 msgstr "Шаблон ссылки"
 
 msgid "adminV2.proxy.listTitle"
-msgstr "Пользовательские прокси"
+msgstr "Прокси"
 
 msgid "adminV2.proxy.mode"
 msgstr "Режим"
@@ -4949,6 +5676,18 @@ msgstr "TCP или UDP для отдачи"
 
 msgid "adminV2.proxy.version"
 msgstr "Версия"
+
+msgid "adminV2.proxy.quickEnable"
+msgstr "Включить сейчас"
+
+msgid "adminV2.proxy.quickEnableDone"
+msgstr "Настройки сохранены, прокси включён"
+
+msgid "adminV2.proxy.quickEnableHint"
+msgstr "Этому прокси нужны эти настройки. Задайте их здесь и включите сейчас:"
+
+msgid "adminV2.proxy.wireguardTemplate"
+msgstr "Шаблон WireGuard .conf"
 
 msgid "adminV2.qr.clickToCopy"
 msgstr "Нажмите, чтобы скопировать изображение"
@@ -5522,6 +6261,15 @@ msgstr ""
 msgid "adminV2.telegram.promptTitle"
 msgstr "Подключить Telegram?"
 
+msgid "adminV2.telegram.stepCreate"
+msgstr "Создавайте пользователя прямо в чате"
+
+msgid "adminV2.telegram.stepStart"
+msgstr "Запустите бота: откроется его меню"
+
+msgid "adminV2.telegram.stepUsers"
+msgstr "Смотрите пользователей и их трафик"
+
 msgid "adminV2.telegram.reconnect"
 msgstr "Подключить снова"
 
@@ -5648,6 +6396,118 @@ msgid "adminV2.templateVariables.skipHint"
 msgstr ""
 "Выведите SKIP или вызовите skip(), чтобы пропустить рендеринг этого прокси, "
 "если условие не выполнено"
+
+msgid "adminV2.notifications.title"
+msgstr "Уведомления"
+
+msgid "adminV2.notifications.unread"
+msgstr "{n} новое уведомление | {n} новых уведомлений"
+
+msgid "adminV2.notifications.new"
+msgstr "Новое"
+
+msgid "adminV2.notifications.dismiss"
+msgstr "Скрыть"
+
+msgid "adminV2.pwa.guide.platform"
+msgstr "Ваше устройство"
+
+msgid "adminV2.pwa.guide.tabIos"
+msgstr "iPhone · Safari"
+
+msgid "adminV2.pwa.guide.tabAndroid"
+msgstr "Android · Chrome"
+
+msgid "adminV2.pwa.guide.tabDesktop"
+msgstr "{os} · Chrome"
+
+msgid "adminV2.pwa.guide.ios1"
+msgstr "В Safari нажмите кнопку ••• на нижней панели"
+
+msgid "adminV2.pwa.guide.ios2"
+msgstr "Нажмите «Поделиться»"
+
+msgid "adminV2.pwa.guide.ios3"
+msgstr "Выберите «На экран «Домой»»"
+
+msgid "adminV2.pwa.guide.ios4"
+msgstr "Нажмите «Добавить»: панель появится на экране «Домой»"
+
+msgid "adminV2.pwa.guide.android1"
+msgstr "В Chrome нажмите меню ⋮ вверху"
+
+msgid "adminV2.pwa.guide.android2"
+msgstr "Выберите «Добавить на главный экран» (или «Установить приложение»)"
+
+msgid "adminV2.pwa.guide.android3"
+msgstr "Нажмите «Установить»: панель откроется как приложение"
+
+msgid "adminV2.pwa.guide.computer"
+msgstr "Компьютер"
+
+msgid "adminV2.pwa.guide.desktop1"
+msgstr "В Chrome нажмите значок установки в конце адресной строки"
+
+msgid "adminV2.pwa.guide.desktop2"
+msgstr "Нажмите «Установить»"
+
+msgid "adminV2.pwa.guide.desktop3"
+msgstr "Панель откроется в своём окне, как приложение"
+
+msgid "adminV2.pwa.gotIt"
+msgstr "Понятно"
+
+msgid "adminV2.pwa.installNow"
+msgstr "Установить сейчас"
+
+msgid "adminV2.pwa.later"
+msgstr "Не сейчас"
+
+msgid "adminV2.pwa.never"
+msgstr "Больше не показывать"
+
+msgid "adminV2.pwa.text"
+msgstr ""
+"Панель будет в одном касании, как любое приложение на телефоне или "
+"компьютере."
+
+msgid "adminV2.pwa.title"
+msgstr "Установить панель как приложение"
+
+msgid "adminV2.pwa.bannerText"
+msgstr ""
+"Открывайте с домашнего экрана или рабочего стола в отдельном окне, как "
+"приложение."
+
+msgid "adminV2.pwa.bannerTitle"
+msgstr "Установить панель как приложение"
+
+msgid "adminV2.pwa.install"
+msgstr "Установить"
+
+msgid "adminV2.pwa.installButton"
+msgstr "Установить как приложение"
+
+msgid "adminV2.pwa.iosAdd"
+msgstr "Выберите «На экран «Домой»»"
+
+msgid "adminV2.pwa.iosShare"
+msgstr "Нажмите кнопку «Поделиться»"
+
+msgid "adminV2.pwa.menuInstall"
+msgstr "Выберите «Установить приложение» (или «На экран «Домой»»)"
+
+msgid "adminV2.pwa.menuOpen"
+msgstr "Откройте меню браузера"
+
+msgid "adminV2.pwa.perkFast"
+msgstr "Один тап с домашнего экрана"
+
+msgid "adminV2.pwa.perkFresh"
+msgstr "Всегда последняя версия панели"
+
+msgid "adminV2.pwa.perkWindow"
+msgstr "Своё полноэкранное окно без панелей браузера"
 
 msgid "adminV2.theme.caddy"
 msgstr "Тема Smart Caddy"
@@ -5923,6 +6783,9 @@ msgstr "Дополнительные конфигурации подписки �
 msgid "adminV2.users.extra.telegramHint"
 msgstr "Аккаунт Telegram привязан"
 
+msgid "adminV2.users.extra.telegramMessage"
+msgstr "Отправить сообщение Telegram этому пользователю"
+
 msgid "adminV2.users.filter.active"
 msgstr "Активные"
 
@@ -5976,6 +6839,18 @@ msgstr "Не появлялись неделю"
 
 msgid "adminV2.users.filter.unseen_weekHint"
 msgstr "Подключались раньше, но не за последние 7 дней"
+
+msgid "adminV2.users.filter.online"
+msgstr "Онлайн"
+
+msgid "adminV2.users.filter.onlineHint"
+msgstr "Подключались за последние 2 минуты"
+
+msgid "adminV2.users.filter.telegram"
+msgstr "Есть Telegram"
+
+msgid "adminV2.users.filter.telegramHint"
+msgstr "Пользователи, запустившие бота: им можно слать сообщения"
 
 msgid "adminV2.users.filtersLabel"
 msgstr "Фильтр пользователей"
@@ -6207,6 +7082,11 @@ msgstr "Начнётся при первом подключении и нико�
 msgid "adminV2.users.form.who"
 msgstr "Кто"
 
+msgid "adminV2.users.form.outboundReadOnly"
+msgstr ""
+"Вы видите предпочтительный исходящий, но менять его может только админ с "
+"разрешением."
+
 msgid "adminV2.users.groupByOwner"
 msgstr "Группировать по админам"
 
@@ -6413,6 +7293,71 @@ msgstr ""
 msgid "adminV2.users.title"
 msgstr "Пользователи"
 
+msgid "adminV2.users.autoRefresh"
+msgstr "Автообновление"
+
+msgid "adminV2.users.autoRefreshOff"
+msgstr "Выкл."
+
+msgid "adminV2.users.bulkCreate.copy"
+msgstr "Копировать все"
+
+msgid "adminV2.users.bulkCreate.count"
+msgstr "Сколько"
+
+msgid "adminV2.users.bulkCreate.countHint"
+msgstr "От 1 до {max}"
+
+msgid "adminV2.users.bulkCreate.create"
+msgstr "Создать {n} пользователя | Создать {n} пользователей"
+
+msgid "adminV2.users.bulkCreate.domain"
+msgstr "Домен ссылки"
+
+msgid "adminV2.users.bulkCreate.done"
+msgstr "Создан {n} пользователь | Создано {n} пользователей"
+
+msgid "adminV2.users.bulkCreate.download"
+msgstr "Скачать .txt"
+
+msgid "adminV2.users.bulkCreate.links"
+msgstr "Ссылки"
+
+msgid "adminV2.users.bulkCreate.linksSubtitle"
+msgstr "{n} ссылка готова к копированию | {n} ссылок готовы к копированию"
+
+msgid "adminV2.users.bulkCreate.linksTitle"
+msgstr "Ссылки пользователей"
+
+msgid "adminV2.users.bulkCreate.menu"
+msgstr "Добавить много пользователей"
+
+msgid "adminV2.users.bulkCreate.prefix"
+msgstr "Префикс имени"
+
+msgid "adminV2.users.bulkCreate.prefixHint"
+msgstr "Каждый пользователь называется prefix-01, prefix-02, …"
+
+msgid "adminV2.users.bulkCreate.prefixPlaceholder"
+msgstr "напр. USER-30d"
+
+msgid "adminV2.users.bulkCreate.preview"
+msgstr "Имена"
+
+msgid "adminV2.users.bulkCreate.subtitle"
+msgstr "Один пакет для всех. Имена — ваш префикс плюс номер."
+
+msgid "adminV2.users.bulkCreate.title"
+msgstr "Добавить много пользователей"
+
+msgid "adminV2.users.bulkCreate.who"
+msgstr "Кто"
+
+msgid "adminV2.users.readOnlyNode"
+msgstr ""
+"Пользователи управляются на родительской панели: здесь они только для "
+"чтения."
+
 msgid "adminV2.utils.addQuery"
 msgstr "Добавить параметр"
 
@@ -6551,10 +7496,10 @@ msgid "adminV2.utils.user"
 msgstr "Пользователь"
 
 msgid "adminV2.utils.vmessJson"
-msgstr "vmess JSON"
+msgstr "VMess JSON"
 
 msgid "adminV2.utils.vmessObject"
-msgstr "vmess JSON должен быть объектом"
+msgstr "VMess JSON должен быть объектом"
 
 msgid "adminV2.validation.errors"
 msgstr "Ошибки"
@@ -6567,6 +7512,2086 @@ msgstr "Проверка"
 
 msgid "adminV2.validation.warnings"
 msgstr "Предупреждения"
+
+msgid "adminV2.broadcast.audience.active"
+msgstr "Активные"
+
+msgid "adminV2.broadcast.audience.all"
+msgstr "Все"
+
+msgid "adminV2.broadcast.audience.expired"
+msgstr "Истекшие или отключённые"
+
+msgid "adminV2.broadcast.audience.hint"
+msgstr ""
+"Учитываются только пользователи, которые запустили вашего бота; удалённые "
+"пользователи сообщения никогда не получают."
+
+msgid "adminV2.broadcast.audience.offline_1d"
+msgstr "Офлайн 1 день+"
+
+msgid "adminV2.broadcast.audience.offline_1h"
+msgstr "Офлайн 1 час+"
+
+msgid "adminV2.broadcast.audience.offline_1w"
+msgstr "Офлайн 1 неделя+"
+
+msgid "adminV2.broadcast.audience.selected"
+msgstr "Выбранные пользователи"
+
+msgid "adminV2.broadcast.audience.title"
+msgstr "Кому отправить"
+
+msgid "adminV2.broadcast.confirm.text"
+msgstr ""
+"Отправится {n} пользователю ({audience}) в Telegram. Отменить нельзя. | "
+"Отправится {n} пользователям ({audience}) в Telegram. Отменить нельзя."
+
+msgid "adminV2.broadcast.confirm.title"
+msgstr "Отправить это сообщение?"
+
+msgid "adminV2.broadcast.dialogTitle"
+msgstr ""
+"Сообщение {n} выбранному пользователю | Сообщение {n} выбранным "
+"пользователям"
+
+msgid "adminV2.broadcast.extra.addImage"
+msgstr "Добавить изображение"
+
+msgid "adminV2.broadcast.extra.badType"
+msgstr "Используйте изображение JPEG, PNG или WebP."
+
+msgid "adminV2.broadcast.extra.imageHint"
+msgstr "Нажмите или перетащите · JPEG, PNG или WebP · до 10 МБ"
+
+msgid "adminV2.broadcast.extra.removeImage"
+msgstr "Удалить изображение"
+
+msgid "adminV2.broadcast.extra.title"
+msgstr "Изображение и параметры"
+
+msgid "adminV2.broadcast.extra.tooBig"
+msgstr "Изображение больше 10 МБ."
+
+msgid "adminV2.broadcast.extra.usage"
+msgstr "Добавить расход каждого пользователя и кнопки"
+
+msgid "adminV2.broadcast.extra.usageHint"
+msgstr ""
+"Остаток трафика и дней с кнопками к расходу и панели — после вашего текста."
+
+msgid "adminV2.broadcast.format.plain"
+msgstr "Обычный"
+
+msgid "adminV2.broadcast.fromUsers"
+msgstr "Сообщение"
+
+msgid "adminV2.broadcast.message.help.html"
+msgstr "Теги Telegram: b, i, u, s, a, code, pre, blockquote, tg-spoiler."
+
+msgid "adminV2.broadcast.message.help.markdown"
+msgstr ""
+"**жирный** _курсив_ __подчёркнутый__ ~~зачёркнутый~~ "
+"{'|'}{'|'}спойлер{'|'}{'|'} `код` > цитата"
+
+msgid "adminV2.broadcast.message.help.plain"
+msgstr "Отправляется точно как написано."
+
+msgid "adminV2.broadcast.message.placeholder.html"
+msgstr "<b>Привет</b> <i>всем</i>…"
+
+msgid "adminV2.broadcast.message.placeholder.markdown"
+msgstr "Напишите сообщение… **жирный**, _курсив_, [ссылка](https://…)"
+
+msgid "adminV2.broadcast.message.placeholder.plain"
+msgstr "Напишите сообщение…"
+
+msgid "adminV2.broadcast.message.title"
+msgstr "Сообщение"
+
+msgid "adminV2.broadcast.message.toolbar"
+msgstr "Форматирование"
+
+msgid "adminV2.broadcast.noBot.action"
+msgstr "Открыть настройки"
+
+msgid "adminV2.broadcast.noBot.text"
+msgstr ""
+"Добавьте токен бота в настройках; пользователи, которые запустят бота, "
+"смогут получать сообщения."
+
+msgid "adminV2.broadcast.noBot.title"
+msgstr "Telegram-бот не настроен"
+
+msgid "adminV2.broadcast.preview.bot"
+msgstr "Ваш бот"
+
+msgid "adminV2.broadcast.preview.botLabel"
+msgstr "бот"
+
+msgid "adminV2.broadcast.preview.buttonLink"
+msgstr "🔗 Моя панель"
+
+msgid "adminV2.broadcast.preview.buttonUsage"
+msgstr "📊 Расход"
+
+msgid "adminV2.broadcast.preview.empty"
+msgstr "Здесь появится ваше сообщение так, как его увидят пользователи."
+
+msgid "adminV2.broadcast.preview.title"
+msgstr "Предпросмотр"
+
+msgid "adminV2.broadcast.preview.usage"
+msgstr "Здесь будет расход каждого пользователя"
+
+msgid "adminV2.broadcast.progress.again"
+msgstr "Новое сообщение"
+
+msgid "adminV2.broadcast.progress.counts"
+msgstr "Доставлено {sent} из {total}"
+
+msgid "adminV2.broadcast.progress.done"
+msgstr "Отправлено"
+
+msgid "adminV2.broadcast.progress.errors"
+msgstr "Почему {n} не доставлены"
+
+msgid "adminV2.broadcast.progress.failed"
+msgstr "{n} не доставлено"
+
+msgid "adminV2.broadcast.progress.sending"
+msgstr "Отправка…"
+
+msgid "adminV2.broadcast.recipients.active"
+msgstr "Активные"
+
+msgid "adminV2.broadcast.recipients.all"
+msgstr "Все"
+
+msgid "adminV2.broadcast.recipients.count"
+msgstr "Выбрано {n} из {total}"
+
+msgid "adminV2.broadcast.recipients.empty"
+msgstr "Никто из этой аудитории не запустил бота."
+
+msgid "adminV2.broadcast.recipients.failed"
+msgstr "Не удалось загрузить пользователей"
+
+msgid "adminV2.broadcast.recipients.inactive"
+msgstr "Истекшие или отключённые"
+
+msgid "adminV2.broadcast.recipients.more"
+msgstr "Показать ещё {n}"
+
+msgid "adminV2.broadcast.recipients.never"
+msgstr "никогда не был онлайн"
+
+msgid "adminV2.broadcast.recipients.noMatch"
+msgstr "Нет подходящих пользователей."
+
+msgid "adminV2.broadcast.recipients.none"
+msgstr "Нет"
+
+msgid "adminV2.broadcast.recipients.search"
+msgstr "Поиск по имени или Telegram id"
+
+msgid "adminV2.broadcast.recipients.title"
+msgstr "Кому отправить"
+
+msgid "adminV2.broadcast.send.button"
+msgstr "Отправить"
+
+msgid "adminV2.broadcast.send.choose"
+msgstr "Выберите, кому отправить"
+
+msgid "adminV2.broadcast.send.failed"
+msgstr "Не удалось отправить"
+
+msgid "adminV2.broadcast.send.to"
+msgstr "{n} пользователю | {n} пользователям"
+
+msgid "adminV2.broadcast.subtitle"
+msgstr "Пишите пользователям в Telegram: текст, форматирование и изображение"
+
+msgid "adminV2.broadcast.title"
+msgstr "Отправить сообщение"
+
+msgid "adminV2.broadcast.tool.bold"
+msgstr "Жирный"
+
+msgid "adminV2.broadcast.tool.code"
+msgstr "Код"
+
+msgid "adminV2.broadcast.tool.italic"
+msgstr "Курсив"
+
+msgid "adminV2.broadcast.tool.link"
+msgstr "Ссылка"
+
+msgid "adminV2.broadcast.tool.list"
+msgstr "Список"
+
+msgid "adminV2.broadcast.tool.pre"
+msgstr "Блок кода"
+
+msgid "adminV2.broadcast.tool.quote"
+msgstr "Цитата"
+
+msgid "adminV2.broadcast.tool.spoiler"
+msgstr "Спойлер"
+
+msgid "adminV2.broadcast.tool.strike"
+msgstr "Зачёркнутый"
+
+msgid "adminV2.broadcast.tool.underline"
+msgstr "Подчёркнутый"
+
+msgid "adminV2.cleanIp.addCount"
+msgstr "Добавить {count}"
+
+msgid "adminV2.cleanIp.addSpares"
+msgstr "Добавить как запасные"
+
+msgid "adminV2.cleanIp.advanced"
+msgstr "Полный тест с загрузкой, с другого устройства"
+
+msgid "adminV2.cleanIp.advancedHint"
+msgstr ""
+"Используйте, если найденные выше IP всё ещё не подключаются: некоторые "
+"операторы обрывают соединение после небольшой загрузки, что браузер не может"
+" проверить. Даёт команду для запуска на телефоне или компьютере."
+
+msgid "adminV2.cleanIp.advancedTag"
+msgstr "Необязательно"
+
+msgid "adminV2.cleanIp.asUnknown"
+msgstr "Номер AS этой сети не определён (в IP-базе панели нет записи о ней)."
+
+msgid "adminV2.cleanIp.auto"
+msgstr ""
+"Самостоятельно переключать заблокированный REALITY SNI на рабочий запасной"
+
+msgid "adminV2.cleanIp.autoTitle"
+msgstr "Автоматическое переключение"
+
+msgid "adminV2.cleanIp.best"
+msgstr "лучший {ms} мс"
+
+msgid "adminV2.cleanIp.built"
+msgstr "{count} IP для {isp}."
+
+msgid "adminV2.cleanIp.byAdmin"
+msgstr "администратором"
+
+msgid "adminV2.cleanIp.byAuto"
+msgstr "самостоятельно, заблокирован на {isp}"
+
+msgid "adminV2.cleanIp.candidates"
+msgstr "SNI для теста"
+
+msgid "adminV2.cleanIp.candidatesCount"
+msgstr "{count} имён"
+
+msgid "adminV2.cleanIp.candidatesFound"
+msgstr "{ok} из {tested} SNI для теста работают здесь"
+
+msgid "adminV2.cleanIp.candidatesFrom"
+msgstr "из OONI"
+
+msgid "adminV2.cleanIp.candidatesHint"
+msgstr ""
+"Сайты, которые OONI видел доступными в Иране, по одному в строке; правьте "
+"свободно. Используемые REALITY SNI и запасные тоже всегда тестируются."
+
+msgid "adminV2.cleanIp.candidatesReload"
+msgstr "Загрузить снова"
+
+msgid "adminV2.cleanIp.cmdNote"
+msgstr ""
+"Действует 24 часа. Может добавлять IP только к этому домену. Запускайте "
+"снова на каждом ISP (например, телефон на MCI, затем на Irancell)."
+
+msgid "adminV2.cleanIp.cmdUnix"
+msgstr "Linux, macOS, Android (Termux): нужен python3"
+
+msgid "adminV2.cleanIp.cmdWindows"
+msgstr "Windows (PowerShell): нужен Python"
+
+msgid "adminV2.cleanIp.copyAll"
+msgstr "Копировать всё"
+
+msgid "adminV2.cleanIp.domain"
+msgstr "CDN-домен"
+
+msgid "adminV2.cleanIp.dropped"
+msgstr ""
+"В старом значении были IP без имени ISP; оно заменено (две формы нельзя "
+"смешивать)."
+
+msgid "adminV2.cleanIp.editScript"
+msgstr "Редактировать шаблон"
+
+msgid "adminV2.cleanIp.estimate"
+msgstr "Около {count} IP из {ranges} диапазонов."
+
+msgid "adminV2.cleanIp.existingWarn"
+msgstr ""
+"У этого домена уже есть {count} адресов для {who}; сохранение заменит их:"
+
+msgid "adminV2.cleanIp.filtered"
+msgstr "заблокирован"
+
+msgid "adminV2.cleanIp.flow1"
+msgstr "Где и для кого?"
+
+msgid "adminV2.cleanIp.flow1Domain"
+msgstr "Какой домен?"
+
+msgid "adminV2.cleanIp.flow1DomainHint"
+msgstr "CDN-домен, в который поместить IP."
+
+msgid "adminV2.cleanIp.flow1Hint"
+msgstr "CDN-домен для IP и оператор, чьим пользователям они достанутся."
+
+msgid "adminV2.cleanIp.flow2"
+msgstr "Найти рабочие IP"
+
+msgid "adminV2.cleanIp.flow2Hint"
+msgstr ""
+"Тест из этого браузера в той сети, где он сейчас: откройте эту страницу у "
+"выбранного выше оператора, с выключенным VPN."
+
+msgid "adminV2.cleanIp.flow3"
+msgstr "Добавить их в домен"
+
+msgid "adminV2.cleanIp.flow3On"
+msgstr "на"
+
+msgid "adminV2.cleanIp.flow3Scanning"
+msgstr "Сканирование… самые быстрые IP появятся здесь по завершении."
+
+msgid "adminV2.cleanIp.flow3Sentence"
+msgstr "Эти {count} IP получат пользователи"
+
+msgid "adminV2.cleanIp.flow3Wait"
+msgstr "Запустите сканирование выше: его самые быстрые IP появятся здесь."
+
+msgid "adminV2.cleanIp.flowAllHint"
+msgstr ""
+"Что будет сохранено: IP выше для этого оператора; строки других операторов "
+"останутся как есть. Можно править."
+
+msgid "adminV2.cleanIp.flowIps"
+msgstr "IP для сохранения"
+
+msgid "adminV2.cleanIp.flowIpsHint"
+msgstr ""
+"Самые быстрые из скана; удалите часть или добавьте свои IP, диапазоны или "
+"домены."
+
+msgid "adminV2.cleanIp.flowShowAll"
+msgstr "Показать все IP этого домена (все операторы)"
+
+msgid "adminV2.cleanIp.fragment.applied"
+msgstr "Сохранено «{name}» на {domain}"
+
+msgid "adminV2.cleanIp.fragment.apply"
+msgstr "Применить"
+
+msgid "adminV2.cleanIp.fragment.current"
+msgstr "Текущее для этого домена"
+
+msgid "adminV2.cleanIp.fragment.currentBtn"
+msgstr "Применено"
+
+msgid "adminV2.cleanIp.fragment.disabled"
+msgstr "выкл."
+
+msgid "adminV2.cleanIp.fragment.enabled"
+msgstr "вкл."
+
+msgid "adminV2.cleanIp.fragment.lead"
+msgstr ""
+"CDN-доменам часто нужны свои значения TLS Fragment (FinalMask). Выберите "
+"домен, попробуйте пресет, затем проверьте в Config Tester или клиентом на "
+"этом ISP."
+
+msgid "adminV2.cleanIp.fragment.mode.inherit"
+msgstr "Выкл."
+
+msgid "adminV2.cleanIp.fragment.mode.off"
+msgstr "Выкл."
+
+msgid "adminV2.cleanIp.fragment.mode.on"
+msgstr "Вкл."
+
+msgid "adminV2.cleanIp.fragment.noCdn"
+msgstr "Сначала добавьте CDN или worker-домен."
+
+msgid "adminV2.cleanIp.fragment.presets.1-3"
+msgstr "Пакеты 1–3"
+
+msgid "adminV2.cleanIp.fragment.presets.coarse"
+msgstr "Крупная длина"
+
+msgid "adminV2.cleanIp.fragment.presets.default"
+msgstr "По умолчанию"
+
+msgid "adminV2.cleanIp.fragment.presets.fine"
+msgstr "Мелкая / быстрый интервал"
+
+msgid "adminV2.cleanIp.fragment.presets.multi"
+msgstr "Несколько длин"
+
+msgid "adminV2.cleanIp.fragment.presets.off"
+msgstr "Выкл."
+
+msgid "adminV2.cleanIp.fragment.presets.offHint"
+msgstr "Отключить фрагментацию для этого домена"
+
+msgid "adminV2.cleanIp.fragment.presets.tight"
+msgstr "Плотная (малая и быстрая)"
+
+msgid "adminV2.cleanIp.fragment.presetsHint"
+msgstr ""
+"Применяет трюк FinalMask TLS Fragment на этом домене. Затем протестируйте с "
+"нужного вам ISP."
+
+msgid "adminV2.cleanIp.fragment.presetsTitle"
+msgstr "Пресеты"
+
+msgid "adminV2.cleanIp.fragment.testHint"
+msgstr ""
+"Фрагментацию нельзя измерить в браузерном скане IP. После применения "
+"используйте Config Tester или клиент в этой сети, чтобы понять, какой пресет"
+" работает."
+
+msgid "adminV2.cleanIp.fullHint"
+msgstr ""
+"Некоторые ISP позволяют соединению открыться, а затем обрывают его примерно "
+"после 1,3 КБ загрузки. Браузер это не проверит; эта команда — да. Запускайте"
+" на компьютере или телефоне (Termux) у нужного ISP, с выключенным VPN. Через"
+" каждый IP она загружает данные на эту панель и проверяет, что вся загрузка "
+"дошла; прошедшие IP тестируются ещё 3 раза, поэтому нестабильные получают % "
+"потерь и идут в конец. Лучшие сохраняются для этого ISP."
+
+msgid "adminV2.cleanIp.fullLead"
+msgstr ""
+"Для операторов, которые обрывают соединение после небольшой загрузки: "
+"тестируйте с телефона или компьютера у этого оператора."
+
+msgid "adminV2.cleanIp.fullTitle"
+msgstr "Полный тест (с загрузкой)"
+
+msgid "adminV2.cleanIp.goDomains"
+msgstr "К доменам"
+
+msgid "adminV2.cleanIp.help"
+msgstr "Что это?"
+
+msgid "adminV2.cleanIp.history"
+msgstr "Переключения"
+
+msgid "adminV2.cleanIp.howItWorks"
+msgstr ""
+"Скан идёт в этом браузере в той сети, к которой он подключён (сервер панели "
+"за границей и не может это проверить). Откройте эту страницу на каждом "
+"нужном ISP, например на телефоне с MCI, затем с Irancell, и сохраните каждый"
+" результат: Hiddify даёт каждому пользователю IP его собственного ISP."
+
+msgid "adminV2.cleanIp.ip"
+msgstr "IP"
+
+msgid "adminV2.cleanIp.isp"
+msgstr "ISP"
+
+msgid "adminV2.cleanIp.kept"
+msgstr "Сохранено {count} IP других ISP."
+
+msgid "adminV2.cleanIp.latency"
+msgstr "Задержка"
+
+msgid "adminV2.cleanIp.loading"
+msgstr "Загрузка…"
+
+msgid "adminV2.cleanIp.loss"
+msgstr "{pct}% потерь"
+
+msgid "adminV2.cleanIp.makeAgain"
+msgstr "Создать новую команду"
+
+msgid "adminV2.cleanIp.makeCommand"
+msgstr "Создать команду"
+
+msgid "adminV2.cleanIp.newSni"
+msgstr "Другой SNI"
+
+msgid "adminV2.cleanIp.noCdnDomain"
+msgstr "Нет CDN или worker-домена. Сначала добавьте его на странице «Домены»."
+
+msgid "adminV2.cleanIp.noReality"
+msgstr "На этой панели нет REALITY-домена."
+
+msgid "adminV2.cleanIp.noSpares"
+msgstr ""
+"Пока нет запасных: добавьте несколько обычных сайтов ниже или из результатов"
+" теста SNI."
+
+msgid "adminV2.cleanIp.noneFound"
+msgstr ""
+"Ни один IP не ответил. Попробуйте больше IP на диапазон или больший таймаут."
+
+msgid "adminV2.cleanIp.notTested"
+msgstr "Ещё не протестировано: запустите тест SNI ниже у оператора."
+
+msgid "adminV2.cleanIp.notYet"
+msgstr "Нажмите «Старт», чтобы сканировать."
+
+msgid "adminV2.cleanIp.off"
+msgstr "Выкл."
+
+msgid "adminV2.cleanIp.on"
+msgstr "Вкл."
+
+msgid "adminV2.cleanIp.otherUsers"
+msgstr "все остальные операторы"
+
+msgid "adminV2.cleanIp.ovAuto"
+msgstr "автопереключение"
+
+msgid "adminV2.cleanIp.ovFiltered"
+msgstr "заблокирован"
+
+msgid "adminV2.cleanIp.ovHealthy"
+msgstr "рабочий"
+
+msgid "adminV2.cleanIp.ovSnis"
+msgstr "REALITY SNI"
+
+msgid "adminV2.cleanIp.ovSpares"
+msgstr "запасные"
+
+msgid "adminV2.cleanIp.passed"
+msgstr "{count} работают"
+
+msgid "adminV2.cleanIp.perIsp"
+msgstr "IP для этого ISP"
+
+msgid "adminV2.cleanIp.perRange"
+msgstr "Случайных IP на диапазон"
+
+msgid "adminV2.cleanIp.pickDomain"
+msgstr "Выберите CDN-домен"
+
+msgid "adminV2.cleanIp.pickIsp"
+msgstr "Выберите ISP"
+
+msgid "adminV2.cleanIp.pickIspFirst"
+msgstr "Выберите ISP, для которого эти результаты."
+
+msgid "adminV2.cleanIp.platformUnix"
+msgstr "Linux / macOS / Android"
+
+msgid "adminV2.cleanIp.platformWindows"
+msgstr "Windows"
+
+msgid "adminV2.cleanIp.preview"
+msgstr "Поле CDN IP (можно править)"
+
+msgid "adminV2.cleanIp.previewTitle"
+msgstr "IP этого домена по операторам (редактируемо)"
+
+msgid "adminV2.cleanIp.qHowMany"
+msgstr "Сколько IP?"
+
+msgid "adminV2.cleanIp.qHowManyHint"
+msgstr "Самые быстрые из вашего скана."
+
+msgid "adminV2.cleanIp.qWhere"
+msgstr "В каком домене?"
+
+msgid "adminV2.cleanIp.qWhereHint"
+msgstr "CDN-домен в ссылках ваших пользователей."
+
+msgid "adminV2.cleanIp.qWho"
+msgstr "Пользователям какого оператора?"
+
+msgid "adminV2.cleanIp.qWhoHint"
+msgstr ""
+"Пользователи, которые подключаются через этого оператора, получают эти IP."
+
+msgid "adminV2.cleanIp.qWhoMulti"
+msgstr ""
+"Начинается с AS вашей сети; добавьте других операторов или номера AS. Пусто:"
+" все остальные операторы."
+
+msgid "adminV2.cleanIp.ranges"
+msgstr "Диапазоны IP"
+
+msgid "adminV2.cleanIp.rangesCloudflare"
+msgstr "Cloudflare"
+
+msgid "adminV2.cleanIp.rangesCount"
+msgstr "{count} диапазонов"
+
+msgid "adminV2.cleanIp.rangesCustom"
+msgstr "свои"
+
+msgid "adminV2.cleanIp.rangesDone"
+msgstr "Готово"
+
+msgid "adminV2.cleanIp.rangesEdit"
+msgstr "Изменить"
+
+msgid "adminV2.cleanIp.rangesHint"
+msgstr ""
+"Один CIDR в строке, /8–/30. Из каждого берутся случайные IP; полный тест "
+"использует их тоже."
+
+msgid "adminV2.cleanIp.rangesInvalid"
+msgstr "Не диапазон IPv4 (например 104.16.0.0/13), пропущено: {list}"
+
+msgid "adminV2.cleanIp.rangesReset"
+msgstr "Вернуть диапазоны Cloudflare"
+
+msgid "adminV2.cleanIp.realityHint"
+msgstr ""
+"Тест REALITY SNI подключается к этому серверу с каждым REALITY SNI, как "
+"клиент REALITY, и показывает, на каких операторах он заблокирован. Держите "
+"несколько запасных SNI: заблокированный можно переключить на рабочий "
+"запасной — вами или автоматически. Перед любым переключением панель "
+"проверяет реальное REALITY-соединение через сайт и применяет конфиги после "
+"этого; пользователи получают новый SNI при следующем обновлении подписки."
+
+msgid "adminV2.cleanIp.realityTitle"
+msgstr "REALITY SNI"
+
+msgid "adminV2.cleanIp.rebuild"
+msgstr "Пересобрать"
+
+msgid "adminV2.cleanIp.received"
+msgstr "Результаты получены"
+
+msgid "adminV2.cleanIp.refreshNetwork"
+msgstr "Определить снова"
+
+msgid "adminV2.cleanIp.reportLine"
+msgstr ""
+"Протестировано {tested} с загрузкой {kb} КБ на панель, работают {found}"
+
+msgid "adminV2.cleanIp.reportNotSaved"
+msgstr "У Hiddify нет имени для этого ISP, поэтому ничего не сохранено."
+
+msgid "adminV2.cleanIp.reportSaved"
+msgstr "Сохранено {count} IP для {isp}:"
+
+msgid "adminV2.cleanIp.retry"
+msgstr "Повторить"
+
+msgid "adminV2.cleanIp.save"
+msgstr "Сохранить в домен"
+
+msgid "adminV2.cleanIp.saveFirstScan"
+msgstr "Сначала выполните шаг 1: его лучшие IP попадут сюда."
+
+msgid "adminV2.cleanIp.saveHint"
+msgstr ""
+"Лучшие IP попадают в поле «CDN IP» CDN-домена как пары «IP ISP»; IP других "
+"ISP, уже там, сохраняются."
+
+msgid "adminV2.cleanIp.saveSettings"
+msgstr "Сохранить"
+
+msgid "adminV2.cleanIp.saveTitle"
+msgstr "Сохранить для этого ISP"
+
+msgid "adminV2.cleanIp.saved"
+msgstr ""
+"Сохранено на {domain}. Пользователи получат их при следующем обновлении "
+"подписки."
+
+msgid "adminV2.cleanIp.scan"
+msgstr "Сканировать"
+
+msgid "adminV2.cleanIp.scanAgain"
+msgstr "Сканировать снова"
+
+msgid "adminV2.cleanIp.scanSettings"
+msgstr "Параметры скана"
+
+msgid "adminV2.cleanIp.scanSettingsSummary"
+msgstr "{ranges} диапазонов · около {count} IP · {sec} с на IP"
+
+msgid "adminV2.cleanIp.scanning"
+msgstr "Сканирование…"
+
+msgid "adminV2.cleanIp.scriptHint"
+msgstr ""
+"Сделано для этой команды из её шаблона (страница базовых конфигов). Правка "
+"там действует на следующую загрузку любой команды, в том числе этой."
+
+msgid "adminV2.cleanIp.scriptTitle"
+msgstr "Скрипт, который запускает эта команда"
+
+msgid "adminV2.cleanIp.settingsSaved"
+msgstr "Сохранено."
+
+msgid "adminV2.cleanIp.showAllResults"
+msgstr "Показать все {count} результатов"
+
+msgid "adminV2.cleanIp.showLess"
+msgstr "Свернуть"
+
+msgid "adminV2.cleanIp.sniServerBlocked"
+msgstr ""
+"Сам сервер не ответил у этого оператора (адрес заблокирован или недоступен),"
+" поэтому SNI не оценивались."
+
+msgid "adminV2.cleanIp.sniTestHint"
+msgstr ""
+"Запускается на телефоне или компьютере, с выключенным VPN, у проверяемого "
+"оператора. Сначала подключается с собственным именем сервера: если это не "
+"удаётся, адрес сервера там заблокирован и SNI не оцениваются. Запускайте по "
+"разу на каждом важном операторе."
+
+msgid "adminV2.cleanIp.sniTestLead"
+msgstr ""
+"Запустите эту команду на устройстве у проверяемого оператора: она покажет, "
+"какие SNI оператор блокирует, и запишет это здесь."
+
+msgid "adminV2.cleanIp.sniTestTitle"
+msgstr "Проверить SNI"
+
+msgid "adminV2.cleanIp.spares"
+msgstr "Запасные SNI (по одному в строке)"
+
+msgid "adminV2.cleanIp.sparesAdded"
+msgstr "Добавлено запасных: {count}"
+
+msgid "adminV2.cleanIp.sparesFull"
+msgstr "Не больше {max} запасных: остальные не добавлены."
+
+msgid "adminV2.cleanIp.sparesHint"
+msgstr ""
+"Заблокированный SNI переключается на один из этих, когда он работает у этого"
+" оператора. Полный тест проверяет их тоже."
+
+msgid "adminV2.cleanIp.sparesInvalid"
+msgstr "Не имя сайта, оставлено в поле: {list}"
+
+msgid "adminV2.cleanIp.sparesPasteHint"
+msgstr ""
+"Можно вставить список (по одному в строке или через пробелы / запятые). "
+"{count} из {max}."
+
+msgid "adminV2.cleanIp.sparesPlaceholder"
+msgstr "Сайт, например www.example.com, или вставьте список"
+
+msgid "adminV2.cleanIp.sparesTitle"
+msgstr "Запасные SNI"
+
+msgid "adminV2.cleanIp.start"
+msgstr "Старт"
+
+msgid "adminV2.cleanIp.statBest"
+msgstr "самый быстрый"
+
+msgid "adminV2.cleanIp.statTested"
+msgstr "протестировано"
+
+msgid "adminV2.cleanIp.statWorking"
+msgstr "работают"
+
+msgid "adminV2.cleanIp.stateBad"
+msgstr "Заблокирован на {count}"
+
+msgid "adminV2.cleanIp.stateNone"
+msgstr "Не протестировано"
+
+msgid "adminV2.cleanIp.stateOk"
+msgstr "Рабочий"
+
+msgid "adminV2.cleanIp.stop"
+msgstr "Стоп"
+
+msgid "adminV2.cleanIp.subtitle"
+msgstr ""
+"Найдите IP Cloudflare, которые работают в вашей сети, и отдайте их "
+"пользователям вашего ISP"
+
+msgid "adminV2.cleanIp.switch"
+msgstr "Переключить"
+
+msgid "adminV2.cleanIp.switched"
+msgstr "Сейчас используется {sni}; конфиги применяются."
+
+msgid "adminV2.cleanIp.tabFragment"
+msgstr "Fragment"
+
+msgid "adminV2.cleanIp.tabIp"
+msgstr "Сканер IP"
+
+msgid "adminV2.cleanIp.tabReality"
+msgstr "REALITY SNI"
+
+msgid "adminV2.cleanIp.tested"
+msgstr "Протестировано {done} из {total}"
+
+msgid "adminV2.cleanIp.timeout"
+msgstr "Таймаут на IP"
+
+msgid "adminV2.cleanIp.title"
+msgstr "Сканер"
+
+msgid "adminV2.cleanIp.unknownIsp"
+msgstr "ISP, для которого у Hiddify нет имени"
+
+msgid "adminV2.cleanIp.unknownIspAs"
+msgstr "AS{asn} (оператор, для которого у Hiddify нет имени)"
+
+msgid "adminV2.cleanIp.unsaved"
+msgstr "не сохранено"
+
+msgid "adminV2.cleanIp.uploadSize"
+msgstr "Размер загрузки"
+
+msgid "adminV2.cleanIp.useThese"
+msgstr "Использовать эти IP выше"
+
+msgid "adminV2.cleanIp.viewScript"
+msgstr "Посмотреть скрипт"
+
+msgid "adminV2.cleanIp.vpnWarning"
+msgstr ""
+"Этот браузер не в стране панели: вероятно включён VPN или прокси. Выключите,"
+" иначе вы тестируете VPN, а не свой ISP."
+
+msgid "adminV2.cleanIp.waiting"
+msgstr "Ожидание запуска команды…"
+
+msgid "adminV2.cleanIp.yourNetwork"
+msgstr "Ваша сеть (как её видит панель)"
+
+msgid "adminV2.configTester.advanced"
+msgstr "Ещё параметры"
+
+msgid "adminV2.configTester.app"
+msgstr "Приложение"
+
+msgid "adminV2.configTester.appHint"
+msgstr ""
+"Клиент, для которого подписка: формат, который он не читает, показывается "
+"как ошибка. Xray получает share-ссылки, преобразованные в xray JSON."
+
+msgid "adminV2.configTester.contentLabel"
+msgstr "Содержимое для теста"
+
+msgid "adminV2.configTester.contentPlaceholder"
+msgstr ""
+"Вставьте share-ссылки (по одной в строке или base64), JSON xray / hiddify-"
+"core / sing-box или YAML Clash Meta…"
+
+msgid "adminV2.configTester.copyName"
+msgstr "Копировать имя"
+
+msgid "adminV2.configTester.delay"
+msgstr "Задержка"
+
+msgid "adminV2.configTester.details"
+msgstr "Подробности"
+
+msgid "adminV2.configTester.editText"
+msgstr "Изменить текст"
+
+msgid "adminV2.configTester.empty"
+msgstr "(пусто)"
+
+msgid "adminV2.configTester.failed"
+msgstr "Ошибка"
+
+msgid "adminV2.configTester.fetchedWith"
+msgstr "Получено через"
+
+msgid "adminV2.configTester.filter.all"
+msgstr "Все"
+
+msgid "adminV2.configTester.filter.failed"
+msgstr "Не работают"
+
+msgid "adminV2.configTester.filter.ok"
+msgstr "Работают"
+
+msgid "adminV2.configTester.find"
+msgstr "Найти"
+
+msgid "adminV2.configTester.findEmpty"
+msgstr "Нет подходящего пользователя"
+
+msgid "adminV2.configTester.findHint"
+msgstr ""
+"Нажмите, чтобы просмотреть пользователей, или введите имя, заметку или uuid "
+"— выберите одного, чтобы подставить ссылку подписки"
+
+msgid "adminV2.configTester.forceXray"
+msgstr "Запросить xray JSON"
+
+msgid "adminV2.configTester.forceXrayHint"
+msgstr ""
+"Добавляет force_xray_json=1 к ссылке, чтобы панель отдавала конфиги xray, "
+"даже если эта подписка выключена в настройках."
+
+msgid "adminV2.configTester.gone"
+msgstr "Этот тест больше не хранится (тесты хранятся час). Запустите снова."
+
+msgid "adminV2.configTester.history.again"
+msgstr "Протестировать ещё раз"
+
+msgid "adminV2.configTester.history.avg"
+msgstr "Среднее"
+
+msgid "adminV2.configTester.history.header"
+msgstr "История пинга: {name}"
+
+msgid "adminV2.configTester.history.max"
+msgstr "Самый медленный"
+
+msgid "adminV2.configTester.history.min"
+msgstr "Самый быстрый"
+
+msgid "adminV2.configTester.history.more"
+msgstr "Протестировать ещё 3 раза"
+
+msgid "adminV2.configTester.history.success"
+msgstr "Сработало"
+
+msgid "adminV2.configTester.history.title"
+msgstr "История пинга"
+
+msgid "adminV2.configTester.log"
+msgstr "Журнал (trace)"
+
+msgid "adminV2.configTester.lost"
+msgstr ""
+"Тест остановлен, потому что панель была перезапущена. Запустите снова для "
+"оставшихся."
+
+msgid "adminV2.configTester.mode.content"
+msgstr "Содержимое"
+
+msgid "adminV2.configTester.mode.label"
+msgstr "Что тестировать"
+
+msgid "adminV2.configTester.mode.link"
+msgstr "Ссылка подписки"
+
+msgid "adminV2.configTester.name"
+msgstr "Конфиг"
+
+msgid "adminV2.configTester.noMatch"
+msgstr "Здесь ничего нет."
+
+msgid "adminV2.configTester.ok"
+msgstr "Работает"
+
+msgid "adminV2.configTester.onlyWorking"
+msgstr "Только рабочие"
+
+msgid "adminV2.configTester.open"
+msgstr "Подробности"
+
+msgid "adminV2.configTester.original"
+msgstr "Исходный конфиг"
+
+msgid "adminV2.configTester.parsed"
+msgstr "Разобрано hiddify-core"
+
+msgid "adminV2.configTester.pasted"
+msgstr "Вставленное содержимое"
+
+msgid "adminV2.configTester.raw"
+msgstr "Исходное (как получено)"
+
+msgid "adminV2.configTester.reconnecting"
+msgstr "Переподключение… тест продолжается на панели."
+
+msgid "adminV2.configTester.repeats"
+msgstr "Тестов на конфиг"
+
+msgid "adminV2.configTester.rerun"
+msgstr "Тестировать снова"
+
+msgid "adminV2.configTester.rerunAll"
+msgstr "Тестировать все снова"
+
+msgid "adminV2.configTester.rerunFailed"
+msgstr "Снова тестировать неудачные"
+
+msgid "adminV2.configTester.runConfig"
+msgstr "Конфиг, который выполнялся"
+
+msgid "adminV2.configTester.showViewer"
+msgstr "Показать просмотрщик"
+
+msgid "adminV2.configTester.signedOut"
+msgstr ""
+"Вы вышли из панели. Тест продолжается на панели: войдите снова, затем "
+"откройте эту страницу снова."
+
+msgid "adminV2.configTester.sort.delay"
+msgstr "Сначала быстрые"
+
+msgid "adminV2.configTester.sort.label"
+msgstr "Сортировка"
+
+msgid "adminV2.configTester.sort.name"
+msgstr "Имя"
+
+msgid "adminV2.configTester.sort.order"
+msgstr "Порядок подписки"
+
+msgid "adminV2.configTester.sortDelay"
+msgstr "Сортировать по задержке"
+
+msgid "adminV2.configTester.sourceClash"
+msgstr "Подписка Clash Meta"
+
+msgid "adminV2.configTester.sourceCore"
+msgstr "Подписка hiddify-core"
+
+msgid "adminV2.configTester.sourceParsed"
+msgstr "Ссылки, преобразованные hiddify-core"
+
+msgid "adminV2.configTester.sourceXray"
+msgstr "Подписка xray"
+
+msgid "adminV2.configTester.start"
+msgstr "Начать тест"
+
+msgid "adminV2.configTester.state.failed"
+msgstr "Ошибка"
+
+msgid "adminV2.configTester.state.idle"
+msgstr "Не протестировано"
+
+msgid "adminV2.configTester.state.ok"
+msgstr "Работает"
+
+msgid "adminV2.configTester.state.waiting"
+msgstr "Тестирование…"
+
+msgid "adminV2.configTester.status"
+msgstr "Статус"
+
+msgid "adminV2.configTester.stop"
+msgstr "Стоп"
+
+msgid "adminV2.configTester.sub.apply"
+msgstr "Применить"
+
+msgid "adminV2.configTester.sub.clickToEdit"
+msgstr "Нажмите на ссылку, чтобы изменить"
+
+msgid "adminV2.configTester.sub.collapseAll"
+msgstr "Свернуть"
+
+msgid "adminV2.configTester.sub.configs"
+msgstr "Конфиги"
+
+msgid "adminV2.configTester.sub.copyLink"
+msgstr "Копировать ссылку"
+
+msgid "adminV2.configTester.sub.count"
+msgstr "{n} ссылок"
+
+msgid "adminV2.configTester.sub.countOf"
+msgstr "{n} из {total} ссылок"
+
+msgid "adminV2.configTester.sub.editNode"
+msgstr "Редактировать как JSON"
+
+msgid "adminV2.configTester.sub.edited"
+msgstr "изменено"
+
+msgid "adminV2.configTester.sub.expandAll"
+msgstr "Развернуть все"
+
+msgid "adminV2.configTester.sub.inDecoded"
+msgstr "в декодированной части"
+
+msgid "adminV2.configTester.sub.items"
+msgstr "{n} конфигов"
+
+msgid "adminV2.configTester.sub.keys"
+msgstr "{n} ключей"
+
+msgid "adminV2.configTester.sub.links"
+msgstr "Share-ссылки"
+
+msgid "adminV2.configTester.sub.noMatch"
+msgstr "Ничего не найдено."
+
+msgid "adminV2.configTester.sub.none"
+msgstr "Ссылки не найдены."
+
+msgid "adminV2.configTester.sub.parsedHint"
+msgstr "То, что hiddify-core сделал из ссылок; именно это и тестировалось."
+
+msgid "adminV2.configTester.sub.received"
+msgstr "Подписка получена"
+
+msgid "adminV2.configTester.sub.reset"
+msgstr "Отменить изменения"
+
+msgid "adminV2.configTester.sub.search"
+msgstr "Поиск ссылок и конфигов…"
+
+msgid "adminV2.configTester.sub.testEdited"
+msgstr "Тестировать с правками"
+
+msgid "adminV2.configTester.sub.testThis"
+msgstr "Тестировать эту ссылку"
+
+msgid "adminV2.configTester.sub.text"
+msgstr "Текст"
+
+msgid "adminV2.configTester.sub.view"
+msgstr "Просмотр"
+
+msgid "adminV2.configTester.sub.whole"
+msgstr "Вся подписка"
+
+msgid "adminV2.configTester.subscription"
+msgstr "Подписка"
+
+msgid "adminV2.configTester.subtitle"
+msgstr ""
+"Запускает каждый конфиг подписки в своём ядре и проверяет подключение."
+
+msgid "adminV2.configTester.summary"
+msgstr "{ok} из {done} работают (всего {total})"
+
+msgid "adminV2.configTester.testUrl"
+msgstr "URL теста"
+
+msgid "adminV2.configTester.timeout"
+msgstr "Таймаут (с)"
+
+msgid "adminV2.configTester.title"
+msgstr "Config Tester"
+
+msgid "adminV2.configTester.ua"
+msgstr "User agent"
+
+msgid "adminV2.configTester.uaHint"
+msgstr ""
+"Отправляется при запросе ссылки, чтобы панель отдала формат xray или "
+"hiddify-core."
+
+msgid "adminV2.configTester.uaPreset"
+msgstr "Пресет"
+
+msgid "adminV2.configTester.url"
+msgstr "Ссылка подписки"
+
+msgid "adminV2.configTester.urlPlaceholder"
+msgstr "Вставьте ссылку или выберите пользователя…"
+
+msgid "adminV2.configTester.waiting"
+msgstr "Ожидание"
+
+msgid "adminV2.configTester.workers"
+msgstr "Параллельные потоки"
+
+msgid "adminV2.nodeSync.active"
+msgstr "Активные"
+
+msgid "adminV2.nodeSync.adminsOnNode"
+msgstr "Админы на этой ноде"
+
+msgid "adminV2.nodeSync.all"
+msgstr "Все"
+
+msgid "adminV2.nodeSync.autoOff"
+msgstr "Пауза"
+
+msgid "adminV2.nodeSync.autoOn"
+msgstr "Автообновление"
+
+msgid "adminV2.nodeSync.connected"
+msgstr "Подключено"
+
+msgid "adminV2.nodeSync.connectedSince"
+msgstr "Подключено с"
+
+msgid "adminV2.nodeSync.cursor"
+msgstr "Курсор ленты"
+
+msgid "adminV2.nodeSync.deleted"
+msgstr "удалено: {n}"
+
+msgid "adminV2.nodeSync.disabled"
+msgstr "Отключено"
+
+msgid "adminV2.nodeSync.disconnected"
+msgstr "Отключено"
+
+msgid "adminV2.nodeSync.enabled"
+msgstr "включено: {n}"
+
+msgid "adminV2.nodeSync.host"
+msgstr "Хост родителя"
+
+msgid "adminV2.nodeSync.ids"
+msgstr "Идентификаторы"
+
+msgid "adminV2.nodeSync.inactive"
+msgstr "Неактивные"
+
+msgid "adminV2.nodeSync.items"
+msgstr "Обменянные элементы ({n})"
+
+msgid "adminV2.nodeSync.itemsMore"
+msgstr "… и ещё {n}"
+
+msgid "adminV2.nodeSync.kind.admins"
+msgstr "Админы"
+
+msgid "adminV2.nodeSync.kind.domains"
+msgstr "Домены"
+
+msgid "adminV2.nodeSync.kind.outbounds"
+msgstr "Исходящие"
+
+msgid "adminV2.nodeSync.kind.usage"
+msgstr "Отчёт об использовании"
+
+msgid "adminV2.nodeSync.kind.users"
+msgstr "Пользователи"
+
+msgid "adminV2.nodeSync.lastBatch"
+msgstr "Последний пакет изменений"
+
+msgid "adminV2.nodeSync.lastError"
+msgstr "Последняя ошибка"
+
+msgid "adminV2.nodeSync.lastHttpSync"
+msgstr "Последняя HTTP-синхронизация (запасной путь)"
+
+msgid "adminV2.nodeSync.lastUsage"
+msgstr "Последняя синхронизация использования (время родителя)"
+
+msgid "adminV2.nodeSync.link"
+msgstr "Связь с родителем"
+
+msgid "adminV2.nodeSync.listEmpty"
+msgstr "Ничего не найдено."
+
+msgid "adminV2.nodeSync.listShown"
+msgstr "{n} из {total}"
+
+msgid "adminV2.nodeSync.never"
+msgstr "Синхронизация ещё не отмечалась"
+
+msgid "adminV2.nodeSync.noLog"
+msgstr "Синхронизаций ещё не отмечалось."
+
+msgid "adminV2.nodeSync.noWs"
+msgstr "Состояния ещё нет"
+
+msgid "adminV2.nodeSync.nodeId"
+msgstr "Уникальный id этой ноды"
+
+msgid "adminV2.nodeSync.parentId"
+msgstr "Уникальный id родителя"
+
+msgid "adminV2.nodeSync.parentUrl"
+msgstr "Адрес родителя"
+
+msgid "adminV2.nodeSync.rawData"
+msgstr "Данные ({size})"
+
+msgid "adminV2.nodeSync.rawTruncated"
+msgstr "сохранено только начало"
+
+msgid "adminV2.nodeSync.rawUnreadable"
+msgstr "Данные не удалось прочитать."
+
+msgid "adminV2.nodeSync.recent"
+msgstr "Недавние синхронизации"
+
+msgid "adminV2.nodeSync.refresh"
+msgstr "Обновить"
+
+msgid "adminV2.nodeSync.rows"
+msgstr "{n} строк"
+
+msgid "adminV2.nodeSync.search"
+msgstr "Поиск"
+
+msgid "adminV2.nodeSync.showData"
+msgstr "Показать, что обменивалось"
+
+msgid "adminV2.nodeSync.showList"
+msgstr "Показать список"
+
+msgid "adminV2.nodeSync.source.http_sync"
+msgstr "HTTP-синхронизация"
+
+msgid "adminV2.nodeSync.source.inventory"
+msgstr "проверка инвентаря"
+
+msgid "adminV2.nodeSync.source.register"
+msgstr "регистрация"
+
+msgid "adminV2.nodeSync.source.usage_report"
+msgstr "отчёт об использовании"
+
+msgid "adminV2.nodeSync.source.ws_feed"
+msgstr "живая лента"
+
+msgid "adminV2.nodeSync.state.error"
+msgstr "Последняя попытка не удалась"
+
+msgid "adminV2.nodeSync.state.fresh"
+msgstr "Синхронизация за последние 10 минут"
+
+msgid "adminV2.nodeSync.state.never"
+msgstr "Синхронизация не отмечалась"
+
+msgid "adminV2.nodeSync.state.stale"
+msgstr "Последняя синхронизация старше 10 минут"
+
+msgid "adminV2.nodeSync.subtitle"
+msgstr ""
+"Только чтение, для отладки: что хранит эта нода и когда каждый тип данных "
+"последний раз приходил от родителя."
+
+msgid "adminV2.nodeSync.title"
+msgstr "Синхронизация с родителем"
+
+msgid "adminV2.nodeSync.took"
+msgstr "{ms} мс"
+
+msgid "adminV2.nodeSync.usersOnNode"
+msgstr "Пользователи на этой ноде"
+
+msgid "adminV2.nodeSync.websocket"
+msgstr "Живое соединение"
+
+msgid "adminV2.operatorIps.add"
+msgstr "Добавить"
+
+msgid "adminV2.operatorIps.addressCount"
+msgstr "{count} адресов для этих операторов"
+
+msgid "adminV2.operatorIps.asOption"
+msgstr "{code} (по номеру AS)"
+
+msgid "adminV2.operatorIps.asTable"
+msgstr "Редактировать таблицей"
+
+msgid "adminV2.operatorIps.asText"
+msgstr "Редактировать текстом"
+
+msgid "adminV2.operatorIps.badAddress"
+msgstr "Не IP, диапазон или имя: {list}"
+
+msgid "adminV2.operatorIps.defaults"
+msgstr "Заполнить по умолчанию"
+
+msgid "adminV2.operatorIps.defaultsHint"
+msgstr "Каждый оператор без адреса получит свой с ircf.space"
+
+msgid "adminV2.operatorIps.for"
+msgstr "Для"
+
+msgid "adminV2.operatorIps.host"
+msgstr "IP, диапазон или домен, затем пробел или Enter"
+
+msgid "adminV2.operatorIps.name.AFR"
+msgstr "Afranet"
+
+msgid "adminV2.operatorIps.name.ASK"
+msgstr "Andishe Sabz"
+
+msgid "adminV2.operatorIps.name.AST"
+msgstr "Asiatech"
+
+msgid "adminV2.operatorIps.name.HWB"
+msgstr "HiWeb"
+
+msgid "adminV2.operatorIps.name.ITC"
+msgstr "Zirsakht (ITC)"
+
+msgid "adminV2.operatorIps.name.MBT"
+msgstr "Mobinnet"
+
+msgid "adminV2.operatorIps.name.MCI"
+msgstr "Hamrah-e Aval"
+
+msgid "adminV2.operatorIps.name.MKH"
+msgstr "Mokhaberat"
+
+msgid "adminV2.operatorIps.name.MTN"
+msgstr "Irancell"
+
+msgid "adminV2.operatorIps.name.OTHER"
+msgstr "Другой"
+
+msgid "adminV2.operatorIps.name.PRS"
+msgstr "ParsOnline"
+
+msgid "adminV2.operatorIps.name.PSM"
+msgstr "Pishgaman"
+
+msgid "adminV2.operatorIps.name.RSP"
+msgstr "Respina"
+
+msgid "adminV2.operatorIps.name.RTL"
+msgstr "Rightel"
+
+msgid "adminV2.operatorIps.name.SHT"
+msgstr "Shatel"
+
+msgid "adminV2.operatorIps.name.ZTL"
+msgstr "Zitel"
+
+msgid "adminV2.operatorIps.operator"
+msgstr "Оператор"
+
+msgid "adminV2.operatorIps.remove"
+msgstr "Удалить"
+
+msgid "adminV2.operatorIps.searchOrAs"
+msgstr "Поиск или введите AS254"
+
+msgid "adminV2.ssh.add"
+msgstr "Создать / загрузить"
+
+msgid "adminV2.ssh.addCommand"
+msgstr "Новая команда"
+
+msgid "adminV2.ssh.all"
+msgstr "Все"
+
+msgid "adminV2.ssh.binary"
+msgstr "Это не текстовый файл ({size}). Можно скачать."
+
+msgid "adminV2.ssh.builtin"
+msgstr "встроенная"
+
+msgid "adminV2.ssh.byKey"
+msgstr "Закрытый ключ"
+
+msgid "adminV2.ssh.byPassword"
+msgstr "Пароль"
+
+msgid "adminV2.ssh.cannotSave"
+msgstr "Здесь недоступно: странице нужен HTTPS."
+
+msgid "adminV2.ssh.chooseFile"
+msgstr "Выбрать файл"
+
+msgid "adminV2.ssh.close"
+msgstr "Закрыть"
+
+msgid "adminV2.ssh.closeConfirm"
+msgstr "Закрыть {name}? Соединение будет разорвано."
+
+msgid "adminV2.ssh.closeRunConfirm"
+msgstr "Закрыть эти результаты? Ещё выполняющиеся команды будут остановлены."
+
+msgid "adminV2.ssh.closeTab"
+msgstr "Закрыть"
+
+msgid "adminV2.ssh.closed"
+msgstr "Соединение закрыто."
+
+msgid "adminV2.ssh.cmd.installHiddify"
+msgstr "Установить Hiddify Manager"
+
+msgid "adminV2.ssh.commandName"
+msgstr "Имя"
+
+msgid "adminV2.ssh.commandPlaceholder"
+msgstr "напр. systemctl status hiddify-panel"
+
+msgid "adminV2.ssh.commands"
+msgstr "Команды"
+
+msgid "adminV2.ssh.commandsHint"
+msgstr ""
+"Сохранённые команды — запуск на одном или нескольких открытых соединениях "
+"сразу."
+
+msgid "adminV2.ssh.conflictText"
+msgstr ""
+"уже есть в этой папке. Заменить или оставить оба (новому добавится номер)?"
+
+msgid "adminV2.ssh.conflictTitle"
+msgstr "Файл с таким именем уже есть"
+
+msgid "adminV2.ssh.connect"
+msgstr "Подключиться"
+
+msgid "adminV2.ssh.copyLink"
+msgstr "Копировать ссылку"
+
+msgid "adminV2.ssh.copyLinkHint"
+msgstr ""
+"Ссылка, которая снова откроет это соединение — только для вашего аккаунта"
+
+msgid "adminV2.ssh.couldNotConnect"
+msgstr "Не удалось подключиться"
+
+msgid "adminV2.ssh.create"
+msgstr "Создать"
+
+msgid "adminV2.ssh.discard"
+msgstr "Закрыть без сохранения изменений?"
+
+msgid "adminV2.ssh.discardGo"
+msgstr "Отменить изменения"
+
+msgid "adminV2.ssh.disconnect"
+msgstr "Отключить"
+
+msgid "adminV2.ssh.download"
+msgstr "Скачать"
+
+msgid "adminV2.ssh.dropHere"
+msgstr "Перетащите файлы сюда для загрузки"
+
+msgid "adminV2.ssh.edit"
+msgstr "Изменить"
+
+msgid "adminV2.ssh.editCommand"
+msgstr "Изменить команду"
+
+msgid "adminV2.ssh.emptyDir"
+msgstr "Эта папка пуста."
+
+msgid "adminV2.ssh.err.badName"
+msgstr "Такое имя здесь недопустимо."
+
+msgid "adminV2.ssh.err.connection"
+msgstr "Соединение с сервером потеряно. Подключитесь снова и повторите."
+
+msgid "adminV2.ssh.err.exists"
+msgstr "{name} уже существует."
+
+msgid "adminV2.ssh.err.isDir"
+msgstr "{name} — это папка."
+
+msgid "adminV2.ssh.err.missingTool"
+msgstr ""
+"{tool} не установлен на сервере: установите его там (напр. apt install "
+"{tool}) и повторите."
+
+msgid "adminV2.ssh.err.noSpace"
+msgstr "Диск сервера заполнен (или исчерпана ваша квота)."
+
+msgid "adminV2.ssh.err.notDir"
+msgstr "{name} — не папка."
+
+msgid "adminV2.ssh.err.notEmpty"
+msgstr "Папка не пуста."
+
+msgid "adminV2.ssh.err.notFound"
+msgstr "{name} нет (возможно, перемещён или удалён). Обновите список."
+
+msgid "adminV2.ssh.err.permission"
+msgstr ""
+"Отказано в доступе: ваш пользователь, возможно, не может сделать это с "
+"{name}. Войдите под пользователем с правами или измените разрешения."
+
+msgid "adminV2.ssh.err.readonly"
+msgstr "Файловая система здесь только для чтения."
+
+msgid "adminV2.ssh.err.timeout"
+msgstr "Сервер слишком долго отвечал."
+
+msgid "adminV2.ssh.err.tooLarge"
+msgstr "Файл слишком большой."
+
+msgid "adminV2.ssh.exited"
+msgstr "Сессия завершилась (код выхода {status})."
+
+msgid "adminV2.ssh.extract"
+msgstr "Распаковать"
+
+msgid "adminV2.ssh.extractHere"
+msgstr "Распаковать"
+
+msgid "adminV2.ssh.extractInto"
+msgstr "Распаковать в"
+
+msgid "adminV2.ssh.extractedTo"
+msgstr "распаковано в {path}"
+
+msgid "adminV2.ssh.extracting"
+msgstr "распаковка…"
+
+msgid "adminV2.ssh.files"
+msgstr "Файлы"
+
+msgid "adminV2.ssh.forget"
+msgstr "Забыть"
+
+msgid "adminV2.ssh.home"
+msgstr "Домашняя папка"
+
+msgid "adminV2.ssh.host"
+msgstr "Сервер"
+
+msgid "adminV2.ssh.inFolder"
+msgstr "в {path}"
+
+msgid "adminV2.ssh.keepBoth"
+msgstr "Оставить оба"
+
+msgid "adminV2.ssh.keepEditing"
+msgstr "Продолжить правку"
+
+msgid "adminV2.ssh.keyChanged"
+msgstr "Ключ сервера изменился"
+
+msgid "adminV2.ssh.keyChangedHint"
+msgstr ""
+"Сервер ответил другим ключом, чем тот, которому вы доверяли раньше. Так "
+"бывает после переустановки, но это также может означать атаку «человек "
+"посередине». Продолжайте только если ожидаете это."
+
+msgid "adminV2.ssh.keyName"
+msgstr "Имя этого ключа"
+
+msgid "adminV2.ssh.keyNamePlaceholder"
+msgstr "напр. ключ ноутбука"
+
+msgid "adminV2.ssh.keyPad"
+msgstr "Панель ключей"
+
+msgid "adminV2.ssh.keyText"
+msgstr "Новый закрытый ключ"
+
+msgid "adminV2.ssh.keys"
+msgstr "Доп. ключи"
+
+msgid "adminV2.ssh.lastResults"
+msgstr "Последние результаты"
+
+msgid "adminV2.ssh.linkCopied"
+msgstr "Ссылка скопирована"
+
+msgid "adminV2.ssh.linkHint"
+msgstr "Скопируйте отсюда (браузер не разрешил копирование)."
+
+msgid "adminV2.ssh.linkNotYours"
+msgstr ""
+"В этой ссылке нет секрета, который вы можете открыть (сделана другим админом"
+" или без секрета): войдите, чтобы заполнить."
+
+msgid "adminV2.ssh.linkTitle"
+msgstr "Ссылка на это соединение"
+
+msgid "adminV2.ssh.name"
+msgstr "Имя"
+
+msgid "adminV2.ssh.namePlaceholder"
+msgstr "напр. Основной сервер, Нода 1"
+
+msgid "adminV2.ssh.needsTrust"
+msgstr "Ключ хоста ещё не доверенный: подтвердите его во вкладке"
+
+msgid "adminV2.ssh.newConnection"
+msgstr "Новое соединение"
+
+msgid "adminV2.ssh.newFile"
+msgstr "Новый файл"
+
+msgid "adminV2.ssh.newFolder"
+msgstr "Новая папка"
+
+msgid "adminV2.ssh.newHost"
+msgstr "Доверять этому серверу?"
+
+msgid "adminV2.ssh.newKey"
+msgstr "+ Новый ключ"
+
+msgid "adminV2.ssh.newTab"
+msgstr "Новое соединение"
+
+msgid "adminV2.ssh.noCommands"
+msgstr "Сохранённых команд ещё нет: добавьте ниже."
+
+msgid "adminV2.ssh.noConnected"
+msgstr "Пока нет открытых соединений."
+
+msgid "adminV2.ssh.noOutput"
+msgstr "Нет вывода"
+
+msgid "adminV2.ssh.noSecret"
+msgstr "Нет сохранённого пароля или ключа"
+
+msgid "adminV2.ssh.none"
+msgstr "Нет"
+
+msgid "adminV2.ssh.note"
+msgstr ""
+"Панель подключается со своего сервера. Пароли и ключи используются только "
+"для этого соединения и никогда не сохраняются."
+
+msgid "adminV2.ssh.noteSaved"
+msgstr ""
+"Панель подключается со своего сервера. Соединение с паролем или ключом "
+"хранится в этом браузере, зашифрованное для вашего аккаунта."
+
+msgid "adminV2.ssh.openTab"
+msgstr "Открыть вкладку"
+
+msgid "adminV2.ssh.optional"
+msgstr "Только если у ключа есть"
+
+msgid "adminV2.ssh.passphrase"
+msgstr "Парольная фраза ключа"
+
+msgid "adminV2.ssh.password"
+msgstr "Пароль"
+
+msgid "adminV2.ssh.permExec"
+msgstr "Выполнение / вход"
+
+msgid "adminV2.ssh.permNone"
+msgstr "Нет доступа"
+
+msgid "adminV2.ssh.permRead"
+msgstr "Чтение"
+
+msgid "adminV2.ssh.permWrite"
+msgstr "Запись"
+
+msgid "adminV2.ssh.port"
+msgstr "Порт"
+
+msgid "adminV2.ssh.privateKey"
+msgstr "Закрытый ключ"
+
+msgid "adminV2.ssh.ranOn"
+msgstr "Отправлено на {n} соединение(й)"
+
+msgid "adminV2.ssh.readOnly"
+msgstr "Только чтение"
+
+msgid "adminV2.ssh.reconnect"
+msgstr "Переподключить"
+
+msgid "adminV2.ssh.refresh"
+msgstr "Обновить"
+
+msgid "adminV2.ssh.removeArchive"
+msgstr "Удалить архив после"
+
+msgid "adminV2.ssh.replace"
+msgstr "{name} уже есть. Заменить?"
+
+msgid "adminV2.ssh.replaceGo"
+msgstr "Заменить"
+
+msgid "adminV2.ssh.resize"
+msgstr "Изменить размер панели файлов"
+
+msgid "adminV2.ssh.run"
+msgstr "Выполнить"
+
+msgid "adminV2.ssh.runOn"
+msgstr "Выполнить на"
+
+msgid "adminV2.ssh.runOnChosen"
+msgstr "Выполнить на {n} соединение(ях)"
+
+msgid "adminV2.ssh.runOnOpen"
+msgstr "Открытые сессии"
+
+msgid "adminV2.ssh.runOnSaved"
+msgstr "Сохранённые соединения"
+
+msgid "adminV2.ssh.runOnce"
+msgstr "Выполнить без сохранения"
+
+msgid "adminV2.ssh.save"
+msgstr "Сохранить"
+
+msgid "adminV2.ssh.saveIt"
+msgstr "Сохранить это соединение в этом браузере"
+
+msgid "adminV2.ssh.saved"
+msgstr "Сохранённые соединения"
+
+msgid "adminV2.ssh.savedPick"
+msgstr "Сохранённые соединения ({n})… начните ввод для поиска"
+
+msgid "adminV2.ssh.savedUnreadable"
+msgstr "Сохранённые соединения этого браузера не удалось прочитать."
+
+msgid "adminV2.ssh.stConnecting"
+msgstr "подключение…"
+
+msgid "adminV2.ssh.stExit"
+msgstr "выход {status}"
+
+msgid "adminV2.ssh.stFailed"
+msgstr "ошибка"
+
+msgid "adminV2.ssh.stRunning"
+msgstr "выполняется…"
+
+msgid "adminV2.ssh.stopAll"
+msgstr "Остановить все"
+
+msgid "adminV2.ssh.subtitle"
+msgstr ""
+"Откройте терминал на любом сервере и просматривайте его файлы прямо из "
+"панели."
+
+msgid "adminV2.ssh.summary"
+msgstr "успешно {ok} · ошибок {failed} · выполняется {running}"
+
+msgid "adminV2.ssh.terminal"
+msgstr "Терминал"
+
+msgid "adminV2.ssh.title"
+msgstr "SSH-терминал"
+
+msgid "adminV2.ssh.tooLarge"
+msgstr "Этот файл {size}: слишком большой, чтобы показать здесь."
+
+msgid "adminV2.ssh.tooManyTabs"
+msgstr "Слишком много открытых вкладок: закройте часть и повторите"
+
+msgid "adminV2.ssh.truncated"
+msgstr "Показаны только первые 5000 записей."
+
+msgid "adminV2.ssh.trust"
+msgstr "Доверить и подключиться"
+
+msgid "adminV2.ssh.trustHint"
+msgstr ""
+"Это первое подключение к {host} из этого браузера. Убедитесь, что ключ ниже "
+"— от вашего сервера (ssh-keygen -lf на host key), прежде чем отправлять "
+"пароль."
+
+msgid "adminV2.ssh.unsaved"
+msgstr "Не сохранено"
+
+msgid "adminV2.ssh.uploadExtract"
+msgstr "Загрузить и распаковать"
+
+msgid "adminV2.ssh.uploadExtractGo"
+msgstr "Загрузить и распаковать"
+
+msgid "adminV2.ssh.uploadFiles"
+msgstr "Загрузить файлы"
+
+msgid "adminV2.ssh.username"
+msgstr "Пользователь"
+
+msgid "adminV2.ssh.yourAccess"
+msgstr "что вам разрешено"
+
+msgid "adminV2.wsTest.admins"
+msgstr "Админы"
+
+msgid "adminV2.wsTest.autoPing"
+msgstr "Каждую секунду"
+
+msgid "adminV2.wsTest.avg"
+msgstr "Среднее"
+
+msgid "adminV2.wsTest.buildTime"
+msgstr "Собрано за"
+
+msgid "adminV2.wsTest.button"
+msgstr "Тест живого соединения"
+
+msgid "adminV2.wsTest.choice.auto"
+msgstr "Автоматически"
+
+msgid "adminV2.wsTest.clear"
+msgstr "Очистить"
+
+msgid "adminV2.wsTest.connected"
+msgstr "Подключено"
+
+msgid "adminV2.wsTest.echo"
+msgstr "Загрузка"
+
+msgid "adminV2.wsTest.echoResult"
+msgstr "{size} за {ms} мс ({speed})"
+
+msgid "adminV2.wsTest.empty"
+msgstr "Сообщений пока нет."
+
+msgid "adminV2.wsTest.feed"
+msgstr "Лента ноды"
+
+msgid "adminV2.wsTest.feedHint"
+msgstr "Первый пакет, который получила бы новая нода, и его размер в сети."
+
+msgid "adminV2.wsTest.gapAvg"
+msgstr "Средний разрыв"
+
+msgid "adminV2.wsTest.issue"
+msgstr "Не принято: {issue}"
+
+msgid "adminV2.wsTest.jitter"
+msgstr "Джиттер"
+
+msgid "adminV2.wsTest.jsonSize"
+msgstr "JSON"
+
+msgid "adminV2.wsTest.last"
+msgstr "Последний"
+
+msgid "adminV2.wsTest.lastBatch"
+msgstr "Последний пакет"
+
+msgid "adminV2.wsTest.lastError"
+msgstr "Последняя ошибка"
+
+msgid "adminV2.wsTest.lastSeen"
+msgstr "Последний раз"
+
+msgid "adminV2.wsTest.latency"
+msgstr "Задержка"
+
+msgid "adminV2.wsTest.log"
+msgstr "Сообщения"
+
+msgid "adminV2.wsTest.max"
+msgstr "Макс."
+
+msgid "adminV2.wsTest.min"
+msgstr "Мин."
+
+msgid "adminV2.wsTest.noNodes"
+msgstr "У этой панели нет нод."
+
+msgid "adminV2.wsTest.node"
+msgstr "Нода"
+
+msgid "adminV2.wsTest.nodes"
+msgstr "Ноды"
+
+msgid "adminV2.wsTest.notConnected"
+msgstr "Не подключено"
+
+msgid "adminV2.wsTest.parentHost"
+msgstr "Адрес родителя"
+
+msgid "adminV2.wsTest.ping"
+msgstr "Ping"
+
+msgid "adminV2.wsTest.preview"
+msgstr "Превью"
+
+msgid "adminV2.wsTest.publish"
+msgstr "Опубликовать изменение"
+
+msgid "adminV2.wsTest.push"
+msgstr "Уведомление об изменении"
+
+msgid "adminV2.wsTest.pushHint"
+msgstr ""
+"Публикует изменение в Redis, как при правке; открытые страницы и "
+"подключённые ноды просыпаются так же."
+
+msgid "adminV2.wsTest.pushResult"
+msgstr "Вернулось через {ms} мс"
+
+msgid "adminV2.wsTest.pushTimeout"
+msgstr ""
+"Нет уведомления за 5 секунд: Redis pub/sub не доходит до этого сервера."
+
+msgid "adminV2.wsTest.pushVerdict.missing"
+msgstr ""
+"Пришли не все сообщения: что-то по пути задерживает поток (буферизующий "
+"прокси?)."
+
+msgid "adminV2.wsTest.pushVerdict.ok"
+msgstr "Все сообщения пришли без запроса: сервер пушит."
+
+msgid "adminV2.wsTest.received"
+msgstr "Получено"
+
+msgid "adminV2.wsTest.reconnect"
+msgstr "Переподключить"
+
+msgid "adminV2.wsTest.refresh"
+msgstr "Обновить"
+
+msgid "adminV2.wsTest.rows"
+msgstr "Получено строк"
+
+msgid "adminV2.wsTest.server"
+msgstr ""
+"Процесс {pid} · {threads} потоков · протокол ноды v{protocol} · расхождение "
+"часов {skew}"
+
+msgid "adminV2.wsTest.serverPush"
+msgstr "Пуш с сервера"
+
+msgid "adminV2.wsTest.serverPushHint"
+msgstr ""
+"Сервер сам шлёт 5 сообщений, по одному в секунду: между ними ничего не "
+"запрашивается."
+
+msgid "adminV2.wsTest.startPush"
+msgstr "Старт"
+
+msgid "adminV2.wsTest.state.connecting"
+msgstr "Подключение"
+
+msgid "adminV2.wsTest.state.idle"
+msgstr "Ещё не использовалось"
+
+msgid "adminV2.wsTest.state.offline"
+msgstr "Отключено (страницы переходят на опрос по HTTP)"
+
+msgid "adminV2.wsTest.state.open"
+msgstr "Подключено"
+
+msgid "adminV2.wsTest.subtitle"
+msgstr ""
+"Соединение, которым страницы получают обновления: каким путём идёт (HTTP/3, "
+"HTTP/2, WebSocket), задержка, пропускная способность и сообщения, которые "
+"сервер пушит сам."
+
+msgid "adminV2.wsTest.throughput"
+msgstr "Пропускная способность"
+
+msgid "adminV2.wsTest.title"
+msgstr "Тест живого соединения"
+
+msgid "adminV2.wsTest.toParent"
+msgstr "WebSocket к родителю"
+
+msgid "adminV2.wsTest.transport.auto"
+msgstr "Автоматически"
+
+msgid "adminV2.wsTest.transport.stream"
+msgstr "Поток"
+
+msgid "adminV2.wsTest.transport.websocket"
+msgstr "WebSocket"
+
+msgid "adminV2.wsTest.users"
+msgstr "Пользователи"
+
+msgid "adminV2.wsTest.websocket"
+msgstr "WebSocket"
+
+msgid "adminV2.wsTest.wireSize"
+msgstr "Сжато"
 
 msgid "adminuser.force_update_usage"
 msgstr ""
@@ -6697,6 +9722,382 @@ msgstr ""
 "Добро пожаловать в Hiddify bot\n"
 "Для начала перейдите по ссылке на панели или введите свой UUID пользователя."
 
+msgid "bot.account_title"
+msgstr "Мой аккаунт"
+
+msgid "bot.add_days"
+msgstr "📅 Добавить дни"
+
+msgid "bot.add_gb"
+msgstr "📦 Добавить трафик"
+
+msgid "bot.added_days"
+msgstr "Добавлено дней: {n}"
+
+msgid "bot.added_gb"
+msgstr "Добавлено ГБ: {n}"
+
+msgid "bot.admin_hello"
+msgstr "👋 Привет, <b>{name}</b>"
+
+msgid "bot.admin_summary"
+msgstr ""
+"👥 Пользователи  <b>{total}</b>\n"
+"🟢 Активные  <b>{active}</b>\n"
+"⚡️ Онлайн  <b>{online}</b>\n"
+"⏳ Скоро закончатся  <b>{expiring}</b>"
+
+msgid "bot.ago_days"
+msgstr "{n} дн. назад"
+
+msgid "bot.ago_hours"
+msgstr "{n} ч назад"
+
+msgid "bot.ago_minutes"
+msgstr "{n} мин назад"
+
+msgid "bot.back"
+msgstr "‹ Назад"
+
+msgid "bot.backup_caption"
+msgstr "💾 Резервная копия панели"
+
+msgid "bot.backup_failed"
+msgstr "Резервное копирование не удалось."
+
+msgid "bot.backup_working"
+msgstr "Готовим резервную копию…"
+
+msgid "bot.btn_backup"
+msgstr "💾 Бэкап"
+
+msgid "bot.btn_check"
+msgstr "🩺 Проверить статус"
+
+msgid "bot.btn_new"
+msgstr "➕ Новый пользователь"
+
+msgid "bot.btn_panel"
+msgstr "🖥 Открыть панель"
+
+msgid "bot.btn_status"
+msgstr "📊 Статус сервера"
+
+msgid "bot.btn_users"
+msgstr "👥 Пользователи"
+
+msgid "bot.cancel"
+msgstr "✖️ Отмена"
+
+msgid "bot.close"
+msgstr "✖️ Закрыть"
+
+msgid "bot.confirm"
+msgstr "✅ Подтвердить"
+
+msgid "bot.cpu"
+msgstr "CPU"
+
+msgid "bot.data"
+msgstr "Трафик"
+
+msgid "bot.days_expired"
+msgstr "Пакет закончился"
+
+msgid "bot.days_left"
+msgstr "Осталось <b>{left}</b> из {total} дн.  ·  до {date}"
+
+msgid "bot.days_not_started"
+msgstr "{total} дн.  ·  начинается при первом подключении"
+
+msgid "bot.delete"
+msgstr "🗑 Удалить"
+
+msgid "bot.delete_confirm"
+msgstr "⚠️ Удалить этого пользователя? Его конфиги сразу перестанут работать."
+
+msgid "bot.deleted"
+msgstr "{name} удалён"
+
+msgid "bot.disable"
+msgstr "⏸ Отключить"
+
+msgid "bot.disabled"
+msgstr "Отключён"
+
+msgid "bot.disk"
+msgstr "Диск"
+
+msgid "bot.done"
+msgstr "Готово"
+
+msgid "bot.enable"
+msgstr "▶️ Включить"
+
+msgid "bot.enabled"
+msgstr "Включён"
+
+msgid "bot.f_active"
+msgstr "Активные"
+
+msgid "bot.f_all"
+msgstr "Все"
+
+msgid "bot.f_ended"
+msgstr "Закончились"
+
+msgid "bot.f_expiring"
+msgstr "Скоро закончатся"
+
+msgid "bot.f_online"
+msgstr "Онлайн"
+
+msgid "bot.gb"
+msgstr "GB"
+
+msgid "bot.gone"
+msgstr "Этого пользователя больше нет."
+
+msgid "bot.last_online"
+msgstr "Последний онлайн"
+
+msgid "bot.last_user"
+msgstr "Должен остаться хотя бы один пользователь."
+
+msgid "bot.limit_reached"
+msgstr "Достигнут лимит пользователей."
+
+msgid "bot.link_hiddify"
+msgstr "Импорт в приложение Hiddify"
+
+msgid "bot.link_home"
+msgstr "Личная страница"
+
+msgid "bot.link_sub"
+msgstr "Ссылка подписки"
+
+msgid "bot.linked"
+msgstr "Ваш Telegram привязан."
+
+msgid "bot.links"
+msgstr "🔗 Ссылки"
+
+msgid "bot.links_hint"
+msgstr "Нажмите на ссылку, чтобы скопировать."
+
+msgid "bot.links_title"
+msgstr "Ссылки"
+
+msgid "bot.manage"
+msgstr "⚙️ Управление"
+
+msgid "bot.menu"
+msgstr "🏠 Меню"
+
+msgid "bot.my_page"
+msgstr "🌐 Моя страница"
+
+msgid "bot.never"
+msgstr "никогда"
+
+msgid "bot.new_count"
+msgstr "👥 Сколько пользователей?"
+
+msgid "bot.new_create"
+msgstr "✅ Создать"
+
+msgid "bot.new_days"
+msgstr "📅 Сколько дней?"
+
+msgid "bot.new_done_many"
+msgstr ""
+"<b>Создано пользователей: {n}</b>  ·  {gb} GB  ·  {days} дн.\n"
+"Каждую карточку выше можно переслать пользователю."
+
+msgid "bot.new_done_one"
+msgstr "Пользователь создан: карточка выше, можно переслать."
+
+msgid "bot.new_gb"
+msgstr "📦 Сколько трафика?"
+
+msgid "bot.new_name"
+msgstr "✏️ Имя"
+
+msgid "bot.new_name_prompt"
+msgstr ""
+"Отправьте имя для нового пользователя (пользователей). Нескольким добавятся "
+"номера."
+
+msgid "bot.new_summary"
+msgstr ""
+"📦 Трафик  <b>{gb}</b>\n"
+"📅 Дни  <b>{days}</b>\n"
+"👥 Количество  <b>{count}</b>\n"
+"🏷 Имя  <b>{name}</b>"
+
+msgid "bot.new_title"
+msgstr "Новый пользователь"
+
+msgid "bot.new_working"
+msgstr "Создание…"
+
+msgid "bot.not_allowed"
+msgstr "У вас нет доступа к этому."
+
+msgid "bot.notify_admin"
+msgstr "⏳ <b>Скоро закончатся у {n} пользователей</b>"
+
+msgid "bot.notify_admin_line"
+msgstr "• {name} · {days}д · {used}/{total} GB"
+
+msgid "bot.notify_admin_more"
+msgstr "…и ещё {n}"
+
+msgid "bot.notify_data"
+msgstr ""
+"<b>{name}</b>, осталось всего <b>{left}</b> трафика. Свяжитесь с провайдером"
+" для продления."
+
+msgid "bot.notify_days"
+msgstr ""
+"<b>{name}</b>, ваш пакет закончится через <b>{n} дн.</b> Свяжитесь с "
+"провайдером для продления."
+
+msgid "bot.online_line"
+msgstr "Сейчас онлайн <b>{now}</b> · сегодня <b>{today}</b>"
+
+msgid "bot.online_now"
+msgstr "Сейчас онлайн"
+
+msgid "bot.owner"
+msgstr "Владелец"
+
+msgid "bot.panel"
+msgstr "Панель"
+
+msgid "bot.pick_days"
+msgstr "Сколько дней добавить?"
+
+msgid "bot.pick_gb"
+msgstr "Сколько трафика добавить?"
+
+msgid "bot.qr"
+msgstr "📷 QR-код"
+
+msgid "bot.ram"
+msgstr "RAM"
+
+msgid "bot.read_only_node"
+msgstr "Это нода: управляйте пользователями на родительской панели."
+
+msgid "bot.refresh"
+msgstr "🔄 Обновить"
+
+msgid "bot.renew"
+msgstr "♻️ Продлить"
+
+msgid "bot.renewed"
+msgstr "Пакет продлён"
+
+msgid "bot.reset_usage"
+msgstr "🔄 Сбросить использование"
+
+msgid "bot.resets_in"
+msgstr "Использование сбросится через {n} дн."
+
+msgid "bot.search"
+msgstr "🔍 Поиск"
+
+msgid "bot.search_clear"
+msgstr "✖️ Очистить"
+
+msgid "bot.search_prompt"
+msgstr "Отправьте имя, UUID, комментарий или Telegram id."
+
+msgid "bot.search_results"
+msgstr "Результаты по «{q}»"
+
+msgid "bot.sending"
+msgstr "Отправка {n} карточек пользователей…"
+
+msgid "bot.status_active"
+msgstr "<b>Активен</b>"
+
+msgid "bot.status_disabled"
+msgstr "<b>Отключён</b>"
+
+msgid "bot.status_expired"
+msgstr "<b>Истёк</b>"
+
+msgid "bot.status_no_data"
+msgstr "<b>Нет трафика</b>"
+
+msgid "bot.status_title"
+msgstr "Статус сервера"
+
+msgid "bot.time"
+msgstr "Время"
+
+msgid "bot.traffic"
+msgstr "Трафик"
+
+msgid "bot.traffic_month"
+msgstr "30 дней"
+
+msgid "bot.traffic_today"
+msgstr "Сегодня"
+
+msgid "bot.traffic_total"
+msgstr "За всё время"
+
+msgid "bot.traffic_week"
+msgstr "7 дней"
+
+msgid "bot.traffic_yesterday"
+msgstr "Вчера"
+
+msgid "bot.unit_d"
+msgstr "д"
+
+msgid "bot.unit_h"
+msgstr "ч"
+
+msgid "bot.unit_m"
+msgstr "м"
+
+msgid "bot.unknown"
+msgstr "Не понял. Используйте кнопки ниже 👇"
+
+msgid "bot.updated"
+msgstr "Обновлено ✓"
+
+msgid "bot.updated_at"
+msgstr "Обновлено {time}"
+
+msgid "bot.uptime"
+msgstr "Аптайм"
+
+msgid "bot.usage_reset"
+msgstr "Использование сброшено"
+
+msgid "bot.used_of"
+msgstr "Использовано <b>{used}</b> из {total}  ·  осталось {left}"
+
+msgid "bot.users_block"
+msgstr "Пользователи"
+
+msgid "bot.users_count"
+msgstr "{n} пользователей"
+
+msgid "bot.users_empty"
+msgstr "Здесь нет пользователей."
+
+msgid "bot.users_line"
+msgstr "Всего <b>{total}</b> · активных <b>{active}</b>"
+
+msgid "bot.users_title"
+msgstr "Пользователи"
+
 msgid "cdn"
 msgstr "🔀 CDN (Cloudflare Proxy, ...)"
 
@@ -6780,7 +10181,7 @@ msgstr "Дополнительные конфигурации для Singbox"
 
 msgid "config.additional_configs_urls.description"
 msgstr ""
-"Можно добавить http:// https:// или прокси в формате v2ray, например "
+"Можно добавить http:// https:// или прокси в формате V2Ray, например "
 "vless://"
 
 msgid "config.additional_configs_urls.label"
@@ -7811,10 +11212,10 @@ msgid "config.snell_enable.label"
 msgstr "Snell"
 
 msgid "config.socks_enable.description"
-msgstr "Включить протокол SOCKS"
+msgstr "Включить протокол Socks"
 
 msgid "config.socks_enable.label"
-msgstr "SOCKS"
+msgstr "Socks"
 
 msgid "config.special_port.description"
 msgstr ""
@@ -8248,7 +11649,7 @@ msgid "config.utls.label"
 msgstr "❇️ uTLS"
 
 msgid "config.v2ray_enable.description"
-msgstr "V2ray не поддерживает учет и не предлагается к использованию"
+msgstr "V2Ray не поддерживает учет и не предлагается к использованию"
 
 msgid "config.v2ray_enable.label"
 msgstr "♈️ V2Ray"
@@ -8265,10 +11666,10 @@ msgid "config.validation-success-no-reset"
 msgstr "✅ Конфигурации успешно изменены"
 
 msgid "config.vless_decryption.description"
-msgstr "Параметр расшифровки VLESS для ссылок обмена"
+msgstr "Параметр расшифровки VLess для ссылок обмена"
 
 msgid "config.vless_decryption.label"
-msgstr "Расшифровка VLESS"
+msgstr "Расшифровка VLess"
 
 msgid "config.vless_enable.description"
 msgstr "Включить протокол VLess"
@@ -8277,16 +11678,16 @@ msgid "config.vless_enable.label"
 msgstr "⚫️ VLess"
 
 msgid "config.vless_encryption.description"
-msgstr "Метод шифрования VLESS для ссылок обмена"
+msgstr "Метод шифрования VLess для ссылок обмена"
 
 msgid "config.vless_encryption.label"
-msgstr "Шифрование VLESS"
+msgstr "Шифрование VLess"
 
 msgid "config.vless_flow.description"
-msgstr "Управление потоком VLESS (например, xtls-rprx-vision)"
+msgstr "Управление потоком VLess (например, xtls-rprx-vision)"
 
 msgid "config.vless_flow.label"
-msgstr "VLESS flow"
+msgstr "VLess flow"
 
 msgid "config.vmess_enable.description"
 msgstr ""
