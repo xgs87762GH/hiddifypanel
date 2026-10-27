@@ -8,8 +8,8 @@ frontend in-httpmode-ssl
   bind 127.0.0.1:901 accept-proxy allow-0rtt ssl crt {{ haproxy_cert_dir }} alpn h2,http/1.1
   tcp-request inspect-delay 500ms
   tcp-request content accept if HTTP
-  use_backend %[path,map_beg({{ include_path(ctx, 'haproxy/server/maps/path_tcp')}},to_httpmode)]
-  default_backend to_httpmode
+  use_backend %[path,map_beg({{ include_path(ctx, 'haproxy/server/maps/path_tcp')}},to_httpmode_ssl)]
+  default_backend to_httpmode_ssl
 
 frontend in-reality-tcpmode
   bind abns@tcp_in_reality_h1 accept-proxy

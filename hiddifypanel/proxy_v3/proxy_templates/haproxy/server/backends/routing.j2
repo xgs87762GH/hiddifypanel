@@ -60,6 +60,13 @@ backend to_http_in_h2_http
 backend to_httpmode
     server s abns@http_in_h2 send-proxy-v2
 
+# Plain :80 reaches in-httpmode through this one. :443 arrives already decrypted
+# (in-httpmode-ssl terminates TLS on :901), so it uses to_httpmode_ssl below to
+# keep ssl_fc=1 on the abns hop — otherwise in-httpmode redirects https requests
+# to themselves and reports X-Forwarded-Proto: http to the panel.
+backend to_httpmode_ssl
+    server s abns@http_in_h2 send-proxy-v2-ssl
+
 backend to_https_in_ssl
     server s abns@https_in_ssl send-proxy-v2 tfo
 
