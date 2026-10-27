@@ -44,7 +44,9 @@ frontend in-httpmode
   http-request set-var(txn.backend) req.hdr(host),map_dom({{ include_path(ctx, 'haproxy/server/maps/http_domain') }},default_decoy) if { var(txn.backend) -m str default_decoy }
 
   # Panel / admin / user pages must not be used over cleartext. ACME HTTP-01 above already returned.
-  http-request redirect scheme https code 301 if !{ ssl_fc } { var(txn.backend) -m str panel }
+  # Disabled: TLS is terminated by in-httpmode-ssl on :901 and only plaintext is forwarded
+  # here, so ssl_fc is always false and this redirect would loop on already-https requests.
+  # http-request redirect scheme https code 301 if !{ ssl_fc } { var(txn.backend) -m str panel }
 
   http-after-response set-header Alt-Svc 'h3=":443"; ma=2592000'
 
