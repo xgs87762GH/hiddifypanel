@@ -1,4 +1,4 @@
-# =====================
+﻿# =====================
 # Core routing backends (panel, stats, xray force)
 # =====================
 
@@ -6,9 +6,8 @@ backend panel
   mode http
   option forwardfor header X-Forwarded-For
   http-request set-header X-Real-IP %[src]
-  # Fixed "https": TLS is terminated on the previous hop (in-httpmode-ssl on :901) and
-  # only forwarded as plaintext over abns, so ssl_fc is false here. A conditional scheme
-  # would report "http" for :443 and make the panel redirect to itself forever.
+  # Always https: cleartext panel is 301'd on in-httpmode (hop_clear) before it reaches here.
+  # Do not use ssl_fc 鈥?after :901 the second hop is plain and ssl_fc is false (301 loop).
   http-request set-header X-Forwarded-Proto https
   http-response set-header Strict-Transport-Security "max-age=31536000; includeSubDomains"
   http-response set-header X-Robots-Tag "noindex, nofollow"
@@ -58,14 +57,12 @@ backend to_http_in_h2_http
     server s abns@http_in_h2 send-proxy-v2 tfo proto h2
 
 backend to_httpmode
+    # True client cleartext (:80 / reality h1).
     server s abns@http_in_h2 send-proxy-v2
 
-# Plain :80 reaches in-httpmode through this one. :443 arrives already decrypted
-# (in-httpmode-ssl terminates TLS on :901), so it uses to_httpmode_ssl below to
-# keep ssl_fc=1 on the abns hop — otherwise in-httpmode redirects https requests
-# to themselves and reports X-Forwarded-Proto: http to the panel.
-backend to_httpmode_ssl
-    server s abns@http_in_h2 send-proxy-v2-ssl
+backend to_httpmode_from_tls
+    # Plain HTTP after HAProxy already terminated TLS (:901 from rpxy-l4, or https_in_ssl).
+    server s abns@http_in_from_tls send-proxy-v2
 
 backend to_https_in_ssl
     server s abns@https_in_ssl send-proxy-v2 tfo

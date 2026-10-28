@@ -222,12 +222,13 @@ def add_tls(base: dict, proxy: dict):
 
 
 def add_tls_tricks(base: dict, proxy: dict):
+    # Outbound-top-level "tls_fragment": {enabled,size,sleep} is rejected by
+    # hiddify-core (DisallowUnknownFields → hinvalid). Use tls.fragment (bool)
+    # for this legacy path; proxy_v3 emits Xray-style finalmask instead.
     if proxy.get('tls_fragment_enable'):
-        base['tls_fragment'] = {
-            'enabled': True,
-            'size': proxy["tls_fragment_size"],
-            'sleep': proxy["tls_fragment_sleep"]
-        }
+        tls = base.setdefault('tls', {'enabled': True})
+        if isinstance(tls, dict):
+            tls['fragment'] = True
 
     if 'tls' in base:
         if proxy.get("tls_padding_enable") or proxy.get("tls_mixed_case"):
