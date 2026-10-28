@@ -82,6 +82,24 @@ class ClientTemplateCompatibilityTests(unittest.TestCase):
         self.assertNotIn("flow", proxy)
         self.assertNotIn("encryption", proxy)
 
+    def test_hiddify_core_vless_drops_encryption_when_no_cipher_is_set(self):
+        self.proxy.transport = "ws"
+        self.proxy.server_core = "xray"
+        self.ctx.hconfig.vless_encryption = ""
+        self.ctx.platform.is_hiddify = True
+        self.ctx.platform.hiddify = SimpleNamespace(version="5.0.3")
+        proxy = self.render("hiddify-core/client/protocols/vless")
+        self.assertNotIn("encryption", proxy)
+
+    def test_hiddify_core_vless_sends_encryption_when_a_cipher_is_set(self):
+        self.proxy.transport = "ws"
+        self.proxy.server_core = "xray"
+        self.ctx.hconfig.vless_encryption = "mlkem768x25519plus.native.0rtt.test-key"
+        self.ctx.platform.is_hiddify = True
+        self.ctx.platform.hiddify = SimpleNamespace(version="5.0.3")
+        proxy = self.render("hiddify-core/client/protocols/vless")
+        self.assertEqual(proxy["encryption"], self.ctx.hconfig.vless_encryption)
+
     def test_anytls_catalog_builds_a_clash_outbound(self):
         combo = ProxyCombination(l3="tls", transport="custom", cdn="direct", proto="anytls", enable=True, name="AnyTLS")
         self.assertTrue(supports_clash_preset(combo))
