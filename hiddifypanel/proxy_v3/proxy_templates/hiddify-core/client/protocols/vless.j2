@@ -1,9 +1,17 @@
 {# raw VLESS on a REALITY domain ends at the reality termination, which can not use encryption #}
 {%set reality_terminated = ctx.proxy.transport == "tcp" and ctx.proxy.domain.is_reality() %}
 {%set encryption = 'none' if reality_terminated else (ctx.hconfig.vless_encryption or 'none') %}
-{# VLESS encryption field: Hiddify 5+ only, and only when a cipher is actually configured. A core
-   that does not know the key (e.g. 4.1.1, or any sing-box build without it) rejects the whole
-   config even when the value is "none", so the field is dropped unless a real cipher is set. #}
+{# VLESS encryption field: only sent when a cipher is actually configured. A core that does not know
+   the key rejects the whole config even when its value is none, which used to make adding a profile
+   fail outright with json: unknown field "encryption".
+
+   NOTE: the version gate below is a heuristic, not a capability check - the app version says nothing
+   about the core it ships (upstream ships app 5.0.0 with a core that has VLESS encryption, while a
+   fork can ship app 5.0.3 with an older core that does not). No version threshold can separate the
+   two, so a client below the gate is skipped while a client above it may still receive a key its
+   core cannot parse. Enabling hconfig.vless_encryption therefore only works when every client runs
+   a core that implements it; the robust fix is for the client to advertise its core version (in the
+   User-Agent) and to gate on that instead of the app version. #}
 {%set encryption_supported = ctx.platform.is_hiddify and ctx.platform.hiddify.version >= "5.0.0" %}
 {# sing-box (SFA, SFI, ...) and Hiddify <5 have no VLESS encryption: omit the field; skip if the server requires it #}
 {{ skip("VLESS encryption needs Hiddify 5+") if ctx.proxy.server_core == "xray" and encryption != "none" and not encryption_supported }}
