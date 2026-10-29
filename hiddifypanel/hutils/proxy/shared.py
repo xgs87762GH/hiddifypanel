@@ -12,12 +12,17 @@ from hiddifypanel.models import ConfigEnum, Domain, DomainType, FakeMode, Proxy,
 
 
 def get_ssh_hostkeys(hconfigs, dojson=False) -> list[str] | str:
-    host_keys = [
-        # hconfigs[ConfigEnum.ssh_host_dsa_pub],
-        hconfigs[ConfigEnum.ssh_host_ed25519_pub],
-        hconfigs[ConfigEnum.ssh_host_ecdsa_pub],
-        hconfigs[ConfigEnum.ssh_host_rsa_pub],
-    ]
+    """Return the SSH host public keys found in *hconfigs*.
+
+    `hconfigs` may be keyed either by `ConfigEnum` (see `get_hconfigs`) or by
+    key name (see `get_hconfigs_json`); missing keys are skipped instead of
+    raising, so a panel without generated host keys still renders its config.
+    """
+    host_keys = []
+    for key in (ConfigEnum.ssh_host_ed25519_pub, ConfigEnum.ssh_host_ecdsa_pub, ConfigEnum.ssh_host_rsa_pub):
+        value = hconfigs.get(key) or hconfigs.get(str(key)) if isinstance(hconfigs, dict) else None
+        if value:
+            host_keys.append(value)
     if dojson:
         return json.dumps(host_keys)
     return host_keys
