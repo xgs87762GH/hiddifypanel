@@ -42,7 +42,12 @@ class SublinkUriAllowInsecureTests(unittest.TestCase):
             cert=SimpleNamespace(pinnedPeerCertSha256=[self.PIN]),
         )
         self.ctx = SimpleNamespace(
-            proxy=SimpleNamespace(domain=self.domain, tls_layer=SimpleNamespace(alpns=lambda: ["h2", "http/1.1"])),
+            # transport is read by tls_http.j2 for the xhttp+CDN uTLS hello; tests use plain TLS.
+            proxy=SimpleNamespace(
+                domain=self.domain,
+                transport="",
+                tls_layer=SimpleNamespace(alpns=lambda: ["h2", "http/1.1"]),
+            ),
             hconfig=SimpleNamespace(utls="none", tls_fragment_enable=False),
             platform=SimpleNamespace(xray=SimpleNamespace(version=TemplateVersion(""))),
         )
