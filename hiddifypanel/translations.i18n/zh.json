@@ -3265,8 +3265,8 @@
       "label": "🔢 Telegram 代理库"
     },
     "telegram_webproxy_enable": {
-      "description": "",
-      "label": ""
+      "description": "通过 HTTPS 在所有持有有效证书的域名上提供 Telegram 代理，包括 CDN（tg://webproxy 链接，由 telemt 提供）",
+      "label": "✔️ 启用 Telegram Web 代理"
     },
     "tls": {
       "description": "可以在此部分设置 TLS 配置。",

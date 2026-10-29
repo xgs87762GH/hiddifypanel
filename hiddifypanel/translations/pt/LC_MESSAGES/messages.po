@@ -8324,9 +8324,11 @@ msgstr "🔢 Biblioteca de proxy do Telegram"
 
 msgid "config.telegram_webproxy_enable.description"
 msgstr ""
+"Proxy do Telegram via HTTPS em todos os domínios com certificado válido, "
+"incluindo CDN (links tg://webproxy, servido pelo telemt)"
 
 msgid "config.telegram_webproxy_enable.label"
-msgstr ""
+msgstr "✔️ Ativar proxy web do Telegram"
 
 msgid "config.tls.description"
 msgstr "As configurações de TLS podem ser definidas nesta seção."

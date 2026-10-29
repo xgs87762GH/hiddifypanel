@@ -7789,9 +7789,10 @@ msgstr "🔢 Telegram 代理库"
 
 msgid "config.telegram_webproxy_enable.description"
 msgstr ""
+"通过 HTTPS 在所有持有有效证书的域名上提供 Telegram 代理，包括 CDN（tg://webproxy 链接，由 telemt 提供）"
 
 msgid "config.telegram_webproxy_enable.label"
-msgstr ""
+msgstr "✔️ 启用 Telegram Web 代理"
 
 msgid "config.tls.description"
 msgstr "可以在此部分设置 TLS 配置。"

@@ -3265,8 +3265,8 @@
       "label": "🔢 Biblioteca de proxy do Telegram"
     },
     "telegram_webproxy_enable": {
-      "description": "",
-      "label": ""
+      "description": "Proxy do Telegram via HTTPS em todos os domínios com certificado válido, incluindo CDN (links tg://webproxy, servido pelo telemt)",
+      "label": "✔️ Ativar proxy web do Telegram"
     },
     "tls": {
       "description": "As configurações de TLS podem ser definidas nesta seção.",
