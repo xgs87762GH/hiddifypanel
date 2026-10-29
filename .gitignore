@@ -161,3 +161,10 @@ hiddifypanel/user_front/node_modules/
 hiddifypanel/user_front/dist/
 
 node_modules
+
+# Local IDE / AI agent tooling (do not commit)
+.agents/
+.claude/
+.cursor/
+.vscode/
+.codebuddy/
