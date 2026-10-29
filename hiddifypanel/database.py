@@ -83,8 +83,13 @@ def init_app(app):
     db.init_app(app)
     with app.app_context():
         from hiddifypanel.panel.init_db import init_db
+        from hiddifypanel.proxy_v3.builtin_proxy_sync.orchestrator import sync_all_if_catalog_changed
 
         init_db()
+        # 更新/重装可能只新增内置模板文件而不 bump 数据库版本号，此时 init_db 会因
+        # db_version 已最新而早退，新模板就不会同步进数据库。这里按 catalog 指纹判断，
+        # 只有模板目录发生变化时才同步，覆盖部署/重装/升级所有场景且幂等。
+        sync_all_if_catalog_changed(0)
 
 
 def db_execute(query: str, return_val: bool = False, commit: bool = False, **params):
