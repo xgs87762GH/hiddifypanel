@@ -1232,6 +1232,9 @@ msgstr "Apply the changes to put it into effect."
 msgid "adminV2.account.outboundNone"
 msgstr "No outbounds yet. A super admin sets them up."
 
+msgid "adminV2.account.outboundReadOnly"
+msgstr "Set by an admin above you; you can see it but not change it."
+
 msgid "adminV2.account.outboundSaved"
 msgstr "Default outbound saved"
 
@@ -1312,35 +1315,59 @@ msgstr "Under {name}"
 msgid "adminV2.account.unlimited"
 msgstr "No limit"
 
-msgid "adminV2.account.wrongCurrent"
-msgstr "The current password is wrong"
+msgid "adminV2.account.userPage.advanced"
+msgstr "Advanced"
 
-msgid "adminV2.account.userPage.title"
-msgstr "My users' page"
-
-msgid "adminV2.account.userPage.sub"
-msgstr ""
-"What your users (and your sub-admins' users) see on their page. Empty fields"
-" use the panel's settings."
-
-msgid "adminV2.account.userPage.none"
-msgstr "Nothing changed: your users see the panel's page."
-
-msgid "adminV2.account.userPage.count"
-msgstr "{n} item customized | {n} items customized"
-
-msgid "adminV2.account.userPage.edit"
-msgstr "Customize"
-
-msgid "adminV2.account.userPage.intro"
-msgstr ""
-"Leave a field empty to keep what your users get now (shown in the field)."
+msgid "adminV2.account.userPage.badUrl"
+msgstr "Enter a full address starting with https://"
 
 msgid "adminV2.account.userPage.brandTitle"
 msgstr "Brand title"
 
 msgid "adminV2.account.userPage.brandTitleHint"
 msgstr "Shown at the top of the user page, before the welcome text."
+
+msgid "adminV2.account.userPage.count"
+msgstr "{n} item customized | {n} items customized"
+
+msgid "adminV2.account.userPage.customPage"
+msgstr "Custom user page"
+
+msgid "adminV2.account.userPage.customPageHint"
+msgstr ""
+"The address of a static site shown instead of the user page (e.g. your build"
+" of hiddify-user-front on GitHub Pages). The panel serves it from its own "
+"domain."
+
+msgid "adminV2.account.userPage.edit"
+msgstr "Customize"
+
+msgid "adminV2.account.userPage.empty"
+msgstr "Not set"
+
+msgid "adminV2.account.userPage.inherit"
+msgstr "Now: {value}"
+
+msgid "adminV2.account.userPage.intro"
+msgstr ""
+"Leave a field empty to keep what your users get now (shown in the field)."
+
+msgid "adminV2.account.userPage.lang"
+msgstr "User page language"
+
+msgid "adminV2.account.userPage.langHint"
+msgstr "For users who have not chosen their own."
+
+msgid "adminV2.account.userPage.none"
+msgstr "Nothing changed: your users see the panel's page."
+
+msgid "adminV2.account.userPage.saved"
+msgstr "User page saved"
+
+msgid "adminV2.account.userPage.sub"
+msgstr ""
+"What your users (and your sub-admins' users) see on their page. Empty fields"
+" use the panel's settings."
 
 msgid "adminV2.account.userPage.supportLink"
 msgstr "Support link"
@@ -1354,38 +1381,11 @@ msgstr "Support box text"
 msgid "adminV2.account.userPage.supportTextHint"
 msgstr "Shown in the support box on the user page. HTML is allowed."
 
-msgid "adminV2.account.userPage.lang"
-msgstr "User page language"
+msgid "adminV2.account.userPage.title"
+msgstr "My users' page"
 
-msgid "adminV2.account.userPage.langHint"
-msgstr "For users who have not chosen their own."
-
-msgid "adminV2.account.userPage.advanced"
-msgstr "Advanced"
-
-msgid "adminV2.account.userPage.customPage"
-msgstr "Custom user page"
-
-msgid "adminV2.account.userPage.customPageHint"
-msgstr ""
-"The address of a static site shown instead of the user page (e.g. your build"
-" of hiddify-user-front on GitHub Pages). The panel serves it from its own "
-"domain."
-
-msgid "adminV2.account.userPage.inherit"
-msgstr "Now: {value}"
-
-msgid "adminV2.account.userPage.empty"
-msgstr "Not set"
-
-msgid "adminV2.account.userPage.badUrl"
-msgstr "Enter a full address starting with https://"
-
-msgid "adminV2.account.userPage.saved"
-msgstr "User page saved"
-
-msgid "adminV2.account.outboundReadOnly"
-msgstr "Set by an admin above you; you can see it but not change it."
+msgid "adminV2.account.wrongCurrent"
+msgstr "The current password is wrong"
 
 msgid "adminV2.actions.applyConfigs"
 msgstr "Apply Configs"
@@ -1488,6 +1488,42 @@ msgstr "This admin can create its own sub-admins"
 
 msgid "adminV2.admins.canAddShort"
 msgstr "Adds sub-admins"
+
+msgid "adminV2.admins.capability.add_extra_sublinks"
+msgstr "Add extra subscription links"
+
+msgid "adminV2.admins.capability.add_sub_admins"
+msgstr "Add sub-admins"
+
+msgid "adminV2.admins.capability.modify_domains"
+msgstr "Manage domains"
+
+msgid "adminV2.admins.capability.modify_outbounds"
+msgstr "Manage outbounds"
+
+msgid "adminV2.admins.capability.modify_user_extra"
+msgstr "Customize user page"
+
+msgid "adminV2.admins.capability.override_preferred_outbound"
+msgstr "Change preferred outbound"
+
+msgid "adminV2.admins.capabilityHint.add_extra_sublinks"
+msgstr "Attach extra configs or subscription links for their users."
+
+msgid "adminV2.admins.capabilityHint.add_sub_admins"
+msgstr "Create their own agents within the limits you set."
+
+msgid "adminV2.admins.capabilityHint.modify_domains"
+msgstr "Add and edit domains on this panel."
+
+msgid "adminV2.admins.capabilityHint.modify_outbounds"
+msgstr "Configure server outbounds (WARP, SOCKS, …)."
+
+msgid "adminV2.admins.capabilityHint.modify_user_extra"
+msgstr "Change branding and extra params on the user page."
+
+msgid "adminV2.admins.capabilityHint.override_preferred_outbound"
+msgstr "Choose which outbound a user’s traffic leaves through."
 
 msgid "adminV2.admins.clearSearch"
 msgstr "Clear search"
@@ -1643,6 +1679,26 @@ msgstr "Can add sub-admins"
 msgid "adminV2.admins.form.canAddAdminHint"
 msgstr "Lets this admin create agents of its own, within its limits."
 
+msgid "adminV2.admins.form.capabilities"
+msgstr "Permissions"
+
+msgid "adminV2.admins.form.capabilitiesCount"
+msgstr "{n} permission | {n} permissions"
+
+msgid "adminV2.admins.form.capabilitiesDone"
+msgstr "Done"
+
+msgid "adminV2.admins.form.capabilitiesEdit"
+msgstr "Edit permissions"
+
+msgid "adminV2.admins.form.capabilitiesHint"
+msgstr ""
+"Tap to change what this admin is allowed to do. You can only grant "
+"permissions you have."
+
+msgid "adminV2.admins.form.capabilitiesNone"
+msgstr "No special permissions"
+
 msgid "adminV2.admins.form.configs"
 msgstr "Configs for this admin's users"
 
@@ -1736,26 +1792,6 @@ msgstr "Generated automatically. Change it only to reuse a known ID."
 
 msgid "adminV2.admins.form.uuidInvalid"
 msgstr "This is not a valid UUID"
-
-msgid "adminV2.admins.form.capabilities"
-msgstr "Permissions"
-
-msgid "adminV2.admins.form.capabilitiesHint"
-msgstr ""
-"Tap to change what this admin is allowed to do. You can only grant "
-"permissions you have."
-
-msgid "adminV2.admins.form.capabilitiesNone"
-msgstr "No special permissions"
-
-msgid "adminV2.admins.form.capabilitiesCount"
-msgstr "{n} permission | {n} permissions"
-
-msgid "adminV2.admins.form.capabilitiesEdit"
-msgstr "Edit permissions"
-
-msgid "adminV2.admins.form.capabilitiesDone"
-msgstr "Done"
 
 msgid "adminV2.admins.limit.max_active_users"
 msgstr "Max active users"
@@ -1896,42 +1932,6 @@ msgstr "Admins"
 
 msgid "adminV2.admins.you"
 msgstr "You"
-
-msgid "adminV2.admins.capability.add_sub_admins"
-msgstr "Add sub-admins"
-
-msgid "adminV2.admins.capability.override_preferred_outbound"
-msgstr "Change preferred outbound"
-
-msgid "adminV2.admins.capability.add_extra_sublinks"
-msgstr "Add extra subscription links"
-
-msgid "adminV2.admins.capability.modify_user_extra"
-msgstr "Customize user page"
-
-msgid "adminV2.admins.capability.modify_domains"
-msgstr "Manage domains"
-
-msgid "adminV2.admins.capability.modify_outbounds"
-msgstr "Manage outbounds"
-
-msgid "adminV2.admins.capabilityHint.add_sub_admins"
-msgstr "Create their own agents within the limits you set."
-
-msgid "adminV2.admins.capabilityHint.override_preferred_outbound"
-msgstr "Choose which outbound a user’s traffic leaves through."
-
-msgid "adminV2.admins.capabilityHint.add_extra_sublinks"
-msgstr "Attach extra configs or subscription links for their users."
-
-msgid "adminV2.admins.capabilityHint.modify_user_extra"
-msgstr "Change branding and extra params on the user page."
-
-msgid "adminV2.admins.capabilityHint.modify_domains"
-msgstr "Add and edit domains on this panel."
-
-msgid "adminV2.admins.capabilityHint.modify_outbounds"
-msgstr "Configure server outbounds (WARP, SOCKS, …)."
 
 msgid "adminV2.appTitle"
 msgstr "HiddifyManager"
@@ -2790,6 +2790,78 @@ msgstr ""
 msgid "adminV2.cleanIp.flowShowAll"
 msgstr "Show all IPs of this domain (every operator)"
 
+msgid "adminV2.cleanIp.fragment.applied"
+msgstr "Saved «{name}» on {domain}"
+
+msgid "adminV2.cleanIp.fragment.apply"
+msgstr "Apply"
+
+msgid "adminV2.cleanIp.fragment.current"
+msgstr "Current for this domain"
+
+msgid "adminV2.cleanIp.fragment.currentBtn"
+msgstr "Applied"
+
+msgid "adminV2.cleanIp.fragment.disabled"
+msgstr "off"
+
+msgid "adminV2.cleanIp.fragment.enabled"
+msgstr "on"
+
+msgid "adminV2.cleanIp.fragment.lead"
+msgstr ""
+"CDN domains often need their own TLS Fragment (FinalMask) values. Pick a "
+"domain, try a preset, then check with Config Tester or a client on that ISP."
+
+msgid "adminV2.cleanIp.fragment.mode.inherit"
+msgstr "Off"
+
+msgid "adminV2.cleanIp.fragment.mode.off"
+msgstr "Off"
+
+msgid "adminV2.cleanIp.fragment.mode.on"
+msgstr "On"
+
+msgid "adminV2.cleanIp.fragment.noCdn"
+msgstr "Add a CDN or worker domain first."
+
+msgid "adminV2.cleanIp.fragment.presets.1-3"
+msgstr "Packets 1-3"
+
+msgid "adminV2.cleanIp.fragment.presets.coarse"
+msgstr "Coarse length"
+
+msgid "adminV2.cleanIp.fragment.presets.default"
+msgstr "Default"
+
+msgid "adminV2.cleanIp.fragment.presets.fine"
+msgstr "Fine / fast interval"
+
+msgid "adminV2.cleanIp.fragment.presets.multi"
+msgstr "Multi lengths"
+
+msgid "adminV2.cleanIp.fragment.presets.off"
+msgstr "Off"
+
+msgid "adminV2.cleanIp.fragment.presets.offHint"
+msgstr "Disable fragment for this domain"
+
+msgid "adminV2.cleanIp.fragment.presets.tight"
+msgstr "Tight (small & fast)"
+
+msgid "adminV2.cleanIp.fragment.presetsHint"
+msgstr ""
+"Applies a FinalMask TLS Fragment trick on this domain. Then test from the "
+"ISP you care about."
+
+msgid "adminV2.cleanIp.fragment.presetsTitle"
+msgstr "Presets"
+
+msgid "adminV2.cleanIp.fragment.testHint"
+msgstr ""
+"Fragment cannot be measured in the browser IP scan. After applying, use "
+"Config Tester or a client on that network to see which preset works."
+
 msgid "adminV2.cleanIp.fullHint"
 msgstr ""
 "Some ISPs let a connection open and then cut it after about 1.3 KB of "
@@ -2901,6 +2973,9 @@ msgstr "IPs for this ISP"
 
 msgid "adminV2.cleanIp.perRange"
 msgstr "Random IPs per range"
+
+msgid "adminV2.cleanIp.pickDomain"
+msgstr "Pick a CDN domain"
 
 msgid "adminV2.cleanIp.pickIsp"
 msgstr "Pick the ISP"
@@ -3141,6 +3216,9 @@ msgstr "Switch"
 msgid "adminV2.cleanIp.switched"
 msgstr "Now using {sni}; the configs are being applied."
 
+msgid "adminV2.cleanIp.tabFragment"
+msgstr "Fragment"
+
 msgid "adminV2.cleanIp.tabIp"
 msgstr "IP scanner"
 
@@ -3184,84 +3262,6 @@ msgstr "Waiting for a run of the command…"
 
 msgid "adminV2.cleanIp.yourNetwork"
 msgstr "Your network (as the panel sees it)"
-
-msgid "adminV2.cleanIp.tabFragment"
-msgstr "Fragment"
-
-msgid "adminV2.cleanIp.pickDomain"
-msgstr "Pick a CDN domain"
-
-msgid "adminV2.cleanIp.fragment.lead"
-msgstr ""
-"CDN domains often need their own TLS Fragment (FinalMask) values. Pick a "
-"domain, try a preset, then check with Config Tester or a client on that ISP."
-
-msgid "adminV2.cleanIp.fragment.noCdn"
-msgstr "Add a CDN or worker domain first."
-
-msgid "adminV2.cleanIp.fragment.current"
-msgstr "Current for this domain"
-
-msgid "adminV2.cleanIp.fragment.mode.inherit"
-msgstr "Off"
-
-msgid "adminV2.cleanIp.fragment.mode.on"
-msgstr "On"
-
-msgid "adminV2.cleanIp.fragment.mode.off"
-msgstr "Off"
-
-msgid "adminV2.cleanIp.fragment.enabled"
-msgstr "on"
-
-msgid "adminV2.cleanIp.fragment.disabled"
-msgstr "off"
-
-msgid "adminV2.cleanIp.fragment.presetsTitle"
-msgstr "Presets"
-
-msgid "adminV2.cleanIp.fragment.presetsHint"
-msgstr ""
-"Applies a FinalMask TLS Fragment trick on this domain. Then test from the "
-"ISP you care about."
-
-msgid "adminV2.cleanIp.fragment.apply"
-msgstr "Apply"
-
-msgid "adminV2.cleanIp.fragment.currentBtn"
-msgstr "Applied"
-
-msgid "adminV2.cleanIp.fragment.applied"
-msgstr "Saved «{name}» on {domain}"
-
-msgid "adminV2.cleanIp.fragment.testHint"
-msgstr ""
-"Fragment cannot be measured in the browser IP scan. After applying, use "
-"Config Tester or a client on that network to see which preset works."
-
-msgid "adminV2.cleanIp.fragment.presets.off"
-msgstr "Off"
-
-msgid "adminV2.cleanIp.fragment.presets.offHint"
-msgstr "Disable fragment for this domain"
-
-msgid "adminV2.cleanIp.fragment.presets.default"
-msgstr "Default"
-
-msgid "adminV2.cleanIp.fragment.presets.fine"
-msgstr "Fine / fast interval"
-
-msgid "adminV2.cleanIp.fragment.presets.coarse"
-msgstr "Coarse length"
-
-msgid "adminV2.cleanIp.fragment.presets.1-3"
-msgstr "Packets 1-3"
-
-msgid "adminV2.cleanIp.fragment.presets.tight"
-msgstr "Tight (small & fast)"
-
-msgid "adminV2.cleanIp.fragment.presets.multi"
-msgstr "Multi lengths"
 
 msgid "adminV2.common.actions"
 msgstr "Actions"
@@ -3772,11 +3772,6 @@ msgstr "Not checked yet. Press “Check now”."
 
 msgid "adminV2.dashboard.health.notTested"
 msgstr "Not tested"
-
-msgid "adminV2.dashboard.health.unavailable"
-msgstr ""
-"Could not read the config health from the panel. Check the logs, then press "
-"“Check now”."
 
 msgid "adminV2.dashboard.health.note"
 msgstr ""
@@ -4310,6 +4305,78 @@ msgstr "Not valid JSON"
 msgid "adminV2.domains.field.extraObject"
 msgstr "Must be a JSON object"
 
+msgid "adminV2.domains.field.fragment"
+msgstr "TLS Fragment"
+
+msgid "adminV2.domains.field.fragmentDelays"
+msgstr "Delays"
+
+msgid "adminV2.domains.field.fragmentDelaysHint"
+msgstr "One or more intervals, comma-separated (FinalMask delays)."
+
+msgid "adminV2.domains.field.fragmentHint"
+msgstr ""
+"Override the panel TLS Fragment setting for this CDN domain only. Different "
+"operators and CDNs often need different size / delay values."
+
+msgid "adminV2.domains.field.fragmentInheritDetail"
+msgstr ""
+"Panel default: {state} ({size}, {sleep}, {packets}). Leave "
+"size/sleep/packets empty to use those values."
+
+msgid "adminV2.domains.field.fragmentInheritHint"
+msgstr "Follows the panel TLS Fragment setting."
+
+msgid "adminV2.domains.field.fragmentLengths"
+msgstr "Lengths"
+
+msgid "adminV2.domains.field.fragmentLengthsHint"
+msgstr "One or more ranges, comma-separated (FinalMask lengths)."
+
+msgid "adminV2.domains.field.fragmentMaxSplit"
+msgstr "Max split"
+
+msgid "adminV2.domains.field.fragmentMode.inherit"
+msgstr "Use panel setting"
+
+msgid "adminV2.domains.field.fragmentMode.off"
+msgstr "Always off"
+
+msgid "adminV2.domains.field.fragmentMode.on"
+msgstr "Always on"
+
+msgid "adminV2.domains.field.fragmentModeHint.off"
+msgstr ""
+"Fragment is forced off for this domain, even if the panel setting is on."
+
+msgid "adminV2.domains.field.fragmentModeHint.on"
+msgstr ""
+"Fragment is forced on for this domain, even if the panel setting is off."
+
+msgid "adminV2.domains.field.fragmentModeLabel"
+msgstr "Mode"
+
+msgid "adminV2.domains.field.fragmentOff"
+msgstr "off"
+
+msgid "adminV2.domains.field.fragmentOn"
+msgstr "on"
+
+msgid "adminV2.domains.field.fragmentPackets"
+msgstr "Packets"
+
+msgid "adminV2.domains.field.fragmentPacketsHint"
+msgstr "Usually tlshello, or 1-3."
+
+msgid "adminV2.domains.field.fragmentScannerGo"
+msgstr "Try presets in the scanner"
+
+msgid "adminV2.domains.field.fragmentSize"
+msgstr "Lengths"
+
+msgid "adminV2.domains.field.fragmentSleep"
+msgstr "Delays"
+
 msgid "adminV2.domains.field.fronting"
 msgstr "Domain fronting"
 
@@ -4386,174 +4453,6 @@ msgstr ""
 
 msgid "adminV2.domains.field.tlsMode"
 msgstr "TLS mode"
-
-msgid "adminV2.domains.field.fragment"
-msgstr "TLS Fragment"
-
-msgid "adminV2.domains.field.fragmentHint"
-msgstr ""
-"Override the panel TLS Fragment setting for this CDN domain only. Different "
-"operators and CDNs often need different size / delay values."
-
-msgid "adminV2.domains.field.fragmentModeLabel"
-msgstr "Mode"
-
-msgid "adminV2.domains.field.fragmentMode.inherit"
-msgstr "Use panel setting"
-
-msgid "adminV2.domains.field.fragmentMode.on"
-msgstr "Always on"
-
-msgid "adminV2.domains.field.fragmentMode.off"
-msgstr "Always off"
-
-msgid "adminV2.domains.field.fragmentModeHint.on"
-msgstr ""
-"Fragment is forced on for this domain, even if the panel setting is off."
-
-msgid "adminV2.domains.field.fragmentModeHint.off"
-msgstr ""
-"Fragment is forced off for this domain, even if the panel setting is on."
-
-msgid "adminV2.domains.field.fragmentInheritHint"
-msgstr "Follows the panel TLS Fragment setting."
-
-msgid "adminV2.domains.field.fragmentInheritDetail"
-msgstr ""
-"Panel default: {state} ({size}, {sleep}, {packets}). Leave "
-"size/sleep/packets empty to use those values."
-
-msgid "adminV2.domains.field.fragmentOn"
-msgstr "on"
-
-msgid "adminV2.domains.field.fragmentOff"
-msgstr "off"
-
-msgid "adminV2.domains.field.fragmentSize"
-msgstr "Lengths"
-
-msgid "adminV2.domains.field.fragmentSleep"
-msgstr "Delays"
-
-msgid "adminV2.domains.field.fragmentPackets"
-msgstr "Packets"
-
-msgid "adminV2.domains.field.fragmentPacketsHint"
-msgstr "Usually tlshello, or 1-3."
-
-msgid "adminV2.domains.field.fragmentScannerGo"
-msgstr "Try presets in the scanner"
-
-msgid "adminV2.domains.field.fragmentLengths"
-msgstr "Lengths"
-
-msgid "adminV2.domains.field.fragmentLengthsHint"
-msgstr "One or more ranges, comma-separated (FinalMask lengths)."
-
-msgid "adminV2.domains.field.fragmentDelays"
-msgstr "Delays"
-
-msgid "adminV2.domains.field.fragmentDelaysHint"
-msgstr "One or more intervals, comma-separated (FinalMask delays)."
-
-msgid "adminV2.domains.field.fragmentMaxSplit"
-msgstr "Max split"
-
-msgid "adminV2.domains.tricks.title"
-msgstr "Tricks"
-
-msgid "adminV2.domains.tricks.lead"
-msgstr ""
-"Optional client-side FinalMask for this CDN domain. Use a template or paste "
-"your own object."
-
-msgid "adminV2.domains.tricks.docs"
-msgstr "FinalMask docs"
-
-msgid "adminV2.domains.tricks.off"
-msgstr "None"
-
-msgid "adminV2.domains.tricks.offHint"
-msgstr "No trick — normal TLS handshake"
-
-msgid "adminV2.domains.tricks.preview"
-msgstr "What clients get"
-
-msgid "adminV2.domains.tricks.presets.default"
-msgstr "Default"
-
-msgid "adminV2.domains.tricks.presets.fine"
-msgstr "Fine"
-
-msgid "adminV2.domains.tricks.presets.coarse"
-msgstr "Coarse"
-
-msgid "adminV2.domains.tricks.presets.multi"
-msgstr "Multi"
-
-msgid "adminV2.domains.tricks.presets.tight"
-msgstr "Tight"
-
-msgid "adminV2.domains.tricks.presets.1-3"
-msgstr "Packets 1-3"
-
-msgid "adminV2.domains.tricks.tlsFragment.name"
-msgstr "TLS Fragment"
-
-msgid "adminV2.domains.tricks.tlsFragment.hint"
-msgstr "Splits the TLS ClientHello (FinalMask fragment)"
-
-msgid "adminV2.domains.tricks.tlsFragment.tune"
-msgstr "Tune fragment"
-
-msgid "adminV2.domains.tricks.tlsFragment.tuneHint"
-msgstr ""
-"Start from a preset, then edit lengths / delays if needed. Values go into "
-"finalmask.tcp[].settings."
-
-msgid "adminV2.domains.tricks.tlsFragment.packets"
-msgstr "Packets"
-
-msgid "adminV2.domains.tricks.tlsFragment.packetsHint"
-msgstr "tlshello = first TLS record; 1-3 = first few TCP packets."
-
-msgid "adminV2.domains.tricks.tlsFragment.lengths"
-msgstr "Lengths"
-
-msgid "adminV2.domains.tricks.tlsFragment.lengthsHint"
-msgstr "Byte ranges per piece, comma-separated (e.g. 10-100 or 3-5, 6-8)."
-
-msgid "adminV2.domains.tricks.tlsFragment.delays"
-msgstr "Delays"
-
-msgid "adminV2.domains.tricks.tlsFragment.delaysHint"
-msgstr "Milliseconds between pieces, comma-separated (e.g. 50-200)."
-
-msgid "adminV2.domains.tricks.tlsFragment.maxSplit"
-msgstr "Max split"
-
-msgid "adminV2.domains.tricks.tlsFragment.maxSplitHint"
-msgstr "How many pieces at most (e.g. 3-6)."
-
-msgid "adminV2.domains.tricks.custom.name"
-msgstr "Custom"
-
-msgid "adminV2.domains.tricks.custom.hint"
-msgstr "Paste any FinalMaskObject (tcp / udp / quicParams)"
-
-msgid "adminV2.domains.tricks.custom.tune"
-msgstr "Custom FinalMask"
-
-msgid "adminV2.domains.tricks.custom.tuneHint"
-msgstr ""
-"Edit the FinalMask JSON directly. It is stored as tricks.finalmask and sent "
-"to clients as-is."
-
-msgid "adminV2.domains.tricks.custom.invalidJson"
-msgstr "Not valid JSON"
-
-msgid "adminV2.domains.tricks.custom.mustObject"
-msgstr "Must be a JSON object (not an array)"
 
 msgid "adminV2.domains.getCert"
 msgstr "Get certificate"
@@ -4940,6 +4839,102 @@ msgstr "Valid TLS"
 msgid "adminV2.domains.tlsMode.validHint"
 msgstr "A real certificate, issued automatically."
 
+msgid "adminV2.domains.tricks.custom.hint"
+msgstr "Paste any FinalMaskObject (tcp / udp / quicParams)"
+
+msgid "adminV2.domains.tricks.custom.invalidJson"
+msgstr "Not valid JSON"
+
+msgid "adminV2.domains.tricks.custom.mustObject"
+msgstr "Must be a JSON object (not an array)"
+
+msgid "adminV2.domains.tricks.custom.name"
+msgstr "Custom"
+
+msgid "adminV2.domains.tricks.custom.tune"
+msgstr "Custom FinalMask"
+
+msgid "adminV2.domains.tricks.custom.tuneHint"
+msgstr ""
+"Edit the FinalMask JSON directly. It is stored as tricks.finalmask and sent "
+"to clients as-is."
+
+msgid "adminV2.domains.tricks.docs"
+msgstr "FinalMask docs"
+
+msgid "adminV2.domains.tricks.lead"
+msgstr ""
+"Optional client-side FinalMask for this CDN domain. Use a template or paste "
+"your own object."
+
+msgid "adminV2.domains.tricks.off"
+msgstr "None"
+
+msgid "adminV2.domains.tricks.offHint"
+msgstr "No trick — normal TLS handshake"
+
+msgid "adminV2.domains.tricks.presets.1-3"
+msgstr "Packets 1-3"
+
+msgid "adminV2.domains.tricks.presets.coarse"
+msgstr "Coarse"
+
+msgid "adminV2.domains.tricks.presets.default"
+msgstr "Default"
+
+msgid "adminV2.domains.tricks.presets.fine"
+msgstr "Fine"
+
+msgid "adminV2.domains.tricks.presets.multi"
+msgstr "Multi"
+
+msgid "adminV2.domains.tricks.presets.tight"
+msgstr "Tight"
+
+msgid "adminV2.domains.tricks.preview"
+msgstr "What clients get"
+
+msgid "adminV2.domains.tricks.title"
+msgstr "Tricks"
+
+msgid "adminV2.domains.tricks.tlsFragment.delays"
+msgstr "Delays"
+
+msgid "adminV2.domains.tricks.tlsFragment.delaysHint"
+msgstr "Milliseconds between pieces, comma-separated (e.g. 50-200)."
+
+msgid "adminV2.domains.tricks.tlsFragment.hint"
+msgstr "Splits the TLS ClientHello (FinalMask fragment)"
+
+msgid "adminV2.domains.tricks.tlsFragment.lengths"
+msgstr "Lengths"
+
+msgid "adminV2.domains.tricks.tlsFragment.lengthsHint"
+msgstr "Byte ranges per piece, comma-separated (e.g. 10-100 or 3-5, 6-8)."
+
+msgid "adminV2.domains.tricks.tlsFragment.maxSplit"
+msgstr "Max split"
+
+msgid "adminV2.domains.tricks.tlsFragment.maxSplitHint"
+msgstr "How many pieces at most (e.g. 3-6)."
+
+msgid "adminV2.domains.tricks.tlsFragment.name"
+msgstr "TLS Fragment"
+
+msgid "adminV2.domains.tricks.tlsFragment.packets"
+msgstr "Packets"
+
+msgid "adminV2.domains.tricks.tlsFragment.packetsHint"
+msgstr "tlshello = first TLS record; 1-3 = first few TCP packets."
+
+msgid "adminV2.domains.tricks.tlsFragment.tune"
+msgstr "Tune fragment"
+
+msgid "adminV2.domains.tricks.tlsFragment.tuneHint"
+msgstr ""
+"Start from a preset, then edit lengths / delays if needed. Values go into "
+"finalmask.tcp[].settings."
+
 msgid "adminV2.domains.warning"
 msgstr "Saved, with a warning"
 
@@ -5071,12 +5066,6 @@ msgstr "Which TLS?"
 
 msgid "adminV2.domains.wizard.unlikely"
 msgstr "DNS does not match"
-
-msgid "adminV2.domains.emptyTitle"
-msgstr "No domains yet"
-
-msgid "adminV2.domains.emptyHint"
-msgstr "Add your first domain so users can connect."
 
 msgid "adminV2.donation.close"
 msgstr "Close"
@@ -5622,83 +5611,168 @@ msgstr ""
 msgid "adminV2.nodes.empty.title"
 msgstr "No nodes yet"
 
-msgid "adminV2.nodes.errorReg"
-msgstr "Registration id {id} (it is in the log lines of both panels)"
+msgid "adminV2.nodes.errorCopied"
+msgstr ""
+"Technical details copied. Send them to support with the registration ID."
+
+msgid "adminV2.nodes.errorCopy"
+msgstr "Copy technical details"
+
+msgid "adminV2.nodes.errorFix.invalid_link"
+msgstr ""
+"Open the node's admin panel, copy the full address from the browser's "
+"address bar and paste it here."
+
+msgid "adminV2.nodes.errorFix.node_auth"
+msgstr ""
+"The link may be old or another admin's. Copy the node's admin link again "
+"(the full address of its admin panel) and paste it here."
+
+msgid "adminV2.nodes.errorFix.node_connection"
+msgstr "Wait a minute and try again."
+
+msgid "adminV2.nodes.errorFix.node_error"
+msgstr ""
+"Update the node's panel to the latest version (on the node: Actions → Update"
+" Hiddify) and try again. If it still fails, copy the technical details below"
+" and send them to support."
+
+msgid "adminV2.nodes.errorFix.node_no_domain"
+msgstr ""
+"On the node, add a main domain (Domains) and wait until its certificate is "
+"valid. Then try again."
+
+msgid "adminV2.nodes.errorFix.node_no_parent_url"
+msgstr ""
+"Open this panel through its own domain (not an IP address) and try again, so"
+" the node gets an address it can reach."
+
+msgid "adminV2.nodes.errorFix.node_node_data"
+msgstr "Update both panels to the same version and try again."
+
+msgid "adminV2.nodes.errorFix.node_old"
+msgstr ""
+"Update the node's panel to the latest version (on the node: Actions → Update"
+" Hiddify), then try again."
+
+msgid "adminV2.nodes.errorFix.node_parent_bad_answer"
+msgstr "Update both panels to the same version and try again."
+
+msgid "adminV2.nodes.errorFix.node_parent_connection"
+msgstr ""
+"From the node's server, this panel's address must open: check for a firewall"
+" or filtering between the two servers. Then try again."
+
+msgid "adminV2.nodes.errorFix.node_parent_rejected"
+msgstr ""
+"Copy the technical details below: they say why this panel refused. Fix that "
+"here and try again."
+
+msgid "adminV2.nodes.errorFix.node_parent_timeout"
+msgstr "Wait a minute and try again."
+
+msgid "adminV2.nodes.errorFix.node_timeout"
+msgstr "The node may be busy or restarting. Wait a minute and try again."
+
+msgid "adminV2.nodes.errorFix.rejected"
+msgstr ""
+"The node may already belong to another panel, or its panel is old. Update "
+"the node's panel; if it belongs to another panel, remove it there first. "
+"Then try again."
+
+msgid "adminV2.nodes.errorFix.self"
+msgstr "Enter the admin link of the other server (the node)."
+
+msgid "adminV2.nodes.errorFix.timeout"
+msgstr "The node may be busy or restarting. Wait a minute and try again."
+
+msgid "adminV2.nodes.errorFix.unknown"
+msgstr ""
+"Try again in a minute. If it happens again, copy the technical details and "
+"send them to support."
+
+msgid "adminV2.nodes.errorFix.unreachable"
+msgstr ""
+"Check that the link is right, the node's server is on and its panel opens in"
+" a browser. Then try again."
+
+msgid "adminV2.nodes.errorFixTitle"
+msgstr "What to do"
+
+msgid "adminV2.nodes.errorRegShort"
+msgstr "Registration ID:"
 
 msgid "adminV2.nodes.errorSide.between"
-msgstr "Failed on the way between this panel and the node"
+msgstr "Problem in the connection between the two panels"
 
 msgid "adminV2.nodes.errorSide.node"
-msgstr "Failed on the node"
+msgstr "Problem on the node's server"
 
 msgid "adminV2.nodes.errorSide.parent"
-msgstr "Failed on this panel"
+msgstr "Problem on this panel"
+
+msgid "adminV2.nodes.errorSide.unknown"
+msgstr "Adding the node failed"
 
 msgid "adminV2.nodes.errors.invalid_link"
-msgstr "The link is not a valid admin link."
+msgstr "The link you entered is not a node admin link."
 
 msgid "adminV2.nodes.errors.node_auth"
-msgstr ""
-"The node did not accept the admin link. Copy the node's admin link again."
+msgstr "The node did not accept the admin link."
 
 msgid "adminV2.nodes.errors.node_connection"
 msgstr ""
-"The connection between this panel and the node broke while it was "
-"registering (the node may have restarted its web server). Try again in a "
-"minute."
+"The connection between the two panels broke during registration (the node "
+"may have restarted)."
+
+msgid "adminV2.nodes.errors.node_error"
+msgstr ""
+"The node's panel stopped with an internal error while registering. The fault"
+" is in the node's panel itself, not in the link."
 
 msgid "adminV2.nodes.errors.node_no_domain"
-msgstr ""
-"The node has no main domain with a valid certificate. Add one on the node "
-"first."
+msgstr "The node has no main domain with a valid certificate."
 
 msgid "adminV2.nodes.errors.node_no_parent_url"
-msgstr "The node does not know the address of this panel."
+msgstr "The node does not know this panel's address."
 
 msgid "adminV2.nodes.errors.node_node_data"
-msgstr "The node failed while saving the data it got from this panel."
+msgstr "The node failed while saving the data this panel sent it."
 
 msgid "adminV2.nodes.errors.node_old"
-msgstr "The node is too old to be added from here. Update the node first."
+msgstr "The node's panel is too old to be added."
 
 msgid "adminV2.nodes.errors.node_parent_bad_answer"
-msgstr ""
-"This panel gave the node an answer it could not read. Update both panels to "
-"the same version."
+msgstr "The node could not read this panel's answer."
 
 msgid "adminV2.nodes.errors.node_parent_connection"
-msgstr ""
-"The node could not reach this panel. Check that this panel's address opens "
-"from the node's server."
+msgstr "The node could not reach this panel."
 
 msgid "adminV2.nodes.errors.node_parent_rejected"
-msgstr ""
-"The node reached this panel, but this panel refused it. The detail says why."
+msgstr "The node reached this panel, but this panel refused it."
 
 msgid "adminV2.nodes.errors.node_parent_timeout"
 msgstr ""
-"The node tried to register with this panel, but this panel did not answer in"
-" time (probably busy saving the node's data). Try again."
+"This panel did not answer the node in time (it was probably busy saving the "
+"node's data)."
 
 msgid "adminV2.nodes.errors.node_timeout"
-msgstr ""
-"The node did not answer in time. It may be busy or restarting: check it and "
-"try again."
+msgstr "The node took too long to answer."
 
 msgid "adminV2.nodes.errors.rejected"
-msgstr ""
-"The node refused to connect. It may already belong to another parent panel, "
-"or its version is too old."
+msgstr "The node refused to join this panel."
 
 msgid "adminV2.nodes.errors.self"
-msgstr "This is the link of this panel. Use the link of the node server."
+msgstr "This is the link of this same panel, not of the node."
 
 msgid "adminV2.nodes.errors.timeout"
-msgstr "The node took too long to answer. Check it and try again."
+msgstr "The node took too long to answer."
+
+msgid "adminV2.nodes.errors.unknown"
+msgstr "Adding the node failed for a reason this panel does not recognise."
 
 msgid "adminV2.nodes.errors.unreachable"
-msgstr ""
-"The node could not be reached. Check the link and that the node is online."
+msgstr "This panel could not reach the node."
 
 msgid "adminV2.nodes.info.fromNode"
 msgstr "Last message from node"
@@ -5870,6 +5944,18 @@ msgstr "Nodes"
 
 msgid "adminV2.nodes.unreachable"
 msgstr "Not reachable"
+
+msgid "adminV2.notifications.dismiss"
+msgstr "Dismiss"
+
+msgid "adminV2.notifications.new"
+msgstr "New"
+
+msgid "adminV2.notifications.title"
+msgstr "Notifications"
+
+msgid "adminV2.notifications.unread"
+msgstr "{n} new notification | {n} new notifications"
 
 msgid "adminV2.operatorIps.add"
 msgstr "Add"
@@ -7066,29 +7152,15 @@ msgstr "Version"
 msgid "adminV2.proxy.wireguardTemplate"
 msgstr "WireGuard .conf template"
 
-msgid "adminV2.pwa.guide.platform"
-msgstr "Your device"
+msgid "adminV2.pwa.bannerText"
+msgstr ""
+"Open it from your home screen or desktop, in its own window, like an app."
 
-msgid "adminV2.pwa.guide.tabIos"
-msgstr "iPhone · Safari"
+msgid "adminV2.pwa.bannerTitle"
+msgstr "Install the panel as an app"
 
-msgid "adminV2.pwa.guide.tabAndroid"
-msgstr "Android · Chrome"
-
-msgid "adminV2.pwa.guide.tabDesktop"
-msgstr "{os} · Chrome"
-
-msgid "adminV2.pwa.guide.ios1"
-msgstr "In Safari, tap the ••• button in the bar at the bottom"
-
-msgid "adminV2.pwa.guide.ios2"
-msgstr "Tap Share"
-
-msgid "adminV2.pwa.guide.ios3"
-msgstr "Choose “Add to Home Screen”"
-
-msgid "adminV2.pwa.guide.ios4"
-msgstr "Tap Add: the panel is on your home screen"
+msgid "adminV2.pwa.gotIt"
+msgstr "Got it"
 
 msgid "adminV2.pwa.guide.android1"
 msgstr "In Chrome, tap the ⋮ menu at the top"
@@ -7111,24 +7183,38 @@ msgstr "Click Install"
 msgid "adminV2.pwa.guide.desktop3"
 msgstr "The panel opens in its own window, like an app"
 
-msgid "adminV2.pwa.installNow"
-msgstr "Install now"
+msgid "adminV2.pwa.guide.ios1"
+msgstr "In Safari, tap the ••• button in the bar at the bottom"
 
-msgid "adminV2.pwa.bannerText"
-msgstr ""
-"Open it from your home screen or desktop, in its own window, like an app."
+msgid "adminV2.pwa.guide.ios2"
+msgstr "Tap Share"
 
-msgid "adminV2.pwa.bannerTitle"
-msgstr "Install the panel as an app"
+msgid "adminV2.pwa.guide.ios3"
+msgstr "Choose “Add to Home Screen”"
 
-msgid "adminV2.pwa.gotIt"
-msgstr "Got it"
+msgid "adminV2.pwa.guide.ios4"
+msgstr "Tap Add: the panel is on your home screen"
+
+msgid "adminV2.pwa.guide.platform"
+msgstr "Your device"
+
+msgid "adminV2.pwa.guide.tabAndroid"
+msgstr "Android · Chrome"
+
+msgid "adminV2.pwa.guide.tabDesktop"
+msgstr "{os} · Chrome"
+
+msgid "adminV2.pwa.guide.tabIos"
+msgstr "iPhone · Safari"
 
 msgid "adminV2.pwa.install"
 msgstr "Install"
 
 msgid "adminV2.pwa.installButton"
 msgstr "Install as an app"
+
+msgid "adminV2.pwa.installNow"
+msgstr "Install now"
 
 msgid "adminV2.pwa.iosAdd"
 msgstr "Choose “Add to Home Screen”"
@@ -8064,6 +8150,9 @@ msgstr "New tag"
 msgid "adminV2.tags.none"
 msgstr "No tags yet"
 
+msgid "adminV2.tags.note"
+msgstr "Note"
+
 msgid "adminV2.tags.pick"
 msgstr "Choose tags"
 
@@ -8153,6 +8242,12 @@ msgstr "This panel has a Telegram bot, {bot}. Link it to your account:"
 msgid "adminV2.telegram.promptTitle"
 msgstr "Connect your Telegram?"
 
+msgid "adminV2.telegram.reconnect"
+msgstr "Connect again"
+
+msgid "adminV2.telegram.scan"
+msgstr "Or scan this with your phone's camera."
+
 msgid "adminV2.telegram.stepCreate"
 msgstr "Create a new user right in the chat"
 
@@ -8161,12 +8256,6 @@ msgstr "Start the bot: its menu opens"
 
 msgid "adminV2.telegram.stepUsers"
 msgstr "See your users and their usage"
-
-msgid "adminV2.telegram.reconnect"
-msgstr "Connect again"
-
-msgid "adminV2.telegram.scan"
-msgstr "Or scan this with your phone's camera."
 
 msgid "adminV2.template.builtin"
 msgstr "Built-in"
@@ -8287,18 +8376,6 @@ msgid "adminV2.templateVariables.skipHint"
 msgstr ""
 "Output SKIP or call skip() to skip rendering this proxy when a condition is "
 "not met"
-
-msgid "adminV2.notifications.title"
-msgstr "Notifications"
-
-msgid "adminV2.notifications.unread"
-msgstr "{n} new notification | {n} new notifications"
-
-msgid "adminV2.notifications.new"
-msgstr "New"
-
-msgid "adminV2.notifications.dismiss"
-msgstr "Dismiss"
 
 msgid "adminV2.theme.caddy"
 msgstr "Smart Caddy theme"
@@ -8441,6 +8518,60 @@ msgstr "Their package starts again at their next connection."
 
 msgid "adminV2.users.bulkConfirmText.reset_usage"
 msgstr "Their used data goes back to zero."
+
+msgid "adminV2.users.bulkCreate.copy"
+msgstr "Copy all"
+
+msgid "adminV2.users.bulkCreate.count"
+msgstr "How many"
+
+msgid "adminV2.users.bulkCreate.countHint"
+msgstr "Between 1 and {max}"
+
+msgid "adminV2.users.bulkCreate.create"
+msgstr "Create {n} user | Create {n} users"
+
+msgid "adminV2.users.bulkCreate.domain"
+msgstr "Link domain"
+
+msgid "adminV2.users.bulkCreate.done"
+msgstr "{n} user created | {n} users created"
+
+msgid "adminV2.users.bulkCreate.download"
+msgstr "Download .txt"
+
+msgid "adminV2.users.bulkCreate.links"
+msgstr "Links"
+
+msgid "adminV2.users.bulkCreate.linksSubtitle"
+msgstr "{n} link ready to copy | {n} links ready to copy"
+
+msgid "adminV2.users.bulkCreate.linksTitle"
+msgstr "User links"
+
+msgid "adminV2.users.bulkCreate.menu"
+msgstr "Add many users"
+
+msgid "adminV2.users.bulkCreate.prefix"
+msgstr "Name prefix"
+
+msgid "adminV2.users.bulkCreate.prefixHint"
+msgstr "Each user is named prefix-01, prefix-02, …"
+
+msgid "adminV2.users.bulkCreate.prefixPlaceholder"
+msgstr "e.g. USER-30d"
+
+msgid "adminV2.users.bulkCreate.preview"
+msgstr "Names"
+
+msgid "adminV2.users.bulkCreate.subtitle"
+msgstr "Same package for everyone. Names are your prefix plus a number."
+
+msgid "adminV2.users.bulkCreate.title"
+msgstr "Add many users"
+
+msgid "adminV2.users.bulkCreate.who"
+msgstr "Who"
 
 msgid "adminV2.users.bulkDone.add_days"
 msgstr "7 days added to {n} user | 7 days added to {n} users"
@@ -8763,6 +8894,11 @@ msgstr ""
 msgid "adminV2.users.form.outboundOff"
 msgstr "turned off"
 
+msgid "adminV2.users.form.outboundReadOnly"
+msgstr ""
+"You can see the preferred outbound but only an admin with permission can "
+"change it."
+
 msgid "adminV2.users.form.owner"
 msgstr "Sub-admin"
 
@@ -8867,11 +9003,6 @@ msgstr "Begins at the first connection and never expires."
 
 msgid "adminV2.users.form.who"
 msgstr "Who"
-
-msgid "adminV2.users.form.outboundReadOnly"
-msgstr ""
-"You can see the preferred outbound but only an admin with permission can "
-"change it."
 
 msgid "adminV2.users.groupByOwner"
 msgstr "Group by admin"
@@ -9075,60 +9206,6 @@ msgstr ""
 
 msgid "adminV2.users.title"
 msgstr "Users"
-
-msgid "adminV2.users.bulkCreate.menu"
-msgstr "Add many users"
-
-msgid "adminV2.users.bulkCreate.title"
-msgstr "Add many users"
-
-msgid "adminV2.users.bulkCreate.subtitle"
-msgstr "Same package for everyone. Names are your prefix plus a number."
-
-msgid "adminV2.users.bulkCreate.who"
-msgstr "Who"
-
-msgid "adminV2.users.bulkCreate.prefix"
-msgstr "Name prefix"
-
-msgid "adminV2.users.bulkCreate.prefixPlaceholder"
-msgstr "e.g. USER-30d"
-
-msgid "adminV2.users.bulkCreate.prefixHint"
-msgstr "Each user is named prefix-01, prefix-02, …"
-
-msgid "adminV2.users.bulkCreate.count"
-msgstr "How many"
-
-msgid "adminV2.users.bulkCreate.countHint"
-msgstr "Between 1 and {max}"
-
-msgid "adminV2.users.bulkCreate.preview"
-msgstr "Names"
-
-msgid "adminV2.users.bulkCreate.create"
-msgstr "Create {n} user | Create {n} users"
-
-msgid "adminV2.users.bulkCreate.done"
-msgstr "{n} user created | {n} users created"
-
-msgid "adminV2.users.bulkCreate.linksTitle"
-msgstr "User links"
-
-msgid "adminV2.users.bulkCreate.linksSubtitle"
-msgstr "{n} link ready to copy | {n} links ready to copy"
-
-msgid "adminV2.users.bulkCreate.domain"
-msgstr "Link domain"
-
-msgid "adminV2.users.bulkCreate.links"
-msgstr "Links"
-
-msgid "adminV2.users.bulkCreate.copy"
-msgstr "Copy all"
-
-msgid "adminV2.users.bulkCreate.download"
-msgstr "Download .txt"
 
 msgid "adminV2.utils.addQuery"
 msgstr "Add query"
@@ -11815,6 +11892,12 @@ msgid "domain.reality.asn_issue"
 msgstr ""
 "Selected Domain for REALITY is not in the same ASN. To better use of the "
 "Protocol, it is better to find a Domain in the same ASN"
+
+msgid "domain.reality.no_x25519"
+msgstr ""
+"This domain does not support the X25519 key exchange that REALITY needs, so "
+"it is not REALITY compatible: clients would get the real site's certificate "
+"and fail. Use another domain."
 
 msgid "domain.resolveip.description"
 msgstr ""
