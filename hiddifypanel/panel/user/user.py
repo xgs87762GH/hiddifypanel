@@ -399,7 +399,7 @@ class UserView(FlaskView):
                 "singbox_config.json",
                 **c,
                 host_keys=hutils.proxy.get_ssh_hostkeys(get_hconfigs_json()),
-                ssh_client_version=hiddify.get_ssh_client_version(g.user),
+                ssh_client_version=hiddify.get_ssh_client_version(g.account),
                 ssh_ip=hutils.network.get_direct_host_or_ip(4),
                 base64=False,
             )
