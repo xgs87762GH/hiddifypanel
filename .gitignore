@@ -59,6 +59,8 @@ coverage.xml
 # Translations
 # *.mo
 *.pot
+# Local translation overlay scratch files (underscore-prefixed)
+scripts/_*
 
 # Django stuff:
 *.log
@@ -108,7 +110,7 @@ celerybeat.pid
 
 # Environments
 .env
-.venv
+.venv*
 env/
 venv/
 ENV/
