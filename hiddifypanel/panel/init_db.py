@@ -12,8 +12,9 @@ from sqlalchemy import update as sa_update
 
 from hiddifypanel import Events, g, hutils
 from hiddifypanel.cache import cache
-from hiddifypanel.database import db, db_execute, db_execute_ddl
+from hiddifypanel.database import db, db_execute, db_execute_ddl, ensure_usage_procedure
 from hiddifypanel.hutils.network.server_ip_sync import sync_server_ips
+from hiddifypanel.panel.usage_procedure import ADD_USAGE_JSON_PROC_DDL
 from hiddifypanel.models import *
 from hiddifypanel.models import ConfigEnum
 from hiddifypanel.proxy_v3.builtin_proxy_sync.orchestrator import seed_proxy_catalog
@@ -338,49 +339,7 @@ def _v140(child_id):
     """Add user.last_modified_time and bump it from add_usage_json."""
     execute("UPDATE user SET last_modified_time=COALESCE(last_online, NOW()) WHERE last_modified_time IS NULL OR last_modified_time < '1971-01-01'")
 
-    add_usage_proc = """
-DROP PROCEDURE IF EXISTS add_usage_json;
-
-CREATE PROCEDURE add_usage_json(IN usage_data JSON, IN cur_time DATETIME)
-BEGIN
-  DECLARE u_id INT DEFAULT NULL;
-  DECLARE u_uuid CHAR(36) DEFAULT NULL;
-  DECLARE u_usage BIGINT;
-  DECLARE done BOOL DEFAULT FALSE;
-  DECLARE cur_date DATE;
-
-
-  DECLARE cur CURSOR FOR
-    SELECT  jt.uuid, jt.usage FROM JSON_TABLE(
-      usage_data, '$[*]' COLUMNS (
-        uuid CHAR(36) PATH '$.uuid', `usage` BIGINT PATH '$.usage')) AS jt;
-
-  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-  SET cur_date = DATE(cur_time);
-  OPEN cur;
-
-  read_loop: LOOP
-    FETCH cur INTO  u_uuid, u_usage;
-    IF done THEN
-      LEAVE read_loop;
-    END IF;
-
-
-    UPDATE `user`
-    SET current_usage = current_usage + u_usage,
-        last_online = cur_time,
-        last_modified_time = cur_time,
-        start_date = CASE WHEN start_date IS NULL THEN cur_date ELSE start_date END
-    WHERE uuid = u_uuid;
-
-
-    COMMIT;
-  END LOOP;
-
-  CLOSE cur;
-END
-    """
-    db_execute(add_usage_proc, commit=True)
+    db_execute(ADD_USAGE_JSON_PROC_DDL, commit=True)
     import secrets
 
     add_config_if_not_exist(ConfigEnum.master_dns_encrypt_key, secrets.token_hex(32))
@@ -1511,8 +1470,16 @@ def init_db():
     # WIP proxy reset: use `flask reset-wip-proxy-db` then restart — not on every boot.
     # _drop_wip_proxy_tables()
     # set_hconfig(ConfigEnum.db_version, 172, commit=True)
+
     db_version = current_db_version()
     if db_version >= latest_db_version():
+        # A restore can bring back the data with db_version already at the
+        # latest value while dropping SQL routines (a full mysqldump without
+        # --routines, or the panel's JSON-only backup). The _v140 migration
+        # that creates add_usage_json is then skipped forever and usage
+        # accounting dies with MySQL 1305. Fresh installs are untouched: they
+        # run the migrations below and _v140 creates the routine as before.
+        ensure_usage_procedure()
         return
 
     db.create_all()

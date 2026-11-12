@@ -8,8 +8,9 @@ from loguru import logger
 from sqlalchemy import func
 
 from hiddifypanel import cache, hutils
-from hiddifypanel.database import db, db_execute
+from hiddifypanel.database import db, db_execute, ensure_usage_procedure
 from hiddifypanel.drivers import user_driver
+from hiddifypanel.panel.usage_procedure import is_missing_procedure_error
 from hiddifypanel.models import AdminUser, ConfigEnum, DailyUsage, UsageData, User, UserMode, hconfig, set_hconfig
 from hiddifypanel.panel import hiddify
 
@@ -27,6 +28,42 @@ def _user_package_end_date():
 USAGE_LOCK = "lock-update-local-usage"
 USAGE_LOCK_WAIT = 60  # seconds a usage report waits for the running update before it is refused (409: sent again later)
 BUSY = {"msg": "last run of this task is not finished yet."}
+
+# A missing stored procedure used to raise a full traceback every minute; the
+# panel error log grew past 100 MB before anyone noticed. Only log one warning
+# per interval when the repair cannot be performed.
+_USAGE_FAILURE_LOG_INTERVAL = 300.0
+_last_usage_failure_log = 0.0
+
+
+def _call_add_usage_json(usage_data: str, cur_time: str) -> None:
+    """CALL the accounting procedure, repairing it once if a restore dropped it."""
+    global _last_usage_failure_log
+
+    def _call():
+        db_execute(
+            "CALL add_usage_json(:usage_data,:cur_time)",
+            usage_data=usage_data,
+            cur_time=cur_time,
+            commit=True,
+        )
+
+    try:
+        _call()
+        return
+    except Exception as exc:
+        if not is_missing_procedure_error(exc):
+            raise
+        # SQLAlchemy leaves the session unusable after a failed statement.
+        db.session.rollback()
+        if ensure_usage_procedure():
+            _call()  # the deltas were fetched with reset=True, so retry now
+            return
+        now = time.monotonic()
+        if now - _last_usage_failure_log >= _USAGE_FAILURE_LOG_INTERVAL:
+            _last_usage_failure_log = now
+            logger.warning("add_usage_json is missing and could not be recreated: {}", exc)
+        raise
 
 
 def update_local_usage(wait: float = 0):
@@ -146,11 +183,9 @@ def _add_users_usage_new_impl(usages: list[UsageData], child_id: int) -> dict[st
         }
         for use in usages
     ]
-    db_execute(
-        "CALL add_usage_json(:usage_data,:cur_time)",
-        usage_data=json.dumps(usage_payload),
-        cur_time=cur_time.strftime("%Y-%m-%d %H:%M:%S"),
-        commit=True,
+    _call_add_usage_json(
+        json.dumps(usage_payload),
+        cur_time.strftime("%Y-%m-%d %H:%M:%S"),
     )
     if usage_payload:  # raw SQL: the commit hook of the ORM does not see it
         from hiddifypanel.live import changes

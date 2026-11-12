@@ -106,6 +106,28 @@ def db_execute(query: str, return_val: bool = False, commit: bool = False, **par
     # return res
 
 
+def ensure_usage_procedure() -> bool:
+    """Recreate ``add_usage_json`` when a restore/upgrade left it missing.
+
+    Called from ``init_db()`` on its early-return path, and from the usage
+    task when a CALL fails with 1305. Never raises: a missing CREATE ROUTINE
+    grant must not take the whole panel down.
+    """
+    from hiddifypanel.panel.usage_procedure import ensure_usage_procedure as _ensure
+
+    try:
+        return _ensure(
+            db_execute,
+            db.engine.dialect.name,
+            log=logger.warning,
+            rollback=db.session.rollback,
+        )
+    except Exception as exc:
+        # Even probing the dialect must not break app startup (e.g. SQLite CLI).
+        logger.warning(f"could not check add_usage_json procedure: {exc}")
+        return False
+
+
 def db_execute_ddl(
     query: str,
     *,
