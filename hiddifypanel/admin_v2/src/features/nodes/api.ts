@@ -31,16 +31,31 @@ export interface PanelNode {
 export interface NodeSyncReportOut {
   /** null when the node could not be asked (offline, or too old for this call): see `error`. */
   report: NodeSyncStatus | null
+  /** Why not (auth, timeout, refused, ...): the page explains it; `error` is the technical text */
+  error_code?: string
   error: string
   /** This panel's side of the link. */
   websocket_connected: boolean
   last_seen: string | null
 }
 
+/** The node server's operating system (os_id: /etc/os-release ID, for its logo); empty fields when not known. */
+export interface NodeOs {
+  os_id: string
+  os_name: string
+  os_version: string
+  os_pretty: string
+  kernel: string
+  arch: string
+}
+
 export interface NodePing {
   online: boolean
   version: string
+  /** Technical text, without the node's secret path */
   error: string
+  /** Why it is not reachable (auth, timeout, refused, dns, tls, not_found, gateway, not_panel, server_error, no_url, unknown) */
+  error_code?: string
 }
 
 export interface NodeIcmpPing {
@@ -82,6 +97,68 @@ class RegisterFailure extends Error {
 
 function registerFailure(data: NodeRegisterError): RegisterFailure {
   return new RegisterFailure(data)
+}
+
+/** One IP address of a server, from open sources (GeoLite2, RDAP, Tor Project, bad-asn-list, …), kept 7 days */
+export interface IpContact {
+  name?: string
+  email?: string
+  phone?: string
+  address?: string
+}
+export interface IpDetails {
+  ip: string
+  version: 4 | 6
+  ptr: string
+  geo: {
+    city: string
+    region: string
+    region_code: string
+    country_name: string
+    country_code: string
+    continent_code: string
+    latitude: number | null
+    longitude: number | null
+    timezone: string
+    utc_offset: string
+    currency: string
+    currency_name: string
+    languages: string
+    asn: string
+    org: string
+  }
+  network: {
+    netname?: string
+    handle?: string
+    range?: string
+    cidr?: string
+    type?: string
+    country?: string
+    rir?: string
+    registered?: string
+    updated?: string
+    owner?: IpContact
+    abuse?: IpContact
+  }
+  asn: { asn?: string; org?: string; name?: string; country?: string; registered?: string; updated?: string }
+  company: { name: string; domain: string; logo: string }
+  detect: { datacenter: boolean; datacenter_listed: boolean; vpn_likely: boolean; tor: boolean; mobile: boolean; residential: boolean; bogon: boolean }
+  /** The Complete IP Info section: each flag true / false, or null when it could not be checked */
+  complete?: {
+    flags: Record<string, boolean | null>
+    certificates: { name: string; not_after: string; expired: boolean }[]
+    tor_relay: { nickname?: string; running?: boolean; exit?: boolean }
+    crawler: string
+  }
+  fetched_at: number
+}
+export interface NodeIpInfo {
+  node_id: number
+  ips: IpDetails[]
+  domains: string[]
+  /** Seconds until the panel looks the addresses up again */
+  refresh_in: number
+  ttl: number
 }
 
 export const nodesApi = {
@@ -129,6 +206,11 @@ export const nodesApi = {
     if (state.result?.ok) return state.result.node ?? null
     throw registerFailure(state.result?.error ?? { code: 'rejected', message: '' })
   },
+  /** What is known about the IP addresses of this server (0) or a node; the panel keeps it 72 hours */
+  async ipInfo(id: number, refresh = false): Promise<NodeIpInfo> {
+    const { data } = await getHttp().get<NodeIpInfo>(`nodes/${id}/ip-info/`, { params: refresh ? { refresh: 1 } : undefined, timeout: 60_000 })
+    return data
+  },
   async rename(id: number, name: string): Promise<{ node: PanelNode; synced_to_node: boolean }> {
     const { data } = await getHttp().patch<{ node: PanelNode; synced_to_node: boolean }>(`nodes/${id}/`, { name }, { timeout: 30_000 })
     return data
@@ -137,6 +219,10 @@ export const nodesApi = {
   async remove(id: number): Promise<boolean> {
     const { data } = await getHttp().delete<{ node_unlinked?: boolean }>(`nodes/${id}/`, { timeout: 30_000 })
     return data.node_unlinked !== false
+  },
+  async os(id: number): Promise<NodeOs> {
+    const { data } = await getHttp().get<NodeOs>(`nodes/${id}/os/`, { timeout: 20_000 })
+    return data
   },
   async ping(id: number): Promise<NodePing> {
     const { data } = await getHttp().get<NodePing>(`nodes/${id}/ping/`, { timeout: 30_000 })

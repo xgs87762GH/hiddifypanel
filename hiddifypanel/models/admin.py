@@ -5,7 +5,7 @@ from enum import auto
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from sqlalchemy import Enum, ForeignKey, String, event, func
+from sqlalchemy import BigInteger, Date, Enum, ForeignKey, String, case, event, func, update
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import JSON
 from strenum import StrEnum
@@ -13,6 +13,7 @@ from strenum import StrEnum
 from hiddifypanel import g
 from hiddifypanel.database import db, db_execute
 from hiddifypanel.models.base_account import BaseAccount
+from hiddifypanel.models.reset_mode import UserMode, days_to_reset, should_reset
 from hiddifypanel.models.role import Role
 from hiddifypanel.models.usage import DailyUsage
 
@@ -65,9 +66,18 @@ class AdminUser(BaseAccount):
     max_online_users: Mapped[int | None] = mapped_column(default=None, nullable=True)
     # Traffic (GB) all users of this admin and its sub-admins may use together; None = no limit.
     max_total_usage_GB: Mapped[float | None] = mapped_column(default=None, nullable=True)
+    #: Traffic (bytes) of this admin's users and all its sub-admins' users since the last reset: the usage update adds
+    #: to it (``add_usages``), so it is not lowered when a user is reset or deleted. ``max_total_usage_GB`` limits it.
+    current_usage: Mapped[int | None] = mapped_column(BigInteger, default=0, nullable=True)
+    #: How often ``current_usage`` goes back to zero, counted from ``start_date`` (its first traffic), as for users.
+    usage_mode: Mapped[UserMode | None] = mapped_column(Enum(UserMode), default=UserMode.no_reset, nullable=True)
+    start_date: Mapped[datetime.date | None] = mapped_column(Date, default=None, nullable=True)
+    last_reset_time: Mapped[datetime.date | None] = mapped_column(Date, default=datetime.date.today, nullable=True)
     #: Sign-in username instead of the UUID (lowercase, unique; never for super admins; needs a strong
     #: password). See hiddifypanel.admin_credentials.
     alias: Mapped[str | None] = mapped_column(String(64), default=None, nullable=True, index=True)
+    #: Whether the password was strong when it was set (only its hash is kept): an alias needs a strong one.
+    password_strong: Mapped[bool | None] = mapped_column(default=False, nullable=True)
     #: [kind, target, value] rows added to the subscription of every user of this admin and its
     #: sub-admins (merged with the users' own; see proxy_v3.user_configs).
     additional_configs: Mapped[list | None] = mapped_column(JSON, default=list, nullable=True)
@@ -80,11 +90,19 @@ class AdminUser(BaseAccount):
     #: {ConfigEnum key: value} for this admin's users and its sub-admins' users (the user page's customization);
     #: see hiddifypanel.admin_overrides. Not synced to nodes, like additional_configs.
     override_settings: Mapped[dict | None] = mapped_column(JSON, default=None, nullable=True)
+    #: The free test package of this admin's Telegram link: {"enabled", "days", "usage_gb", "approval"}; None = the
+    #: nearest parent's (see hiddifypanel.free_test). Not synced to nodes, like override_settings.
+    free_package: Mapped[dict | None] = mapped_column(JSON, default=None, nullable=True)
     users: Mapped[list[User]] = relationship("User", backref="admin")
     usages: Mapped[list[DailyUsage]] = relationship("DailyUsage", backref="admin")
     parent_admin_id: Mapped[int | None] = mapped_column(ForeignKey("admin_user.id"), default=1)
     # post_update: the owner is its own parent; a row that depends on itself can only be written with its parent set after it.
     parent_admin: Mapped[AdminUser | None] = relationship("AdminUser", remote_side=[id], backref="sub_admins", post_update=True)
+
+    def _password_set(self, password: str) -> None:
+        from hiddifypanel import admin_credentials as creds
+
+        self.password_strong = creds.is_strong(password, avoid=creds.admin_avoid(self))
 
     @property
     def role(self) -> Role | None:
@@ -128,6 +146,10 @@ class AdminUser(BaseAccount):
             max_active_users=self.max_active_users,
             max_online_users=self.max_online_users,
             max_total_usage_GB=self.max_total_usage_GB,
+            usage_mode=self.usage_mode or UserMode.no_reset,
+            current_usage_GB=self.current_usage_GB,
+            start_date=self.start_date,
+            last_reset_time=self.last_reset_time,
             **({"default_outbound_slug": slug} if (slug := _outbound_slug(self.default_outbound_id)) else {}),
             # Only a deleted admin carries it (it travels to the nodes); backups never see one, since queries hide them.
             **({"deleted": True} if self.deleted else {}),
@@ -196,6 +218,14 @@ class AdminUser(BaseAccount):
             dbuser.max_online_users = row.max_online_users if row.max_online_users > 0 else None
         if row.max_total_usage_GB is not None:
             dbuser.max_total_usage_GB = row.max_total_usage_GB if row.max_total_usage_GB > 0 else None
+        if row.usage_mode is not None:
+            dbuser.usage_mode = row.usage_mode
+        if row.current_usage_GB is not None:
+            dbuser.current_usage_GB = row.current_usage_GB
+        if row.has("start_date"):
+            dbuser.start_date = row.start_date
+        if row.last_reset_time is not None:
+            dbuser.last_reset_time = row.last_reset_time
         if row.has("default_outbound_slug"):
             from hiddifypanel.models.outbound import Outbound
 
@@ -225,29 +255,83 @@ class AdminUser(BaseAccount):
             admin = admin.parent_admin
         return chain
 
+    @property
+    def current_usage_GB(self) -> float:
+        return (self.current_usage or 0) / 1024**3
+
+    @current_usage_GB.setter
+    def current_usage_GB(self, value: float | None) -> None:
+        self.current_usage = int(max(0.0, min(1_000_000.0, value or 0)) * 1024**3)
+
     def total_usage_GB(self) -> float:
-        """Traffic used by this admin's users and all its sub-admins' users."""
-        from sqlalchemy import func
+        """Traffic used by this admin's users and all its sub-admins' users since the last reset."""
+        return self.current_usage_GB
 
-        from .user import User
+    def usage_should_reset(self) -> bool:
+        return should_reset(self.usage_mode, self.start_date, self.last_reset_time)
 
-        used = db.session.query(func.coalesce(func.sum(User.current_usage), 0)).filter(User.added_by.in_(self.recursive_sub_admins_ids()), User.deleted.is_(False)).scalar()
-        return (used or 0) / 1024**3
+    def reset_usage(self) -> None:
+        self.last_reset_time = datetime.date.today()
+        self.current_usage = 0
+
+    def days_to_reset(self) -> int | None:
+        """None without a reset period."""
+        if (self.usage_mode or UserMode.no_reset) == UserMode.no_reset:
+            return None
+        return days_to_reset(self.usage_mode, self.start_date)
+
+    @classmethod
+    def usage_with_ancestors(cls, direct: dict[int | None, int]) -> dict[int, int]:
+        """Bytes used by the users of each admin (``direct``, by ``added_by``) -> bytes to add to each admin: its own
+        users' and those of every admin below it. One query for the tree, then a walk up per admin, not per user."""
+        parents: dict[int, int | None] = dict(cls.query_with_deleted().with_entities(cls.id, cls.parent_admin_id).all())
+        totals: dict[int, int] = {}
+        for admin_id, amount in direct.items():
+            if not amount:
+                continue
+            if admin_id not in parents:  # unknown admin: the owner, as for the daily usage
+                admin_id = 1
+            seen: set[int] = set()
+            while admin_id is not None and admin_id not in seen:  # the owner is its own parent
+                seen.add(admin_id)
+                totals[admin_id] = totals.get(admin_id, 0) + amount
+                admin_id = parents.get(admin_id)
+        return totals
+
+    @classmethod
+    def add_usages(cls, direct: dict[int | None, int], today: datetime.date) -> None:
+        """Add the traffic of users (bytes by their admin id) to their admins and all the admins above them: a single
+        UPDATE. Not committed. ``last_modified_time`` stays (the nodes are not sent every admin every minute)."""
+        totals = cls.usage_with_ancestors(direct)
+        if not totals:
+            return
+        table = cls.__table__
+        db.session.execute(
+            update(table)
+            .where(table.c.id.in_(list(totals)))
+            .values(
+                current_usage=func.coalesce(table.c.current_usage, 0) + case(totals, value=table.c.id, else_=0),
+                start_date=func.coalesce(table.c.start_date, today),
+            )
+        )
 
     def _has_room_for_one_more_user(self) -> bool:
         """Room to *create* another user (max_users and max_active_users)."""
+        return self._room_for_users(1) >= 1
+
+    def _room_for_users(self, wanted: int) -> int:
+        """How many of ``wanted`` new users fit under this admin's max_users, max_active_users and traffic."""
         if self.max_total_usage_GB and self.total_usage_GB() >= self.max_total_usage_GB:
-            return False
+            return 0
         users_count = self.recursive_users_query().count()
         max_users = self.max_users if self.max_users is not None else 10**9
         max_active = self.max_active_users if self.max_active_users is not None else 10**9
-        if users_count >= max_users:
-            return False
-        if users_count < max_active:
-            return True
-
-        actives = sum(1 for u in self.recursive_users_query().all() if u.is_active)
-        return actives < max_active
+        room = min(wanted, max_users - users_count)
+        # Every user counts as active at most, so the active ceiling needs a look only when the users alone pass it.
+        if users_count + room > max_active:
+            actives = sum(1 for u in self.recursive_users_query().all() if u.is_active)
+            room = min(room, max_active - actives)
+        return max(0, room)
 
     def _has_room_to_activate_user(self, *, excluding_user_id: int | None = None) -> bool:
         """Room to turn an existing inactive user on again (max_active_users + traffic only).
@@ -264,6 +348,21 @@ class AdminUser(BaseAccount):
     def can_have_more_users(self) -> bool:
         # A sub-admin's users also count against its parents' limits.
         return all(admin._has_room_for_one_more_user() for admin in self.limited_ancestors())
+
+    def room_for_users(self, wanted: int) -> int:
+        """How many of ``wanted`` new users this admin may create now (its parents' limits too): one check for a whole batch."""
+        return min([wanted, *(admin._room_for_users(wanted) for admin in self.limited_ancestors())])
+
+    def room_to_activate(self, wanted: int) -> int:
+        """How many of ``wanted`` inactive users may be turned on now (this admin's and its parents' limits)."""
+        room = wanted
+        for admin in self.limited_ancestors():
+            if admin.max_total_usage_GB and admin.total_usage_GB() >= admin.max_total_usage_GB:
+                return 0
+            if admin.max_active_users is not None:
+                actives = sum(1 for u in admin.recursive_users_query().all() if u.is_active)
+                room = min(room, admin.max_active_users - actives)
+        return max(0, room)
 
     def can_activate_more_users(self, *, excluding_user_id: int | None = None) -> bool:
         """Whether this admin may re-enable / activate an existing user under max_active_users."""

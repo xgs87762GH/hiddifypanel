@@ -1,18 +1,17 @@
 import datetime
-import json
+import threading
 import time
+import uuid as uuidlib
 from collections.abc import Callable
 from typing import Any
 
 from loguru import logger
-from sqlalchemy import func
+from sqlalchemy import bindparam, func, update
 
 from hiddifypanel import cache, hutils
-from hiddifypanel.database import db, db_execute, ensure_usage_procedure
+from hiddifypanel.database import db
 from hiddifypanel.drivers import user_driver
-from hiddifypanel.panel.usage_procedure import is_missing_procedure_error
-from hiddifypanel.models import AdminUser, ConfigEnum, DailyUsage, UsageData, User, UserMode, hconfig, set_hconfig
-from hiddifypanel.panel import hiddify
+from hiddifypanel.models import AdminUser, AppliedUsageBatch, ConfigEnum, DailyUsage, UnsyncedUsage, UsageData, User, UserMode, hconfig, set_hconfig
 
 to_gig_d = 1024**3
 
@@ -29,72 +28,81 @@ USAGE_LOCK = "lock-update-local-usage"
 USAGE_LOCK_WAIT = 60  # seconds a usage report waits for the running update before it is refused (409: sent again later)
 BUSY = {"msg": "last run of this task is not finished yet."}
 
-# A missing stored procedure used to raise a full traceback every minute; the
-# panel error log grew past 100 MB before anyone noticed. Only log one warning
-# per interval when the repair cannot be performed.
-_USAGE_FAILURE_LOG_INTERVAL = 300.0
-_last_usage_failure_log = 0.0
-
-
-def _call_add_usage_json(usage_data: str, cur_time: str) -> None:
-    """CALL the accounting procedure, repairing it once if a restore dropped it."""
-    global _last_usage_failure_log
-
-    def _call():
-        db_execute(
-            "CALL add_usage_json(:usage_data,:cur_time)",
-            usage_data=usage_data,
-            cur_time=cur_time,
-            commit=True,
-        )
-
-    try:
-        _call()
-        return
-    except Exception as exc:
-        if not is_missing_procedure_error(exc):
-            raise
-        # SQLAlchemy leaves the session unusable after a failed statement.
-        db.session.rollback()
-        if ensure_usage_procedure():
-            _call()  # the deltas were fetched with reset=True, so retry now
-            return
-        now = time.monotonic()
-        if now - _last_usage_failure_log >= _USAGE_FAILURE_LOG_INTERVAL:
-            _last_usage_failure_log = now
-            logger.warning("add_usage_json is missing and could not be recreated: {}", exc)
-        raise
-
-
 def update_local_usage(wait: float = 0):
     """The periodic accounting (the scheduler skips a minute when the last run still holds the lock); ``wait``: how long to
     wait for it instead (a manual run)."""
     return locked_execute(USAGE_LOCK, update_local_usage_not_lock, wait=wait)
 
 
+LOCK_TTL = 60  # seconds; kept alive while the locked work runs, so it only runs out when the process died
+LOCK_MAX_HOLD = 15 * 60  # seconds; a run that hangs longer (e.g. on the database) stops renewing, so usage is not blocked for good
+_EXTEND_LOCK = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('expire', KEYS[1], ARGV[2]) end return 0"
+_RELEASE_LOCK = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) end return 0"
+
+
 def locked_execute(lock_key: str, func: Callable[..., Any], *args: Any, wait: float = 0, **kwargs: Any) -> Any:
     """Run ``func`` holding the redis lock ``lock_key``; when another run holds it, wait up to ``wait`` seconds for it,
-    then give up with ``BUSY`` (nothing done). Not re-entrant: code already inside the lock calls the function directly."""
+    then give up with ``BUSY`` (nothing done). Not re-entrant: code already inside the lock calls the function directly.
+
+    The lock is renewed while ``func`` runs (a report to the parent can take longer than the TTL), up to ``LOCK_MAX_HOLD``,
+    and only its owner releases it, so a slow run can neither be overlapped nor delete the lock of the run that came after
+    it, and a hung one does not hold it for ever."""
+    token = uuidlib.uuid4().hex
     deadline = time.monotonic() + wait
-    while not cache.redis_client.set(lock_key, "locked", nx=True, ex=60):
+    while not cache.redis_client.set(lock_key, token, nx=True, ex=LOCK_TTL):
         if time.monotonic() >= deadline:
             return dict(BUSY)
         time.sleep(0.5)
+    done = threading.Event()
+
+    def keep_alive() -> None:
+        give_up = time.monotonic() + LOCK_MAX_HOLD
+        while not done.wait(LOCK_TTL / 3):
+            if time.monotonic() >= give_up:
+                logger.error(f"{lock_key} is held for more than {LOCK_MAX_HOLD} s: no longer renewed, it ends in {LOCK_TTL} s")
+                return
+            try:
+                cache.redis_client.eval(_EXTEND_LOCK, 1, lock_key, token, LOCK_TTL)
+            except Exception as e:
+                logger.warning(f"could not renew lock {lock_key}: {e}")
+
+    threading.Thread(target=keep_alive, name=f"keep-{lock_key}", daemon=True).start()
     try:
         return func(*args, **kwargs)
     finally:
-        cache.redis_client.delete(lock_key)
+        done.set()
+        try:
+            cache.redis_client.eval(_RELEASE_LOCK, 1, lock_key, token)
+        except Exception as e:  # it ends with its TTL; func's own result or error matters more
+            logger.warning(f"could not release lock {lock_key}: {e}")
+
+
+def run_once(lock_key: str, ttl: int, func: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
+    """Run ``func`` in only one of the panel's workers for a scheduled time: the first to take the redis lock runs it,
+    and the lock is kept for ``ttl`` seconds (not released at the end, unlike ``locked_execute``), so a worker whose
+    timer fires a moment later does not run it again. ``BUSY`` when another worker had it."""
+    if not cache.redis_client.set(lock_key, "locked", nx=True, ex=ttl):
+        return dict(BUSY)
+    return func(*args, **kwargs)
 
 
 def update_local_usage_not_lock():
+    # The cores' counters are reset by this read: from here on, the usage exists only in ``usages`` until it is saved.
+    res = user_driver.get_users_usage(reset=True)
+    usages = [uinfo for uinfo in res.values() if uinfo and uinfo.usage > 0]
+    if hutils.node.is_child():
+        return hutils.node.child.sync_users_usage_with_parent(usages)
+    # Usage that could not be saved in an earlier run waits in UnsyncedUsage and is added with this one (and cleared in
+    # the same transaction).
+    pending = UnsyncedUsage.all_as_usage_data()
     try:
-        res = user_driver.get_users_usage(reset=True)
-        usages = [uinfo for uinfo in res.values() if uinfo and uinfo.usage > 0]
-        if hutils.node.is_child():
-            hutils.node.child.sync_users_usage_with_parent(usages)
-        else:
-            return _add_users_usage_new_impl(usages, child_id=0)
+        return _add_users_usage_new_impl([*pending, *usages], child_id=0, clear_unsynced=bool(pending))
     except Exception:
+        db.session.rollback()
+        try:
+            UnsyncedUsage.add_usages(usages)
+        except Exception:
+            logger.exception(f"usage of {len(usages)} users could not be kept for the next run: it is lost")
         raise
 
 
@@ -131,6 +139,13 @@ def _reset_priodic_usage() -> bool:
                 apply_changes = True
                 send_bot_message(user)
 
+    # Admins: the traffic of their users and their sub-admins' users, on its own period (counted from its first traffic).
+    for admin in db.session.query(AdminUser).filter(AdminUser.usage_mode != UserMode.no_reset, AdminUser.start_date != None).all():
+        if admin.usage_should_reset():
+            logger.info(f"reseting admin usage for {admin.uuid}")
+            admin.reset_usage()
+            db_change = True
+
     if db_change:
         db.session.commit()
 
@@ -144,20 +159,26 @@ def _reset_priodic_usage() -> bool:
     return apply_changes
 
 
-def add_users_usage_new(usages: list[UsageData], child_id: int) -> dict[str, Any]:
-    """Apply usage deltas under the globzal usage lock."""
+def add_users_usage_new(usages: list[UsageData], child_id: int, batch_id: str | None = None) -> dict[str, Any]:
+    """Apply a node's usage deltas under the global usage lock. ``batch_id``: the node's id of this report; a report whose
+    id was already applied is not added again (``AppliedUsageBatch``)."""
     # Wait for the running update instead of dropping the deltas (a node's report, or the parent's own run). A node's report
     # waits this long over HTTP: HAProxy's panel backend and the node's request time out later (USAGE_REPORT_TIMEOUT).
-    return locked_execute(USAGE_LOCK, _add_users_usage_new_impl, usages, child_id, wait=USAGE_LOCK_WAIT)
+    return locked_execute(USAGE_LOCK, _add_users_usage_new_impl, usages, child_id, batch_id=batch_id, wait=USAGE_LOCK_WAIT)
 
 
-def _add_users_usage_new_impl(usages: list[UsageData], child_id: int) -> dict[str, Any]:
-    usages = [use for use in usages if use.usage > 0]
-    before_enabled_users = user_driver.get_enabled_users()
+def _merge_usages(usages: list[UsageData]) -> dict[str, UsageData]:
+    """Deltas by uuid (one row per user, the same user twice is added up); empty ones are left out."""
+    merged: dict[str, UsageData] = {}
+    for use in usages:
+        if use.uuid and use.usage > 0:
+            merged[use.uuid] = merged[use.uuid].add(use) if use.uuid in merged else use
+    return merged
 
+
+def _daily_usage_rows(child_id: int, today: datetime.date) -> dict[int, DailyUsage]:
+    """Today's DailyUsage row of every admin for ``child_id`` (created and committed when missing)."""
     daily_usage: dict[int, DailyUsage] = {}
-    cur_time = datetime.datetime.now()
-    today = cur_time.date()
     db_changes = False
     for adm in db.session.query(AdminUser).all():
         if du := db.session.query(DailyUsage).filter(DailyUsage.date == today, DailyUsage.admin_id == adm.id, DailyUsage.child_id == child_id).first():
@@ -171,67 +192,111 @@ def _add_users_usage_new_impl(usages: list[UsageData], child_id: int) -> dict[st
             daily_usage[adm.id].online = db.session.query(User).filter(User.added_by == adm.id).filter(func.DATE(User.last_online) == today).count()
     if db_changes:
         db.session.commit()
+    return daily_usage
 
-    apply_changes = _reset_priodic_usage()
 
-    usage_payload = [
-        {
-            "uuid": use.uuid,
-            "usage": use.usage,
-            # "upload": use.upload,
-            # "download": use.download,
-        }
-        for use in usages
-    ]
-    _call_add_usage_json(
-        json.dumps(usage_payload),
-        cur_time.strftime("%Y-%m-%d %H:%M:%S"),
-    )
-    if usage_payload:  # raw SQL: the commit hook of the ORM does not see it
-        from hiddifypanel.live import changes
 
-        changes.publish(["user"])
-
-    usage_map = {use.uuid: use for use in usages}
-
-    users = db.session.query(User).filter(User.uuid.in_(set(usage_map.keys()))).all()
-
-    all_users_uuids = set()
-    for user in users:
-        all_users_uuids.add(user.uuid)
-
-        user_before_active = before_enabled_users.get(user.uuid, False)
-        user_active = user.is_active
-
-        if not user_before_active and user_active:
-            logger.info(f"Enabling disabled client {user.uuid} ")
-            user_driver.add_client(user)
-            send_bot_message(user)
-            apply_changes = True
-        elif user_before_active and not user_active:
-            logger.info(f"Removing enabled client {user.uuid} ")
-            user_driver.remove_client(user)
-            send_bot_message(user)
-            apply_changes = True
-
-        daily_usage.get(user.added_by, daily_usage[1]).usage += usage_map[user.uuid].usage
-
+def _save_usage(usage_map: dict[str, UsageData], child_id: int, batch_id: str | None, cur_time: datetime.datetime, daily_usage: dict[int, DailyUsage], clear_unsynced: bool) -> list[User]:
+    """One transaction: the users' usage, the admins' and today's usage, and the report's id. A failure rolls all of it
+    back, so the report can be sent again and is added once; after the commit it is applied and recorded together."""
+    today = cur_time.date()
+    if batch_id:
+        AppliedUsageBatch.record(child_id, batch_id, cur_time)
+    if clear_unsynced:
+        UnsyncedUsage.query.delete()
+    users: list[User] = []
+    if usage_map:
+        table = User.__table__
+        db.session.execute(
+            update(table)
+            .where(table.c.uuid == bindparam("b_uuid"))
+            .values(
+                current_usage=table.c.current_usage + bindparam("b_usage"),
+                last_online=cur_time,
+                last_modified_time=cur_time,
+                start_date=func.coalesce(table.c.start_date, today),
+            ),
+            [{"b_uuid": uuid, "b_usage": use.usage} for uuid, use in usage_map.items()],
+        )
+        # The update above is SQL: load the users again so is_active sees the new usage
+        users = db.session.query(User).filter(User.uuid.in_(usage_map.keys())).populate_existing().all()
+        usage_by_admin: dict[int | None, int] = {}  # bytes per admin of the users: added to the admins (and those above) at once
+        for user in users:
+            used = usage_map[user.uuid].usage
+            daily_usage.get(user.added_by, daily_usage[1]).usage += used
+            usage_by_admin[user.added_by] = usage_by_admin.get(user.added_by, 0) + used
+        AdminUser.add_usages(usage_by_admin, today)
     db.session.commit()
+    return users
+
+
+def _sync_cores(users: list[User], usage_map: dict[str, UsageData], before_enabled_users: dict[str, int]) -> bool:
+    """The cores follow the saved usage: users who reached their limit leave them, users active again come back. One
+    user failing does not stop the others. True when the users have to be applied."""
+    apply_changes = False
+    for user in users:
+        try:
+            user_before_active = before_enabled_users.get(user.uuid, False)
+            if not user_before_active and user.is_active:
+                logger.info(f"Enabling disabled client {user.uuid} ")
+                user_driver.add_client(user)
+                send_bot_message(user)
+                apply_changes = True
+            elif user_before_active and not user.is_active:
+                logger.info(f"Removing enabled client {user.uuid} ")
+                user_driver.remove_client(user)
+                send_bot_message(user)
+                apply_changes = True
+        except Exception:
+            logger.exception(f"usage: updating client {user.uuid} in the cores failed")
+            apply_changes = True  # the next apply puts the cores in step
 
     if len(users) != len(usage_map):
         # check for zombie-users
-        check_users = set(before_enabled_users.keys()) - all_users_uuids
+        check_users = set(before_enabled_users.keys()) - {u.uuid for u in users}
         all_db_users = {u.uuid for u in db.session.query(User).filter(User.uuid.in_(check_users)).all()}
-        zombie_users = check_users - all_db_users
-
-        for uuid in zombie_users:
+        for uuid in check_users - all_db_users:
             logger.info(f"Remove zombiee users {uuid} ")
-            user_driver.remove_client(User(uuid=uuid))
+            try:
+                user_driver.remove_client(User(uuid=uuid))
+            except Exception:
+                logger.exception(f"usage: removing zombie client {uuid} failed")
             apply_changes = True
+    return apply_changes
 
-    if apply_changes:
-        hiddify.quick_apply_users(users_only=True)
 
+def _add_users_usage_new_impl(usages: list[UsageData], child_id: int, batch_id: str | None = None, clear_unsynced: bool = False) -> dict[str, Any]:
+    """Add usage deltas (call it holding USAGE_LOCK). It raises only when nothing was saved: the caller may then keep or
+    resend the deltas without counting them twice. ``clear_unsynced``: UnsyncedUsage was merged into ``usages``."""
+    cur_time = datetime.datetime.now()
+    if batch_id and AppliedUsageBatch.is_applied(child_id, batch_id):
+        logger.warning(f"usage report {batch_id} of node {child_id} was already applied: not adding it again")
+        return {"status": "success", "comments": [], "duplicate": True, "date": hutils.convert.time_to_json(cur_time)}
+
+    usage_map = _merge_usages(usages)
+    before_enabled_users = user_driver.get_enabled_users()
+    daily_usage = _daily_usage_rows(child_id, cur_time.date())
+    apply_changes = _reset_priodic_usage()
+    try:
+        users = _save_usage(usage_map, child_id, batch_id, cur_time, daily_usage, clear_unsynced)
+    except Exception:
+        db.session.rollback()
+        raise
+
+    # Saved. What follows must not fail the report: the node would send it again (it is answered as a repeat, but its
+    # users would not be updated in the cores until their next usage).
+    try:
+        if usage_map:  # the commit hook of the ORM does not see the SQL update
+            from hiddifypanel.live import changes
+
+            changes.publish(["user"])
+        apply_changes = _sync_cores(users, usage_map, before_enabled_users) or apply_changes
+        if apply_changes:
+            hutils.apply_users.quick_apply_users(users_only=True)
+    except Exception:
+        logger.exception("usage is saved, but updating the cores failed")
+
+    usage_payload = [{"uuid": uuid, "usage": use.usage} for uuid, use in usage_map.items()]
     return {"status": "success", "comments": usage_payload, "date": hutils.convert.time_to_json(cur_time)}
 
 
@@ -331,7 +396,7 @@ def _add_users_usage_new_impl(usages: list[UsageData], child_id: int) -> dict[st
 #     # print("------------------", res)
 #     # Apply the changes to the drivers
 #     if have_change:
-#         hiddify.quick_apply_users()
+#         hutils.apply_users.quick_apply_users()
 
 #     # Sync the new data with the parent node if the data has not been set by the parent node itself and the current panel is a child panel
 #     if not sync and hutils.node.is_child():

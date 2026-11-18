@@ -17,13 +17,240 @@ from hiddifypanel.hutils.network.server_ip_sync import sync_server_ips
 from hiddifypanel.panel.usage_procedure import ADD_USAGE_JSON_PROC_DDL
 from hiddifypanel.models import *
 from hiddifypanel.models import ConfigEnum
+from hiddifypanel.models.config_enum import DomainLabelMode
 from hiddifypanel.proxy_v3.builtin_proxy_sync.orchestrator import seed_proxy_catalog
 from hiddifypanel.proxy_v3.template_catalog.custom_proxy_presets import (
     sync_builtin_presets,
 )
 from hiddifypanel.proxy_v3.tls_store_sync import import_legacy_certificates, migrate_certs_to_data_cert
 
-MAX_DB_VERSION = 200
+MAX_DB_VERSION = 209
+
+
+def _v209(child_id):
+    """Shadowsocks 2022 keeps the port it had in v12. The upgrade had given the proxy a generated port and left the
+    old one reserved, so a domain could not use it and the proxy port could not be put back."""
+    from hiddifypanel.models.custom_proxy import CustomProxy, CustomProxyMode
+    from hiddifypanel.proxy_v3.template_catalog.custom_proxy_builtin import is_field_overridden
+    from hiddifypanel.proxy_v3.template_catalog.custom_proxy_presets import (
+        _stable_public_port,
+        ip_mode_public_port,
+        shadowsocks_ports_from_v12,
+    )
+
+    for row in CustomProxy.query.filter(CustomProxy.child_id == child_id, CustomProxy.mode == CustomProxyMode.ip).all():
+        proto = row.proto.value if hasattr(row.proto, "value") else str(row.proto or "")
+        if proto not in ("shadowsocks", "ss"):
+            continue
+        overridden = is_field_overridden(row, "server_inbound_tcp_ports") or is_field_overridden(row, "server_inbound_udp_ports")
+        legacy = ip_mode_public_port(proto, "shadowsocks", wireguard_endpoint=False, slug=row.slug or "", child_id=child_id)
+        ports = shadowsocks_ports_from_v12(
+            list(row.server_inbound_tcp_ports or []),
+            list(row.server_inbound_udp_ports or []),
+            generated=_stable_public_port(row.slug or ""),
+            legacy=legacy,
+            overridden=overridden,
+        )
+        if ports is None:
+            continue
+        tcp, udp = ports
+        row.server_inbound_tcp_ports = tcp
+        row.server_inbound_udp_ports = udp
+        builtin = dict(row.builtin or {})
+        builtin["server_inbound_tcp_ports"] = tcp
+        builtin["server_inbound_udp_ports"] = udp
+        row.builtin = builtin
+
+
+def _v208(child_id):
+    """Passwords are kept as salted scrypt hashes (hiddifypanel.passwords): the column grows to fit one, each password
+    still kept as typed is replaced by its hash, and admins note whether theirs is strong (an alias needs a strong one).
+
+    Users' passwords get a lighter scrypt here, so a panel with many of them upgrades quickly (they are mostly long
+    generated ones); each is hashed at full strength at its next sign-in (passwords.needs_rehash)."""
+    from werkzeug.security import generate_password_hash
+
+    from hiddifypanel import passwords
+    from hiddifypanel.models.admin import AdminUser
+    from hiddifypanel.models.user import User
+
+    alter_column(User.password)
+    alter_column(AdminUser.password)
+    add_column(AdminUser.password_strong)
+    for admin in AdminUser.query_with_deleted().filter(AdminUser.password != "", AdminUser.password.isnot(None)).all():
+        if not passwords.is_hashed(admin.password):
+            admin.password = admin.password  # the model stores the hash and notes its strength
+    db.session.commit()
+    while True:
+        batch = User.query_with_deleted().filter(User.password != "", User.password.isnot(None), ~User.password.like("scrypt:%"), ~User.password.like("pbkdf2:%")).limit(500).all()
+        if not batch:
+            break
+        for user in batch:
+            user.password = generate_password_hash(user.password, method="scrypt:4096:8:1")
+        db.session.commit()
+
+
+def _v207(child_id):
+    """Admins can sign in with a passkey: their passkeys' public keys (admin_passkey)."""
+    if child_id != 0:
+        return
+    from hiddifypanel.models.passkey import AdminPasskey
+
+    AdminPasskey.__table__.create(db.engine, checkfirst=True)
+
+
+def _v204(child_id):
+    """The free test package of the Telegram bot (hiddifypanel.free_test): each admin's package, the capability to
+    define one (admins get it, agents use their parent's until it is granted), and the conversations with the people
+    who write to the bot."""
+    if child_id != 0:
+        return
+    from hiddifypanel import admin_capabilities as caps
+    from hiddifypanel.models.admin import AdminMode, AdminUser
+    from hiddifypanel.models.message import Conversation, Message
+
+    add_column(AdminUser.free_package)
+    for model in (Conversation, Message):
+        model.__table__.create(db.engine, checkfirst=True)
+    for admin in AdminUser.query_with_deleted().all():
+        if admin.mode == AdminMode.admin and admin.capabilities:
+            admin.capabilities = {**admin.capabilities, caps.MODIFY_FREE_PACKAGE: True}
+
+
+def _v206(child_id):
+    """Several free test packages per admin: each conversation keeps the id of the package it asked for or got."""
+    if child_id != 0:
+        return
+    from hiddifypanel.models.message import Conversation
+
+    add_column(Conversation.free_package_id)
+
+
+def _v205(child_id):
+    """New panel languages (Lang): the account ``lang`` enum columns grow, which only happens when a migration runs."""
+
+
+def _v203(child_id):
+    """Usage reports from nodes are applied once: a node keeps its report in flight in usage_batch_items until the parent
+    answers, and the parent records the last report applied from each node in applied_usage_batches (in the same
+    transaction as the usage). The usage waiting in unsynced_usages goes into the first report."""
+    if child_id != 0:
+        return
+    for model in (UsageBatchItem, AppliedUsageBatch):
+        model.__table__.create(db.engine, checkfirst=True)
+
+
+def _v202(child_id):
+    """Cloudflare WARP stays off until an admin accepts Cloudflare's terms. An upgrade does not accept them."""
+    add_config_if_not_exist(ConfigEnum.warp_tos_accepted, False, child_id)
+
+
+def _v201(child_id):
+    """The automatic config health checks are off: each one connects through every config to the server, which some
+    hosting providers take for a flood (hiddify/Hiddify-Manager#5672). An admin can turn them on."""
+    if child_id != 0:
+        return
+    add_config_if_not_exist(ConfigEnum.config_health_enable, False)
+
+
+def _v200(child_id):
+    """Built-in proxy names spelled as the panel writes protocols and transports ("xhttp vless TLS H1" →
+    "XHTTP VLess TLS H1"): the users' apps show them. Slugs and server tags stay; a name an admin typed is kept."""
+    sync_builtin_presets(child_id)
+
+    """Settings longer than 3072 characters failed to save on MySQL/MariaDB ("Data too long for column 'value'"): the
+    spare REALITY SNIs after a scan, a long Full support text. str_config.value becomes TEXT, as the model now says
+    (SQLite never enforced the length)."""
+    if child_id != 0:
+        return
+    alter_column(StrConfig.value)
+
+
+def _v198(child_id):
+    """OpenVPN (hiddify-core's openvpn-server endpoint): off, and its self-signed server certificate. The preset sync adds
+    the OpenVPN proxy."""
+    if child_id != 0:
+        return
+    add_config_if_not_exist(ConfigEnum.openvpn_enable, False)
+    if not hconfig(ConfigEnum.openvpn_certificate):
+        cert_pem, key_pem = hutils.crypto.get_openvpn_certificate()
+        set_hconfig(ConfigEnum.openvpn_certificate, cert_pem, commit=False)
+        set_hconfig(ConfigEnum.openvpn_private_key, key_pem, commit=False)
+
+
+def _v197(child_id):
+    """Admins count their own traffic (their users' and their sub-admins' users'), with a reset period like users:
+    it starts from what those users show now, so a traffic limit already set stays where it was."""
+    if child_id != 0:
+        return
+    from sqlalchemy import func
+
+    from hiddifypanel.models.admin import AdminUser
+    from hiddifypanel.models.reset_mode import UserMode
+    from hiddifypanel.models.user import User
+
+    # The columns are there already (migrate() adds every model column first).
+    by_admin = dict(db.session.query(User.added_by, func.sum(User.current_usage)).filter(User.deleted.is_(False)).group_by(User.added_by).all())
+    totals = AdminUser.usage_with_ancestors({admin_id: int(used or 0) for admin_id, used in by_admin.items()})
+    today = datetime.now().date()
+    for admin in AdminUser.query_with_deleted().all():
+        admin.current_usage = totals.get(admin.id, 0)
+        admin.usage_mode = admin.usage_mode or UserMode.no_reset
+        admin.last_reset_time = admin.last_reset_time or today
+
+    add_config_if_not_exist(ConfigEnum.branding_freetext_full, "", child_id=child_id)
+
+
+def _v194(child_id):
+    """The support box of the user page: its title and "View More" button can be renamed or hidden (in the HTML
+    editor of the support text). Shown with the default texts, as before."""
+    add_config_if_not_exist(ConfigEnum.branding_support_title, "", child_id=child_id)
+    add_config_if_not_exist(ConfigEnum.branding_support_title_show, True, child_id=child_id)
+    add_config_if_not_exist(ConfigEnum.branding_support_more, "", child_id=child_id)
+    add_config_if_not_exist(ConfigEnum.branding_support_more_show, True, child_id=child_id)
+
+
+def _v195(child_id):
+    """Config names no longer show a domain without an alias: the kind and a code (``☁️ CDN K7Q``). An admin who wants
+    the old names picks "Full domain name" (Settings > General)."""
+    add_config_if_not_exist(ConfigEnum.domain_label_mode, DomainLabelMode.private, child_id=child_id)
+
+
+def _v193(child_id):
+    """Config tester's Restore list (custom proxies it turned off): a new config key, so the str_config enum grows
+    (only done when a migration runs). (_v190 to _v192 are taken by open pull requests.)"""
+    add_config_if_not_exist(ConfigEnum.config_tester_disabled, "[]", child_id=child_id)
+
+
+def _v192(child_id):
+    """Block BitTorrent (Settings > General, advanced) for real: the row was never created, so the switch was not
+    shown, while Xray always blocked BitTorrent and Hiddify Core never did. On by default, as Xray did.
+    (_v190 and _v191 are taken by open pull requests.)"""
+    add_config_if_not_exist(ConfigEnum.torrent_block, True, child_id=child_id)
+
+
+def _v191(child_id):
+    """A server whose public IPv4 was not found at its first setup got the domains "none" and "none.sslip.io"
+    (str(None)): no CA issues a certificate for them and no client reaches them, so they go. Only when they are the
+    server's only domains do its own names (_default_domains) take their place first, as a domain always stays."""
+    broken_names = ["none", "none.sslip.io"]
+    broken = Domain.query.filter(Domain.child_id == child_id, Domain.domain.in_(broken_names)).all()
+    if not broken:
+        return
+    if not Domain.query.filter(Domain.child_id == child_id, Domain.domain.notin_(broken_names)).count():
+        names = _default_domains()
+        if not names:
+            return  # nothing better known yet
+        for name in names:
+            db.session.add(Domain(domain=name, mode=DomainType.direct, child_id=child_id))
+        db.session.flush()
+    for d in broken:
+        for other in Domain.query.filter(Domain.child_id == child_id, Domain.server_domain_id == d.id).all():
+            other.server_domain = None
+        d.showed_by_domains = []
+        logger.info(f"domain {d.domain} removed: it is not a real name of this server")
+        db.session.delete(d)
+    db.session.flush()
 
 
 def _v189(child_id):
@@ -1008,15 +1235,24 @@ def _v19():
 #             u.expiry_time = None
 
 
+def _default_domains() -> list[str]:
+    """This server's own names for a first setup: its IPv4 and <IPv4>.sslip.io, or <IPv6>.sslip.io when it has no IPv4
+    (an IPv6-only server). None when no public IP is found: str(None) made the domains "none" and "none.sslip.io",
+    which can never get a certificate."""
+    if ip4 := hutils.network.get_ip_str(4):
+        return [ip4, f"{ip4}.sslip.io"]
+    if ip6 := hutils.network.get_ip(6):
+        return [f"{ip6.exploded.replace(':', '-')}.sslip.io"]
+    return []
+
+
 def _v1():
-    external_ip = str(hutils.network.get_ip_str(4))
     # rnd_domains = hutils.network.get_random_domains(5)
 
     data = [
         StrConfig(key=ConfigEnum.db_version, value=1),
         User(name="default", usage_limit_GB=3000, package_days=3650, mode=UserMode.weekly),
-        Domain(domain=external_ip, mode=DomainType.direct),
-        Domain(domain=external_ip + ".sslip.io", mode=DomainType.direct),
+        *[Domain(domain=name, mode=DomainType.direct) for name in _default_domains()],
         StrConfig(key=ConfigEnum.admin_secret, value=uuid.uuid4()),
         StrConfig(key=ConfigEnum.http_ports, value="80"),
         StrConfig(key=ConfigEnum.tls_ports, value="443"),
@@ -1281,6 +1517,8 @@ enum_columns = [
     CustomProxy.server_core,
     CustomProxyClientCore.core,
     Outbound.mode,  # new modes (core_outbound, ...) must be added to the MySQL ENUM too
+    User.lang,  # a new panel language (Lang) must be in the accounts' ENUM too, or saving it fails
+    AdminUser.lang,
 ]
 
 # Tables where DELETE of legacy enum rows is unsafe (FK / data loss). Remap instead.

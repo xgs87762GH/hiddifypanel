@@ -41,18 +41,35 @@ def _format(raw: object) -> MessageFormat:
         abort(400, "Unknown message format")
 
 
+def _admins(raw: object) -> bool:
+    """``kind=admins``: the selected ids are sub-admins (admins page), not users."""
+    return str(raw or "") == "admins"
+
+
+def _state(selected: list[int], admins: bool = False) -> dict:
+    if admins:
+        counts = {a.value: 0 for a in broadcast.Audience}
+        counts["selected"] = len(broadcast.admin_recipients(g.account, selected))
+        return {
+            "bot": _bot_ready(),
+            "bot_username": _bot_username(),
+            "counts": counts,
+            "limits": {"text": TEXT_LIMIT, "caption": CAPTION_LIMIT, "image_bytes": MAX_IMAGE_BYTES},
+        }
+    return {
+        "bot": _bot_ready(),
+        "bot_username": _bot_username(),
+        "counts": {**broadcast.audience_counts(g.account), "selected": len(broadcast.reachable_ids(g.account, selected))},
+        "limits": {"text": TEXT_LIMIT, "caption": CAPTION_LIMIT, "image_bytes": MAX_IMAGE_BYTES},
+    }
+
+
 class BroadcastApi(MethodView):
     decorators = [login_required(ROLES)]
 
     def get(self):
         """Send message: is the bot ready, and how many users each audience reaches (``?ids=`` for selected users)"""
-        selected = _ids(request.args.get("ids"))
-        return {
-            "bot": _bot_ready(),
-            "bot_username": _bot_username(),
-            "counts": {**broadcast.audience_counts(g.account), "selected": len(broadcast.reachable_ids(g.account, selected))},
-            "limits": {"text": TEXT_LIMIT, "caption": CAPTION_LIMIT, "image_bytes": MAX_IMAGE_BYTES},
-        }
+        return _state(_ids(request.args.get("ids")), _admins(request.args.get("kind")))
 
     def post(self):
         """Send message: send it in the background (multipart: text, format, audience, ids, add_usage, image)"""
@@ -80,12 +97,63 @@ class BroadcastApi(MethodView):
             audience = broadcast.Audience(form.get("audience") or "")
         except ValueError:
             abort(400, "Choose who gets the message")
-        users = broadcast.recipients(g.account, audience, _ids(form.get("ids")))
-        if not users:
-            abort(400, "No user in this audience can get messages (they need to start the bot)")
-        message = broadcast.Message(html=html, image=image_bytes, image_name=image_name, add_usage=form.get("add_usage", "true") != "false")
+        admins = _admins(form.get("kind"))
+        if admins:
+            if audience is not broadcast.Audience.selected:
+                abort(400, "Choose who gets the message")
+            users = broadcast.admin_recipients(g.account, _ids(form.get("ids")))
+            if not users:
+                abort(400, "No selected admin can get messages (they need a Telegram ID)")
+        else:
+            users = broadcast.recipients(g.account, audience, _ids(form.get("ids")))
+            if not users:
+                abort(400, "No user in this audience can get messages (they need to start the bot)")
+        add_usage = not admins and form.get("add_usage", "true") != "false"
+        message = broadcast.Message(html=html, image=image_bytes, image_name=image_name, add_usage=add_usage)
         job = broadcast.start(current_app._get_current_object(), g.account, users, message)  # type: ignore[attr-defined]
         return job.to_dict()
+
+
+class BroadcastSelectionApi(MethodView):
+    """The selected-users versions of the two GETs, with the ids in the body: thousands of ids do not fit in a URL."""
+
+    decorators = [login_required(ROLES)]
+
+    def post(self):
+        """Send message: state (``what: "state"``) or recipients (``what: "recipients"``) of the selected ``ids``"""
+        body = request.get_json(silent=True) or {}
+        ids = _ids(body.get("ids") or [])
+        if body.get("what") == "recipients":
+            return _recipients(str(body.get("audience") or "selected"), ids, _admins(body.get("kind")))
+        return _state(ids, _admins(body.get("kind")))
+
+
+def _recipients(raw_audience: str, ids: list[int], admins: bool = False) -> dict:
+    try:
+        audience = broadcast.Audience(raw_audience or "all")
+    except ValueError:
+        abort(400, "Unknown audience")
+    if admins:
+        found = broadcast.admin_recipients(g.account, ids)
+        return {
+            "users": [
+                {"id": a.id, "name": a.name or "", "active": True, "last_online": None, "telegram_id": str(a.telegram_id)}
+                for a in sorted(found, key=lambda a: (a.name or "").lower())
+            ]
+        }
+    users = broadcast.recipients(g.account, audience, ids)
+    return {
+        "users": [
+            {
+                "id": u.id,
+                "name": u.name or "",
+                "active": bool(u.is_active),
+                "last_online": u.last_online.isoformat() if u.last_online and u.last_online.year > 2000 else None,  # datetime.min: never
+                "telegram_id": str(u.telegram_id),
+            }
+            for u in sorted(users, key=lambda u: (u.name or "").lower())
+        ]
+    }
 
 
 class BroadcastRecipientsApi(MethodView):
@@ -93,23 +161,7 @@ class BroadcastRecipientsApi(MethodView):
 
     def get(self):
         """Send message: the users an audience reaches (``?audience=``, ``?ids=`` for selected users), to see and pick"""
-        try:
-            audience = broadcast.Audience(request.args.get("audience") or "all")
-        except ValueError:
-            abort(400, "Unknown audience")
-        users = broadcast.recipients(g.account, audience, _ids(request.args.get("ids")))
-        return {
-            "users": [
-                {
-                    "id": u.id,
-                    "name": u.name or "",
-                    "active": bool(u.is_active),
-                    "last_online": u.last_online.isoformat() if u.last_online and u.last_online.year > 2000 else None,  # datetime.min: never
-                    "telegram_id": str(u.telegram_id),
-                }
-                for u in sorted(users, key=lambda u: (u.name or "").lower())
-            ]
-        }
+        return _recipients(str(request.args.get("audience") or "all"), _ids(request.args.get("ids")), _admins(request.args.get("kind")))
 
 
 class BroadcastPreviewApi(MethodView):

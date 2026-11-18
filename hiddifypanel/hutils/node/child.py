@@ -13,7 +13,7 @@ from loguru import logger
 from hiddifypanel import g, hutils
 from hiddifypanel.cache import cache
 from hiddifypanel.database import db
-from hiddifypanel.models import AdminUser, Child, ChildMode, ConfigEnum, Domain, UnsyncedUsage, UsageData, User, hconfig, set_hconfig
+from hiddifypanel.models import AdminUser, Child, ChildMode, ConfigEnum, Domain, UsageBatchItem, UsageData, User, hconfig, set_hconfig
 from hiddifypanel.panel import hiddify, usage
 from hiddifypanel.panel.commercial.restapi.v2.admin.schema import UserSchema
 
@@ -83,7 +83,7 @@ def _apply_users_if_changed(before: set[str]) -> None:
     after = _active_user_uuids()
     if after != before:
         logger.info(f"Users from parent changed ({len(after - before)} activated, {len(before - after)} deactivated): applying users")
-        hiddify.quick_apply_users()
+        hutils.apply_users.quick_apply_users()
 
 
 def _apply_outbounds(items) -> bool:
@@ -450,47 +450,44 @@ def _send_to_parent(payload: UsageInputOutputSchema) -> UsageResponseSchema | No
         logger.error("Parent url is empty")
         return NodeApiErrorSchema(msg="Parent url is empty")
     # The parent may wait up to usage.USAGE_LOCK_WAIT for its usage update: wait longer than that, and never resend on a
-    # timeout (the parent may still add it: it would count twice). A failed report stays in UnsyncedUsage for the next one.
+    # timeout (an older parent, without report ids, would count it twice). A failed report is sent again unchanged.
     client = NodeApiClient(p_url, timeout=usage.USAGE_LOCK_WAIT + 30, retry_on_timeout=False)
     res = client.put("/api/v2/parent/usage/", payload, UsageResponseSchema)
     return res
 
 
 def sync_users_usage_with_parent(usages: list[UsageData]) -> bool:
-    # Merge previously failed deltas so they are retried with this batch.
-    pending = UnsyncedUsage.all_as_usage_data()
-    merged: dict[str, UsageData] = {}
-    for item in [*pending, *usages]:
-        if not item.uuid:
-            continue
-        existing = merged.get(item.uuid)
-        merged[item.uuid] = existing.add(item) if existing else item
-
-    to_send = [u for u in merged.values() if u.usage > 0]
-
+    # Called holding usage.USAGE_LOCK. A report is one batch with an id, kept in the database and sent again unchanged until
+    # the parent answers: it may have applied it already and only its answer got lost, so a changed or merged report
+    # would be counted twice. New usage waits (UnsyncedUsage) for the next report.
+    batch_id, to_send = UsageBatchItem.take(usages)
     last_sync = hconfig(ConfigEnum.last_users_sync)
     payload = UsageInputOutputSchema(
         usages=to_send,
         request_time=datetime.now(),
         last_users_sync=last_sync,
+        batch_id=batch_id,
     )
 
     res = _send_to_parent(payload)
     if isinstance(res, NodeApiErrorSchema):
         logger.error(f"Error while syncing users usage with parent: {res.msg}")
         sync_status.record(SyncKind.usage, SyncSource.usage_report, len(to_send), ok=False, items=to_send, error=str(res.msg))
-        UnsyncedUsage.add_usages(usages)
-        usage._add_users_usage_new_impl(usages, 0)  # this runs inside update_local_usage's lock: taking it again would do nothing
+        # Counted here too, so the node enforces its users' limits while the parent is away (the parent's answer
+        # replaces these numbers). This runs inside update_local_usage's lock: taking it again would do nothing.
+        try:
+            usage._add_users_usage_new_impl(usages, 0)
+        except Exception:
+            logger.exception("usage could not be counted on this node; it is kept for the parent")
         return False
 
+    UsageBatchItem.answered(batch_id)
     active_before = _active_user_uuids()
     for u in res.users:
         data = u.model_dump()
         User.add_or_update(commit=False, **data)
     db.session.commit()
     _apply_users_if_changed(active_before)
-
-    UnsyncedUsage.clear_all(commit=True)
 
     sync_time = hutils.convert.time_to_json(res.response_time)
     set_hconfig(ConfigEnum.last_users_sync, sync_time, commit=True)

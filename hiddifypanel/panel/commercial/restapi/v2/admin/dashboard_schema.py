@@ -151,6 +151,8 @@ class DashboardDiskDetail(ApiModel):
     disk: DashboardDisk = Field(default_factory=DashboardDisk)
     top_folders: list[DiskFolderUsage] = Field(default_factory=list)
     error: str | None = None
+    # Why the node could not be asked (hutils.node.contact_error)
+    error_code: str | None = None
 
 
 class DashboardNetwork(ApiModel):
@@ -169,6 +171,14 @@ class DashboardHost(ApiModel):
     boot_time: float = 0.0
     uptime_s: int = 0
     panel_version: str | None = None
+    # The operating system (/etc/os-release: ID, NAME, VERSION_ID, PRETTY_NAME), kernel and CPU architecture; empty
+    # from a node of an older version
+    os_id: str = ""
+    os_name: str = ""
+    os_version: str = ""
+    os_pretty: str = ""
+    kernel: str = ""
+    arch: str = ""
 
 
 class DashboardProcess(ApiModel):
@@ -211,8 +221,12 @@ class DashboardNodeStats(ApiModel):
     mode: str
     # Admin panel of the node for the current account; None for this server.
     panel_url: str | None = None
+    # The server's country (ISO code, e.g. "DE") from its address; "" when unknown.
+    country: str = ""
     ok: bool = True
     error: str | None = None
+    # Why the node could not be asked (hutils.node.contact_error): the Nodes page explains it and how to fix it.
+    error_code: str | None = None
     cpu: DashboardCpu | None = None
     memory: DashboardMemory | None = None
     disk: DashboardDisk | None = None

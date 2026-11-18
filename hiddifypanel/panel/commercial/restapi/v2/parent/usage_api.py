@@ -31,9 +31,9 @@ class UsageApi(MethodView):
 
         if increased:
             logger.info(f"Adding increased usages to parent for child_id={g.node.id}")
-            res = add_users_usage_new(increased, int(g.node.id))
+            res = add_users_usage_new(increased, int(g.node.id), data.batch_id)
             if res.get("status") != "success":
-                # Not added (the usage update stayed busy): not 200, so the node keeps them (UnsyncedUsage) and sends them again
+                # Not added (the usage update stayed busy): not 200, so the node keeps the report and sends it again unchanged
                 abort(409, "usage update is busy, retry later")
 
         g.node.mark_node_to_parent(commit=True)

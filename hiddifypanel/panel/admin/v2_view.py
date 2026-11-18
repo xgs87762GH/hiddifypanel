@@ -6,6 +6,7 @@ from flask import jsonify, redirect, render_template
 import hiddifypanel
 from hiddifypanel import g, hutils
 from hiddifypanel.auth import login_required
+from hiddifypanel.build_info import dev_version_label
 from hiddifypanel.hutils import flask as hutils_flask
 from hiddifypanel.hutils.flask import hurl_for
 from hiddifypanel.models import ConfigEnum, Role, hconfig
@@ -15,7 +16,8 @@ from .v2_menu import build_admin_v2_menu, build_admin_v2_notices
 
 def _panel_version() -> str:
     if not hiddifypanel.is_released_version:
-        return "DEV"
+        # "DEV 11-09T19:14 · 1a2b3c4": which commit a development panel runs, when the installer or the checkout tells it
+        return dev_version_label()
     return hiddifypanel.__version__
 
 
@@ -86,6 +88,13 @@ def _telegram_info() -> dict | None:
     }
 
 
+def _passkey_suggestion() -> dict | None:
+    """Right after a password sign-in, without a passkey yet: offer one (once)."""
+    from hiddifypanel.panel.commercial.restapi.v2.admin.passkeys_api import take_suggestion
+
+    return take_suggestion(g.account)
+
+
 def _needs_quick_setup() -> bool:
     # Quick setup is owner-only: other admins never see it.
     if g.account.mode != "super_admin":
@@ -114,8 +123,11 @@ def _admin_v2_bootstrap_payload() -> dict:
         "panel_logo_url": _panel_logo_url(proxy_path),
         # The installed-app (PWA) manifest and icon: the frontend adds the <link>s when the page lacks them (the Vite dev
         # server's index.html has none, so without these the browser never offered to install the panel).
-        "pwa_manifest_url": hurl_for("common_bp.LoginView:create_pwa_manifest", secret_uuid=g.account.uuid or ""),
-        "pwa_icon_url": hutils.flask.static_url_for(filename="images/hiddify-dark.png"),
+        "pwa_manifest_url": hurl_for("common_bp.LoginView:create_pwa_manifest", secret_uuid=g.account.uuid or "", icon=hutils.flask.admin_icon_color()),
+        "pwa_icon_url": hutils.flask.app_icon_url("app-icon-admin-apple-180.png"),
+        # The same icon cut to its shape: the browser tab icon, and the picture the install guide shows.
+        "app_icon_url": hutils.flask.app_icon_url("favicon-admin-256.png"),
+        "app_icon": hutils.flask.app_icon_info("admin", proxy_path),
         "menu": build_admin_v2_menu(),
         "notices": build_admin_v2_notices(),
         "panel_mode": hutils.node.panel_mode(),
@@ -124,6 +136,7 @@ def _admin_v2_bootstrap_payload() -> dict:
         "capabilities": caps.of(g.account),
         "needs_quick_setup": _needs_quick_setup(),
         "telegram": _telegram_info(),
+        "passkey_suggestion": _passkey_suggestion(),
     }
 
 
@@ -175,4 +188,6 @@ def register_v2_routes(flask_app, admin_bp):
             capabilities=caps.of(g.account),
             needs_quick_setup=_needs_quick_setup(),
             telegram=_telegram_info(),
+            passkey_suggestion=_passkey_suggestion(),
+            app_icon=hutils.flask.app_icon_info("admin", proxy_path),
         )

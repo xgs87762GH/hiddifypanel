@@ -76,18 +76,31 @@
 
     <!-- Bulk actions -->
     <Transition name="users-fade">
-      <section v-if="selected.length && !readOnly" class="users-bulk">
-        <span class="users-bulk__count"><i class="pi pi-check-square" />{{ t('users.selected', { n: selected.length }, selected.length) }}</span>
+      <section v-if="selected.length && !readOnly" class="users-bulk" :aria-busy="bulkBusy !== null">
+        <!-- While an action runs: what is happening, in place of the count (the buttons wait) -->
+        <span v-if="bulkBusy" class="users-bulk__count users-bulk__count--busy" role="status">
+          <ProgressSpinner class="users-bulk__spinner" stroke-width="6" aria-hidden="true" />{{ t('users.bulkWorking', { n: bulkBusyCount }, bulkBusyCount) }}
+        </span>
+        <!-- The count is the "every page" checkbox: it picks every user the filter / search shows; once all are picked, it clears -->
+        <button
+          v-else
+          type="button"
+          class="users-bulk__count users-bulk__all"
+          :aria-pressed="allPicked"
+          :title="allPicked ? t('users.clearSelection') : t('users.selectAllUsers', { n: rows.length }, rows.length)"
+          @click="allPicked ? (selected = []) : toggleAll(true)"
+        >
+          <span class="users-bulk__box" :class="{ 'is-on': allPicked }" aria-hidden="true"><i :class="['pi', allPicked ? 'pi-check' : 'pi-minus']" /></span>
+          <span>{{ t('users.selected', { n: selected.length }, selected.length) }}</span>
+          <span v-if="!allPicked" class="users-bulk__all-hint">{{ t('users.selectAllUsers', { n: rows.length }, rows.length) }}</span>
+        </button>
         <div class="users-bulk__actions">
-          <Button size="small" icon="pi pi-send" :label="t('broadcast.fromUsers')" severity="secondary" outlined @click="messageSelected" />
-          <Button size="small" icon="pi pi-check-circle" :label="t('users.bulk.enable')" severity="secondary" outlined @click="bulk('enable')" />
-          <Button size="small" icon="pi pi-ban" :label="t('users.bulk.disable')" severity="secondary" outlined @click="bulk('disable')" />
-          <Button size="small" icon="pi pi-refresh" :label="t('users.bulk.reset_usage')" severity="secondary" outlined @click="bulk('reset_usage')" />
-          <Button size="small" icon="pi pi-replay" :label="t('users.bulk.reset_days')" severity="secondary" outlined @click="bulk('reset_days')" />
-          <Button size="small" icon="pi pi-plus-circle" :label="t('users.bulk.add_limits')" severity="secondary" outlined @click="openAddLimits" />
-          <Button size="small" icon="pi pi-tag" :label="t('tags.bulk')" severity="secondary" outlined aria-haspopup="dialog" @click="bulkTagPop?.toggle($event)" />
-          <Button size="small" icon="pi pi-trash" :label="t('common.delete')" severity="danger" outlined @click="bulk('delete')" />
-          <Button size="small" icon="pi pi-times" text severity="secondary" :aria-label="t('users.clearSelection')" @click="selected = []" />
+          <Button size="small" icon="pi pi-send" :label="t('broadcast.fromUsers')" severity="secondary" outlined :disabled="bulkBusy !== null" @click="messageSelected" />
+          <Button v-for="a in BULK_BUTTONS" :key="a.action" size="small" :icon="a.icon" :label="t(`users.bulk.${a.action}`)" severity="secondary" outlined :loading="bulkBusy === a.action" :disabled="bulkBusy !== null" @click="bulk(a.action)" />
+          <Button size="small" icon="pi pi-plus-circle" :label="t('users.bulk.add_limits')" severity="secondary" outlined :loading="bulkBusy === 'add_limits'" :disabled="bulkBusy !== null" @click="openAddLimits" />
+          <Button size="small" icon="pi pi-tag" :label="t('tags.bulk')" severity="secondary" outlined aria-haspopup="dialog" :loading="bulkBusy === 'tag'" :disabled="bulkBusy !== null" @click="bulkTagPop?.toggle($event)" />
+          <Button size="small" icon="pi pi-trash" :label="t('common.delete')" severity="danger" outlined :loading="bulkBusy === 'delete'" :disabled="bulkBusy !== null" @click="bulk('delete')" />
+          <Button size="small" icon="pi pi-times" text severity="secondary" :aria-label="t('users.clearSelection')" :disabled="bulkBusy !== null" @click="selected = []" />
         </div>
       </section>
     </Transition>
@@ -100,20 +113,17 @@
     <Message v-else-if="loadError" severity="error" :closable="false">{{ loadError }}</Message>
 
     <!-- Desktop / tablet: table -->
-    <div v-else-if="state && !narrow" class="users-card">
+    <div v-else-if="state && !narrow" class="users-card" :class="{ 'users-card--virtual': virtualTable }" :style="virtualTable ? { '--u-row': `${rowPx}px` } : undefined">
       <DataTable
         v-model:selection="selected"
-        :select-all="allPicked"
+        :select-all="pagePicked"
         @select-all-change="onSelectAllChange"
-        v-model:first="first"
         :value="tableRows"
         data-key="uuid"
-        :lazy="!groupByOwner && !!sortField"
-        :paginator="paged && rows.length > effectivePageSize"
-        :rows="effectivePageSize"
-        :total-records="rows.length"
-        paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-        :current-page-report-template="pageReport"
+        :lazy="virtualTable || (!groupByOwner && !!sortField)"
+        :scrollable="virtualTable"
+        :scroll-height="virtualTable ? 'calc(100dvh - 16rem)' : undefined"
+        :virtual-scroller-options="virtualTable ? { itemSize: rowPx, numToleratedItems: 12 } : undefined"
         :sort-field="groupByOwner ? 'owner_key' : sortField"
         :sort-order="groupByOwner ? 1 : sortOrder"
         :row-group-mode="groupByOwner ? 'subheader' : undefined"
@@ -122,14 +132,14 @@
         removable-sort
         size="small"
         class="users-table"
-        :class="{ 'users-table--resizing': resizing }"
+        :class="{ 'users-table--virtual': virtualTable, 'users-table--resizing': resizing, 'users-table--moving': userDrag.moving.value, 'users-table--settling': userDrag.settling.value }"
         @mousedown.capture="onTableMouseDown"
         :row-class="rowClass"
+        :row-style="(u: Row) => userDrag.styleOf(u.uuid)"
         resizable-columns
         column-resize-mode="fit"
         @sort="onSort"
         @cell-edit-complete="onCellEdit"
-        @row-reorder="onRowReorder"
         @column-resize-start="resizing = true"
         @column-resize-end="onColumnResize"
       >
@@ -150,9 +160,11 @@
         </template>
 
         <!-- Drag a row to move it (the admin's own order, pinned users on top); off while a column sort or grouping orders the rows -->
-        <Column v-if="canReorder" row-reorder row-reorder-icon="pi pi-bars u-drag" header-style="width: 2.25rem" body-class="u-drag-cell" />
-        <Column v-else header-style="width: 2.25rem" body-class="u-drag-cell">
-          <template #body><i class="pi pi-bars u-drag u-drag--off" v-tooltip.top="t('users.layout.dragOff')" /></template>
+        <Column header-style="width: 2.25rem" body-class="u-drag-cell">
+          <template #body="{ data }">
+            <i v-if="canReorder" class="pi pi-bars u-drag" role="button" :aria-label="t('users.layout.dragHandle')" :data-drag-key="data.uuid" @pointerdown="startRowDrag($event, data)" />
+            <i v-else class="pi pi-bars u-drag u-drag--off" v-tooltip.top="t('users.layout.dragOff')" />
+          </template>
         </Column>
         <Column v-if="!readOnly" selection-mode="multiple" header-style="width: 2.5rem" />
         <!-- No ID column: this one sorts by id -->
@@ -184,7 +196,7 @@
                 <!-- The link first: every row's QR button lines up -->
                 <Button icon="pi pi-qrcode" text rounded size="small" class="u-who__link" :aria-label="t('users.showLink')" v-tooltip.top="t('users.showLink')" @click.stop="openLink(data)" />
                 <TagDots kind="user" :uuid="data.uuid" :ids="data.tags" :pinned="isPinned(data)" @changed="(ids: number[]) => setTags(data.uuid, ids)" @pin="(on: boolean) => setPinned(data, on)" />
-                <button type="button" class="u-who__name" :title="data.name" @click="openEdit(data)"><MarkText :text="data.name" :query="query" /></button>
+                <button type="button" class="u-who__name" dir="auto" v-tooltip.top="isLongName(data.name) ? data.name : null" @click="openEdit(data)"><MarkText :text="shortName(data.name)" :query="query" /></button>
               </div>
               <!-- The note's first words; the whole note on a notebook sheet on hover -->
               <small v-if="data.comment" class="u-who__note">
@@ -265,15 +277,16 @@
         </Column>
 
       </DataTable>
+      <PageScrubber v-if="paged && rows.length > pageSize" v-model:first="first" :rows="pageSize" :total-records="rows.length" />
     </div>
 
     <!-- Phones: compact cards -->
-    <div v-else-if="state" class="u-cards">
-      <!-- Select every user the current filter / search shows (all pages), as the table's header checkbox does on a wider screen -->
+    <div v-else-if="state" class="u-cards" :class="{ 'u-cards--moving': userDrag.moving.value, 'u-cards--settling': userDrag.settling.value }">
+      <!-- Select the users of this page, as the table's header checkbox does on a wider screen (every page: the bulk bar's count) -->
       <div v-if="rows.length" class="u-cardbar">
         <label v-if="!readOnly" class="u-selectall">
-          <Checkbox :model-value="allPicked" :indeterminate="somePicked && !allPicked" binary :aria-label="t('users.selectAll', { n: rows.length }, rows.length)" @update:model-value="(v: boolean) => toggleAll(v)" />
-          <span>{{ t('users.selectAll', { n: rows.length }, rows.length) }}</span>
+          <Checkbox :model-value="pagePicked" :indeterminate="pageSome && !pagePicked" binary :aria-label="t('users.selectPage', { n: pageSet.length }, pageSet.length)" @update:model-value="(v: boolean) => togglePage(v)" />
+          <span>{{ t('users.selectPage', { n: pageSet.length }, pageSet.length) }}</span>
         </label>
         <!-- The table's column sorts, as small buttons: a tap sorts up, the next down, the third goes back to your own order -->
         <div class="u-sorts-wrap">
@@ -295,61 +308,81 @@
         </div>
         </div>
       </div>
-      <template v-for="group in cardGroups" :key="group.key">
-        <div v-if="groupByOwner" class="users-group users-group--card"><i class="pi pi-sitemap" /><b>{{ group.owner || '—' }}</b><span class="text-muted-color">{{ group.users.length }}</span></div>
-        <article v-for="u in group.users" :key="u.uuid" class="u-card" :class="[`u-card--${u.status}`, { 'u-card--picked': isSelected(u) }]">
+      <div ref="cardListEl" class="u-cardlist" :class="{ 'u-cardlist--virtual': cardVirtual }" :style="cardVirtual ? { height: `${cardTotal}px` } : undefined">
+      <template v-for="entry in shownCards" :key="entry.key">
+        <div v-if="entry.kind === 'header'" :ref="(el) => measureCard(entry.key, el)" class="users-group users-group--card" :style="cardPlace(entry.top)">
+          <i class="pi pi-sitemap" /><b>{{ entry.owner || '—' }}</b><span class="text-muted-color">{{ entry.count }}</span>
+        </div>
+        <article
+          v-else
+          :ref="(el) => measureCard(entry.key, el)"
+          class="u-card"
+          :class="[`u-card--${entry.user.status}`, { 'u-card--picked': isSelected(entry.user), 'u-card--lifted': userDrag.lifted.value === entry.user.uuid, 'u-card--held': userDrag.held.value === entry.user.uuid }]"
+          :data-drag-key="entry.user.uuid"
+          :style="cardBox(entry.top, userDrag.styleOf(entry.user.uuid))"
+        >
           <header class="u-card__head">
-            <Checkbox v-if="!readOnly" :model-value="isSelected(u)" binary class="u-card__check" :aria-label="t('users.select')" @update:model-value="(v: boolean) => toggleSelect(u, v)" />
+            <!-- Drag handle, as on the table: the admin's order; muted (a tap says why) while a sort orders the cards -->
+            <span
+              class="u-card__drag"
+              :class="{ 'u-card__drag--off': !canReorder }"
+              role="button"
+              :aria-label="t('users.layout.dragHandle')"
+              @pointerdown="canReorder ? userDrag.start($event, entry.user.uuid, cardDragKeys(entry.user)) : dragOffHint()"
+              ><i class="pi pi-bars"
+            /></span>
+            <Checkbox v-if="!readOnly" :model-value="isSelected(entry.user)" binary class="u-card__check" :aria-label="t('users.select')" @update:model-value="(v: boolean) => toggleSelect(entry.user, v)" />
             <!-- Status-tinted QR button: the link, first, on every card -->
-            <button type="button" class="u-card__qr" :aria-label="t('users.showLink')" @click="openLink(u)">
+            <button type="button" class="u-card__qr" :aria-label="t('users.showLink')" @click="openLink(entry.user)">
               <i class="pi pi-qrcode" />
-              <span class="u-card__badge" :aria-label="t(`users.status.${u.status}`)"><i :class="STATUS_ICON[u.status]" /></span>
+              <span class="u-card__badge" :aria-label="t(`users.status.${entry.user.status}`)"><i :class="STATUS_ICON[entry.user.status]" /></span>
             </button>
-            <TagDots kind="user" :uuid="u.uuid" :ids="u.tags" :pinned="isPinned(u)" @changed="(ids: number[]) => setTags(u.uuid, ids)" @pin="(on: boolean) => setPinned(u, on)" />
+            <TagDots kind="user" :uuid="entry.user.uuid" :ids="entry.user.tags" :pinned="isPinned(entry.user)" @changed="(ids: number[]) => setTags(entry.user.uuid, ids)" @pin="(on: boolean) => setPinned(entry.user, on)" />
             <div class="u-card__who">
               <!-- The name edits; the note right after it opens the whole note when it was cut (tap) -->
               <div class="u-card__nameline">
-                <button type="button" class="u-card__title" @click="openEdit(u)"><span class="u-card__name">{{ u.name }}</span></button>
-                <span v-if="u.comment" class="u-card__note"><NotePreview :note="u.comment" :label="t('users.form.note')" /></span>
+                <button type="button" class="u-card__title" v-tooltip.top="isLongName(entry.user.name, CARD_NAME_MAX) ? entry.user.name : null" @click="openEdit(entry.user)"><span class="u-card__name" dir="auto">{{ shortName(entry.user.name, CARD_NAME_MAX) }}</span></button>
+                <span v-if="entry.user.comment" class="u-card__note"><NotePreview :note="entry.user.comment" :label="t('users.form.note')" /></span>
               </div>
               <!-- Say the state only when it needs attention (the badge on the QR already says "active") -->
-              <button v-if="u.status !== 'active'" type="button" class="u-card__title u-card__sub" @click="openEdit(u)">
-                <b class="u-card__state">{{ t(`users.status.${u.status}`) }}</b>
+              <button v-if="entry.user.status !== 'active'" type="button" class="u-card__title u-card__sub" @click="openEdit(entry.user)">
+                <b class="u-card__state">{{ t(`users.status.${entry.user.status}`) }}</b>
               </button>
             </div>
             <!-- Usage where the edit button was: tapping the name edits -->
-            <MeterBar class="u-card__meter u-tap" role="button" tabindex="0" :aria-label="t('users.form.editUsageTitle', { name: u.name })" @click="openQuick(u, 'usage')" @keydown.enter="openQuick(u, 'usage')" :used="u.current_usage_GB" :max="unlimitedGb(u.usage_limit_GB) ? null : u.usage_limit_GB" :text="usageText(u)" size="xs" />
+            <MeterBar class="u-card__meter u-tap" role="button" tabindex="0" :aria-label="t('users.form.editUsageTitle', { name: entry.user.name })" @click="openQuick(entry.user, 'usage')" @keydown.enter="openQuick(entry.user, 'usage')" :used="entry.user.current_usage_GB" :max="unlimitedGb(entry.user.usage_limit_GB) ? null : entry.user.usage_limit_GB" :text="usageText(entry.user)" size="xs" />
           </header>
           <div class="u-card__body">
             <div class="u-card__pills">
-              <button type="button" class="u-pill" :class="`u-tone--${expireToneOf(u)}`" :aria-label="t('users.col.expire')" @click="expireClick(u)" @pointerdown="pressStart(u)" @pointerup="pressEnd" @pointerleave="pressEnd" @pointercancel="pressEnd" @contextmenu.prevent>
-                <i :class="u.start_date ? 'pi pi-calendar' : 'pi pi-hourglass'" />{{ expireText(u) }}
+              <button type="button" class="u-pill" :class="`u-tone--${expireToneOf(entry.user)}`" :aria-label="t('users.col.expire')" @click="expireClick(entry.user)" @pointerdown="pressStart(entry.user)" @pointerup="pressEnd" @pointerleave="pressEnd" @pointercancel="pressEnd" @contextmenu.prevent>
+                <i :class="entry.user.start_date ? 'pi pi-calendar' : 'pi pi-hourglass'" />{{ expireText(entry.user) }}
               </button>
-              <span class="u-pill" :class="`u-tone--${seen(u).tone}`"><span v-if="seen(u).online" class="u-dot" /><i v-else class="pi pi-wifi" />{{ seen(u).text }}</span>
-              <span v-if="u.mode !== 'no_reset'" class="u-pill u-pill--reset"><i class="pi pi-sync" />{{ t(`users.resetTag.${u.mode}`) }}</span>
+              <span class="u-pill" :class="`u-tone--${seen(entry.user).tone}`"><span v-if="seen(entry.user).online" class="u-dot" /><i v-else class="pi pi-wifi" />{{ seen(entry.user).text }}</span>
+              <span v-if="entry.user.mode !== 'no_reset'" class="u-pill u-pill--reset"><i class="pi pi-sync" />{{ t(`users.resetTag.${entry.user.mode}`) }}</span>
             </div>
             <!-- What is special about the user, as many as fit on the line -->
-            <div v-if="extrasOf(u).length" class="u-card__extras">
+            <div v-if="extrasOf(entry.user).length" class="u-card__extras">
               <component
                 :is="x.key === 'telegram' && !readOnly ? 'button' : 'span'"
-                v-for="x in extrasOf(u)"
+                v-for="x in extrasOf(entry.user)"
                 :key="x.key"
                 :type="x.key === 'telegram' && !readOnly ? 'button' : undefined"
                 class="u-extra"
                 :class="[`u-extra--${x.key}`, { 'u-extra--action': x.key === 'telegram' && !readOnly }]"
                 :aria-label="x.key === 'note' ? t('users.form.note') : undefined"
                 v-tooltip.top="x.key === 'telegram' && !readOnly ? t('users.extra.telegramMessage') : x.title"
-                @click.stop="x.key === 'telegram' && !readOnly && messageUser(u)"
+                @click.stop="x.key === 'telegram' && !readOnly && messageUser(entry.user)"
                 ><i :class="x.icon" />{{ x.text }}</component
               >
             </div>
-            <Button icon="pi pi-ellipsis-h" text rounded size="small" severity="secondary" class="u-card__more" :aria-label="t('users.more')" @click="openMenu($event, u)" />
+            <Button icon="pi pi-ellipsis-h" text rounded size="small" severity="secondary" class="u-card__more" :aria-label="t('users.more')" @click="openMenu($event, entry.user)" />
           </div>
         </article>
       </template>
+      </div>
       <ListNoMatch v-if="!rows.length && usersFiltered && state.users.length" @reset="resetUserFilters" />
       <div v-else-if="!rows.length" class="users-empty"><i class="pi pi-users" /><span>{{ t('users.none') }}</span></div>
-      <Paginator v-if="paged && rows.length > effectivePageSize" v-model:first="first" :rows="effectivePageSize" :total-records="rows.length" template="PrevPageLink CurrentPageReport NextPageLink" :current-page-report-template="pageReport" />
+      <PageScrubber v-if="paged && rows.length > pageSize" v-model:first="first" :rows="pageSize" :total-records="rows.length" scroll-top-on-step />
     </div>
 
     <Menu ref="rowMenu" :model="menuItems" popup />
@@ -408,18 +441,22 @@
 
 <script setup lang="ts">
 import { unitLabel } from '@/shared/utils/format-metrics'
+import { PHONE_NAME_MAX, isLongName, shortName } from '@/shared/utils/short-name'
 import ListFilterStatus from '@/shared/components/ListFilterStatus.vue'
 import ListNoMatch from '@/shared/components/ListNoMatch.vue'
+import PageScrubber from '@/shared/components/PageScrubber.vue'
 import NotePreview from '@/shared/components/NotePreview.vue'
 import { numberListCodec, optionalNumberCodec, useHashState } from '@/shared/composables/useHashState'
-import { computed, defineAsyncComponent, defineComponent, h, onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
+import { useWindowSlice } from '@/shared/composables/useWindowSlice'
+import { computed, defineAsyncComponent, defineComponent, h, nextTick, onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
+import ProgressSpinner from 'primevue/progressspinner'
 import Checkbox from 'primevue/checkbox'
 import Column from 'primevue/column'
 import Dialog from 'primevue/dialog'
-import DataTable, { type DataTableCellEditCompleteEvent, type DataTableColumnResizeEndEvent, type DataTableRowReorderEvent, type DataTableSortEvent } from 'primevue/datatable'
+import DataTable, { type DataTableCellEditCompleteEvent, type DataTableColumnResizeEndEvent, type DataTableSortEvent } from 'primevue/datatable'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import InputNumber from 'primevue/inputnumber'
@@ -427,7 +464,6 @@ import InputText from 'primevue/inputtext'
 import Menu from 'primevue/menu'
 import type { MenuItem } from 'primevue/menuitem'
 import Message from 'primevue/message'
-import Paginator from 'primevue/paginator'
 import Popover from 'primevue/popover'
 import Select from 'primevue/select'
 import Skeleton from 'primevue/skeleton'
@@ -449,7 +485,8 @@ import TagPicker from '@/features/tags/components/TagPicker.vue'
 import UserFormDialog from '@/features/users/components/UserFormDialog.vue'
 import UserBulkCreateDialog from '@/features/users/components/UserBulkCreateDialog.vue'
 import UsersGuideDialog from '@/features/users/components/UsersGuideDialog.vue'
-import { orderRows, reorder, togglePin } from '@/features/users/layout-order'
+import { orderRows, placeNew, reorder, togglePin } from '@/features/users/layout-order'
+import { useDragSort } from '@/shared/composables/useDragSort'
 import { localeComparator, resolveFieldData, sort as sortValues } from '@primeuix/utils/object'
 import { STATUS_ICON, UNLIMITED_DAYS, UNLIMITED_GB, USER_MODES, userLinkPath, usersApi, type BulkAction, type UserDetail, type UserPayload, type UserRow, type UserStatus, type UsersLayout, type UsersState } from '@/features/users/api'
 import { sizeText, exactDate, exactDateTime, expireTone, gb, lastSeen, relativeDays, shortDate, type Tone } from '@/features/users/format'
@@ -545,12 +582,7 @@ watch([groupByOwner, showDates, pageSize, autoRefresh, usageWidthPx], () => {
     /* private mode: not remembered */
   }
 })
-/** "All" (0) still pages at this size: rendering a few thousand rows at once froze the tab. */
-const ALL_PAGE_SIZE = 500
-const effectivePageSize = computed(() => (pageSize.value > 0 ? pageSize.value : ALL_PAGE_SIZE))
-const paged = computed(() => pageSize.value > 0 || rows.value.length > ALL_PAGE_SIZE)
-/** PrimeVue fills {first} {last} {totalRecords}: hand them through vue-i18n untouched. */
-const pageReport = computed(() => t('users.pageReport', { first: '{first}', last: '{last}', totalRecords: '{totalRecords}' }))
+const paged = computed(() => pageSize.value > 0)
 const pageOptions = computed(() => [
   { value: 10, label: '10' },
   { value: 100, label: '100' },
@@ -680,6 +712,8 @@ function isPinned(u: { uuid: string }): boolean {
 }
 const pinnedCount = computed(() => allRows.value.filter((u) => isPinned(u)).length)
 const hasNote = (u: Row) => !!u.comment?.trim()
+/** Phone cards are narrower: their names are cut sooner */
+const CARD_NAME_MAX = PHONE_NAME_MAX
 const noteCount = computed(() => allRows.value.filter(hasNote).length)
 /** The tag filter: any picked tag, or "Pin" (pinned users) and "Note" (users with a note), like tags. */
 function matchesPicked(u: Row): boolean {
@@ -694,9 +728,23 @@ const rows = computed<Row[]>(() => {
   const match = MATCH[filter.value]
   return orderedRows.value.filter((u) => match(u) && matchesPicked(u) && (!q || u.name.toLowerCase().includes(q) || u.uuid.includes(q) || String(u.id).includes(q) || u.comment.toLowerCase().includes(q)))
 })
+/** Above this many rows, "all" scrolls a window instead of mounting every row. */
+const VIRTUAL_AFTER = 100
+/** Table row height while that window is on. The CSS variable `--u-row` uses the same number. */
+const rowPx = ref(72)
+const virtualTable = computed(() => !narrow.value && !paged.value && rows.value.length > VIRTUAL_AFTER)
+watch(virtualTable, (on) => {
+  if (!on) return
+  void nextTick(() => {
+    const row = document.querySelector<HTMLElement>('.users-card--virtual .p-datatable-tbody > tr')
+    const height = row ? Math.round(row.getBoundingClientRect().height) : 0
+    if (height >= 40 && height !== rowPx.value) rowPx.value = height
+  })
+})
 /**
  * A column sort keeps the pinned users on top: they are sorted among themselves, then the others the same way
- * (PrimeVue's own comparison, so the order is the one its header arrow promises). Grouping sorts in PrimeVue.
+ * (PrimeVue's own comparison, so the order is the one its header arrow promises). Grouping sorts in PrimeVue,
+ * except while the whole list is virtualized: then the rows arrive already grouped and PrimeVue must not sort again.
  */
 const comparer = localeComparator()
 const sortedRows = computed<Row[]>(() => {
@@ -706,10 +754,15 @@ const sortedRows = computed<Row[]>(() => {
   const by = (list: Row[]) => [...list].sort((a, b) => sortValues(resolveFieldData(a, field), resolveFieldData(b, field), dir, comparer, 1))
   return [...by(rows.value.filter((u) => isPinned(u))), ...by(rows.value.filter((u) => !isPinned(u)))]
 })
-/** A lazy table (a column sort) shows its rows as given: hand it the current page of the sorted list. */
+/** The table shows its rows as given (PageScrubber below it picks the page): the current page when paged. */
 const tableRows = computed<Row[]>(() => {
-  if (groupByOwner.value || !sortField.value) return rows.value
-  return paged.value ? sortedRows.value.slice(first.value, first.value + effectivePageSize.value) : sortedRows.value
+  if (paged.value) return pageRows.value
+  if (groupByOwner.value) {
+    if (!virtualTable.value) return rows.value
+    return [...rows.value].sort((a, b) => a.owner_key.localeCompare(b.owner_key))
+  }
+  if (!sortField.value) return rows.value
+  return paged.value ? sortedRows.value.slice(first.value, first.value + pageSize.value) : sortedRows.value
 })
 const usersFiltered = computed(() => filter.value !== 'all' || Boolean(query.value.trim()) || pickedTags.value.length > 0)
 function resetUserFilters() {
@@ -738,26 +791,38 @@ const bulkTagState = computed(() => {
 })
 async function bulkTag(id: number, on: boolean) {
   const uuids = selected.value.map((s) => s.uuid)
-  if (!uuids.length) return
-  try {
-    await tagsApi.bulk('user', uuids, on ? [id] : [], on ? [] : [id])
-  } catch (err) {
-    toast.add({ severity: 'error', summary: t('tags.saveFailed'), detail: apiErrorMessage(err), life: 5000 })
-    return
-  }
-  await Promise.all([load(true), loadTags(true)])
+  if (!uuids.length || bulkBusy.value) return
+  await whileBulk('tag', uuids.length, async () => {
+    try {
+      await tagsApi.bulk('user', uuids, on ? [id] : [], on ? [] : [id])
+    } catch (err) {
+      toast.add({ severity: 'error', summary: t('tags.saveFailed'), detail: apiErrorMessage(err), life: 5000 })
+      return
+    }
+    await Promise.all([load(true), loadTags(true)])
+  })
 }
 
 /** Phones: the current page, grouped when asked. */
 const pageRows = computed(() => {
   const list = groupByOwner.value ? [...rows.value].sort((a, b) => a.owner_key.localeCompare(b.owner_key)) : sortedRows.value
-  return paged.value ? list.slice(first.value, first.value + effectivePageSize.value) : list
+  return paged.value ? list.slice(first.value, first.value + pageSize.value) : list
 })
 const cardGroups = computed(() => {
   if (!groupByOwner.value) return [{ key: '', owner: '', users: pageRows.value }]
   const map = new Map<string, Row[]>()
   for (const u of pageRows.value) map.set(u.owner_key, [...(map.get(u.owner_key) ?? []), u])
   return [...map].map(([key, users]) => ({ key, owner: ownerPath(users[0]!.owner_uuid, users[0]!.owner_name), users }))
+})
+type CardItem = { kind: 'header'; key: string; owner: string; count: number } | { kind: 'user'; key: string; user: Row }
+/** Phone cards, flat, so a long "all" list can mount only the ones on screen. Group headers are items too. */
+const cardItems = computed<CardItem[]>(() => {
+  const out: CardItem[] = []
+  for (const group of cardGroups.value) {
+    if (groupByOwner.value) out.push({ kind: 'header', key: `h:${group.key}`, owner: group.owner, count: group.users.length })
+    for (const user of group.users) out.push({ kind: 'user', key: user.uuid, user })
+  }
+  return out
 })
 
 function groupSize(key: string): number {
@@ -786,7 +851,8 @@ function seen(u: UserRow) {
 }
 function rowClass(u: Row) {
   const pinned = canReorder.value && isPinned(u) ? ` u-row--pinned${u.uuid === lastPinned.value ? ' u-row--pinned-last' : ''}` : ''
-  return (u.status === 'active' ? '' : `u-row--${u.status}`) + pinned
+  const lifted = userDrag.lifted.value === u.uuid ? ` u-row--lifted${userDrag.held.value === u.uuid ? ' u-row--held' : ''}` : ''
+  return (u.status === 'active' ? '' : `u-row--${u.status}`) + pinned + lifted
 }
 /** Short facts shown beside the name: a chosen outbound, extra subscription configs, a linked Telegram. */
 function extrasOf(u: Row): { key: string; icon: string; text: string; title: string }[] {
@@ -856,8 +922,83 @@ function setPinned(u: Row, on: boolean) {
   if (on !== isPinned(u)) void saveLayout(togglePin(layout.value, orderedRows.value.map((r) => r.uuid), u.uuid))
 }
 
-function onRowReorder(e: DataTableRowReorderEvent) {
-  const moved = e.value as Row[]
+/**
+ * Moving a user, live, by its handle: a table row (desktop) or a card (phones), within the rows shown together (the
+ * page, or one admin's group), to the place of `keys[to]`.
+ */
+const userDrag = useDragSort({
+  // A card carries the key; in the table the handle does, and the row moves.
+  item: (key) => {
+    const el = document.querySelector<HTMLElement>(`[data-drag-key="${key}"]`)
+    return el?.closest<HTMLElement>('tr') ?? el
+  },
+  onDrop: (keys, from, to) => {
+    const moved = groupByOwner.value ? [...rows.value].sort((a, b) => a.owner_key.localeCompare(b.owner_key)) : [...rows.value]
+    const a = moved.findIndex((u) => u.uuid === keys[from])
+    const b = moved.findIndex((u) => u.uuid === keys[to])
+    if (a < 0 || b < 0) return false
+    moved.splice(b, 0, ...moved.splice(a, 1))
+    return applyReorder(moved, b)
+  },
+})
+const cardKeys = computed(() => cardItems.value.map((item) => item.key))
+/** "All" on a phone used to mount every card. Past VIRTUAL_AFTER, only the cards on screen exist; the list keeps its full height. */
+const cardSlice = useWindowSlice(cardKeys, {
+  enabled: computed(() => !paged.value && cardKeys.value.length > VIRTUAL_AFTER),
+  estimate: (key) => (key.startsWith('h:') ? 40 : 118),
+  gap: 6,
+  hold: userDrag.moving,
+})
+const cardListEl = cardSlice.root
+const cardVirtual = cardSlice.virtual
+const cardTotal = cardSlice.total
+/** Built once per list change, not on every scroll frame. */
+const cardByKey = computed(() => new Map(cardItems.value.map((item) => [item.key, item])))
+const shownCards = computed(() => {
+  const byKey = cardByKey.value
+  const out: (CardItem & { top: number })[] = []
+  for (const slot of cardSlice.slots.value) {
+    const item = byKey.get(slot.key)
+    if (item) out.push({ ...item, top: slot.top })
+  }
+  return out
+})
+function measureCard(key: string, el: unknown) {
+  cardSlice.measure(key, el instanceof Element ? el : null)
+}
+function cardPlace(top: number): Record<string, string> | undefined {
+  return cardVirtual.value ? { top: `${top}px` } : undefined
+}
+function cardBox(top: number, extra?: Record<string, string>): Record<string, string> | undefined {
+  const placed = cardPlace(top)
+  return extra ? { ...placed, ...extra } : placed
+}
+/** A drag needs every moved card in the DOM. On the windowed list that is the cards currently on screen, and the drop still lands in the full order. */
+function cardDragKeys(user: Row): string[] {
+  const group = cardGroups.value.find((g) => g.users.some((row) => row.uuid === user.uuid))
+  const all = (group?.users ?? [user]).map((row) => row.uuid)
+  if (!cardVirtual.value) return all
+  const mounted = new Set(shownCards.value.flatMap((entry) => (entry.kind === 'user' ? [entry.key] : [])))
+  const visible = all.filter((key) => mounted.has(key))
+  return visible.includes(user.uuid) ? visible : [user.uuid]
+}
+/** A table row's handle: the rows of this page (of the same admin, when grouped), in their order on screen. */
+function startRowDrag(e: PointerEvent, u: Row) {
+  const owner = new Map(rows.value.map((r) => [r.uuid, r.owner_key]))
+  const keys = [...document.querySelectorAll<HTMLElement>('.users-table [data-drag-key]')]
+    .map((el) => el.dataset.dragKey!)
+    .filter((k) => !groupByOwner.value || owner.get(k) === u.owner_key)
+  userDrag.start(e, u.uuid, keys)
+}
+function dragOffHint() {
+  toast.add({ severity: 'info', summary: t('users.layout.dragOff'), life: 4000 })
+}
+
+/**
+ * A drag result (the listed users in their new order; `dropIndex`: where the moved one landed) saved as the order.
+ * False when the move is not allowed (a hint says why).
+ */
+function applyReorder(moved: Row[], dropIndex: number): boolean {
   let shown = moved.map((u) => u.uuid)
   if (groupByOwner.value) {
     // Grouped by admin: a user moves only among the users of the same admin. The list comes sorted by admin, so
@@ -865,17 +1006,18 @@ function onRowReorder(e: DataTableRowReorderEvent) {
     const before = [...rows.value].sort((a, b) => a.owner_key.localeCompare(b.owner_key)).map((u) => u.owner_key)
     if (moved.some((u, i) => u.owner_key !== before[i])) {
       toast.add({ severity: 'info', summary: t('users.layout.crossOwners'), life: 5000 })
-      return
+      return false
     }
-    const group = moved[e.dropIndex]!.owner_key
+    const group = moved[dropIndex]!.owner_key
     shown = moved.filter((u) => u.owner_key === group).map((u) => u.uuid)
   }
   const next = reorder(layout.value, orderedRows.value.map((r) => r.uuid), shown)
   if (!next) {
     toast.add({ severity: 'info', summary: t('users.layout.crossGroups'), life: 5000 })
-    return
+    return false
   }
   void saveLayout(next)
+  return true
 }
 
 function onGuideSeen() {
@@ -902,23 +1044,37 @@ function onColumnResize(e: DataTableColumnResizeEndEvent) {
   if (usage?.offsetWidth) usageWidthPx.value = Math.round(usage.offsetWidth)
 }
 
+/** The picked uuids: a lookup per row instead of a scan of the selection (thousands of rows × thousands picked). */
+const selectedSet = computed(() => new Set(selected.value.map((s) => s.uuid)))
 function isSelected(u: Row): boolean {
-  return selected.value.some((s) => s.uuid === u.uuid)
+  return selectedSet.value.has(u.uuid)
 }
 
 /** Every user the filter / search shows (not only this page). */
 const allPicked = computed(() => rows.value.length > 0 && rows.value.every((u) => isSelected(u)))
 const somePicked = computed(() => rows.value.some((u) => isSelected(u)))
 
-function toggleAll(on: boolean) {
-  const shown = new Set(rows.value.map((u) => u.uuid))
+/** Picks (or drops) these users, keeping the rest of the selection as it is. */
+function toggleUsers(list: Row[], on: boolean) {
+  const shown = new Set(list.map((u) => u.uuid))
   const others = selected.value.filter((s) => !shown.has(s.uuid))
-  selected.value = on ? [...others, ...rows.value] : others
+  selected.value = on ? [...others, ...list] : others
+}
+function toggleAll(on: boolean) {
+  toggleUsers(rows.value, on)
 }
 
-/** The header checkbox: every user the filter / search shows (not only this page), as before a sort was lazy. */
+/** The users of the page on screen (10, 50… as the page size says); every user the filter shows when not paged. */
+const pageSet = computed<Row[]>(() => (paged.value ? pageRows.value : rows.value))
+const pagePicked = computed(() => pageSet.value.length > 0 && pageSet.value.every((u) => isSelected(u)))
+const pageSome = computed(() => pageSet.value.some((u) => isSelected(u)))
+function togglePage(on: boolean) {
+  toggleUsers(pageSet.value, on)
+}
+
+/** The header checkbox: the users of this page only; every page is the bulk bar's count. */
 function onSelectAllChange(e: { checked: boolean }) {
-  toggleAll(e.checked)
+  togglePage(e.checked)
 }
 
 function toggleSelect(u: Row, on: boolean) {
@@ -993,8 +1149,23 @@ function openBulkCreate() {
   if (readOnly.value || (state.value && !state.value.can_add)) return
   bulkCreateVisible.value = true
 }
-function onBulkCreated(users: UserDetail[]) {
-  for (const user of users) replaceRow(user)
+/** Thousands of new users at once: one pass over the list (replaceRow per user searched it every time). */
+/** New users on top of the list, or at the end ("… at end" in the add buttons' menus): saved in this admin's order. */
+function placeAdded(uuids: string[], atEnd: boolean) {
+  const next = placeNew(layout.value, uuids, atEnd)
+  if (next) void saveLayout(next)
+}
+function onBulkCreated(users: UserDetail[], atEnd: boolean) {
+  if (!state.value || !users.length) return
+  placeAdded(users.map((u) => u.uuid), atEnd)
+  const fresh = new Map(users.map((user): [string, UserRow] => [user.uuid, { ...user, additional_configs: user.additional_configs.length }]))
+  const kept = state.value.users.map((u) => {
+    const row = fresh.get(u.uuid)
+    if (row) fresh.delete(u.uuid)
+    return row ?? u
+  })
+  // New ones on top, newest first, as replaceRow's unshift left them
+  state.value.users = [...[...fresh.values()].reverse(), ...kept]
 }
 /** Tap the usage or the remaining time to edit just that; not while cells are edited in place. */
 function openQuick(u: UserRow, focus: 'usage' | 'time') {
@@ -1040,8 +1211,9 @@ function openLink(u: UserRow) {
   linkUser.value = u
   linkVisible.value = true
 }
-function onSaved(user: UserDetail, created: boolean) {
+function onSaved(user: UserDetail, created: boolean, atEnd: boolean) {
   replaceRow(user)
+  if (created) placeAdded([user.uuid], atEnd)
   toast.add({ severity: 'success', summary: created ? t('users.added', { name: user.name }) : t('users.saved', { name: user.name }), life: 3000 })
   if (created) {
     linkUser.value = { ...user, additional_configs: user.additional_configs.length }
@@ -1098,34 +1270,64 @@ function openAddLimits() {
   limitsVisible.value = true
 }
 async function applyLimits() {
-  if ((!limitsGb.value && !limitsDays.value) || limitsBusy.value) return
+  if ((!limitsGb.value && !limitsDays.value) || limitsBusy.value || bulkBusy.value) return
   limitsBusy.value = true
+  bulkBusy.value = 'add_limits'
+  bulkBusyCount.value = selected.value.length
   try {
-    const count = await usersApi.bulk('add_limits', selected.value.map((u) => u.uuid), limitsDays.value ?? 0, limitsGb.value ?? 0)
-    toast.add({ severity: 'success', summary: t('users.bulkDone.add_limits', { n: count }, count), life: 3000 })
+    const { count, activating } = await usersApi.bulk('add_limits', selected.value.map((u) => u.uuid), limitsDays.value ?? 0, limitsGb.value ?? 0)
+    bulkDoneToast(t('users.bulkDone.add_limits', { n: count }, count), activating)
     limitsVisible.value = false
     await load(true)
   } catch (err) {
     toast.add({ severity: 'error', summary: t('common.saveFailed'), detail: apiErrorMessage(err), life: 6000 })
   } finally {
     limitsBusy.value = false
+    bulkBusy.value = null
   }
 }
 
+/** The bulk action running now (its button spins, the others wait) and on how many users. */
+const bulkBusy = ref<BulkAction | 'tag' | null>(null)
+const bulkBusyCount = ref(0)
+/** The buttons of the bulk bar that run one action directly (add limits, tag and delete have their own). */
+const BULK_BUTTONS: { action: BulkAction; icon: string }[] = [
+  { action: 'enable', icon: 'pi pi-check-circle' },
+  { action: 'disable', icon: 'pi pi-ban' },
+  { action: 'reset_usage', icon: 'pi pi-refresh' },
+  { action: 'reset_days', icon: 'pi pi-replay' },
+]
+async function whileBulk(action: BulkAction | 'tag', n: number, work: () => Promise<void>) {
+  bulkBusy.value = action
+  bulkBusyCount.value = n
+  try {
+    await work()
+  } finally {
+    bulkBusy.value = null
+  }
+}
+
+/** Done; for many users the servers still get the change for a minute or two, and the toast says so. */
+function bulkDoneToast(summary: string, activating: boolean) {
+  toast.add(activating ? { severity: 'success', summary, detail: t('users.bulkActivating'), life: 8000 } : { severity: 'success', summary, life: 3000 })
+}
+
 function bulk(action: BulkAction) {
-  if (readOnly.value) return
+  if (readOnly.value || bulkBusy.value) return
   const uuids = selected.value.map((u) => u.uuid)
   const n = uuids.length
-  const run = async (days?: number) => {
-    try {
-      const count = await usersApi.bulk(action, uuids, days)
-      toast.add({ severity: 'success', summary: t(`users.bulkDone.${action}`, { n: count }, count), life: 3000 })
-      if (action === 'delete') selected.value = []
-      await load(true)
-    } catch (err) {
-      toast.add({ severity: 'error', summary: t('common.saveFailed'), detail: apiErrorMessage(err), life: 6000 })
-    }
-  }
+  const run = (days?: number) =>
+    whileBulk(action, n, async () => {
+      try {
+        const { count, activating } = await usersApi.bulk(action, uuids, days)
+        // The list is reloaded before the bar is free again, so what it shows is the result
+        await load(true)
+        bulkDoneToast(t(`users.bulkDone.${action}`, { n: count }, count), activating)
+        if (action === 'delete') selected.value = []
+      } catch (err) {
+        toast.add({ severity: 'error', summary: t('common.saveFailed'), detail: apiErrorMessage(err), life: 6000 })
+      }
+    })
   if (action === 'add_days') return void run(7)
   if (action === 'delete' || action === 'reset_usage' || action === 'reset_days' || action === 'disable') {
     dangerConfirm({
@@ -1395,6 +1597,51 @@ onBeforeUnmount(() => {
   font-weight: 600;
   color: var(--p-primary-color);
 }
+.users-bulk__all {
+  padding: 0.25rem 0.6rem 0.25rem 0.35rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.users-bulk__all:hover,
+.users-bulk__all:focus-visible {
+  background: color-mix(in srgb, var(--p-primary-color) 10%, transparent);
+}
+.users-bulk__box {
+  display: inline-grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 1.5px solid var(--p-primary-color);
+  border-radius: 0.35rem;
+  color: var(--p-primary-color);
+  font-size: 0.65rem;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.users-bulk__box.is-on {
+  background: var(--p-primary-color);
+  color: var(--p-primary-contrast-color);
+}
+.users-bulk__all-hint {
+  color: var(--p-text-muted-color);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  text-underline-offset: 0.2em;
+}
+.users-bulk__count--busy {
+  color: var(--p-text-color);
+}
+.users-bulk__spinner {
+  width: 1rem;
+  height: 1rem;
+}
 .users-bulk__actions {
   display: flex;
   flex-wrap: wrap;
@@ -1418,6 +1665,15 @@ onBeforeUnmount(() => {
 .users-table :deep(.p-datatable-tbody > tr > td) {
   padding-block: 0.5rem;
   vertical-align: middle;
+}
+/* "All" virtualizes the body. Every row is this tall, and the scroller steps by the same amount (`rowPx`). */
+.users-card--virtual :deep(.p-datatable-tbody > tr) {
+  height: var(--u-row);
+}
+.users-card--virtual :deep(.p-datatable-tbody > tr > td) {
+  height: var(--u-row);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 .users-table :deep(tr.u-row--disabled > td:not(:first-child)) {
   opacity: 0.6;
@@ -1792,6 +2048,34 @@ onBeforeUnmount(() => {
   cursor: help;
   opacity: 0.3;
 }
+/* A row moved by its handle: it rides above the others (which slide to make room) and glides into place */
+.u-drag:not(.u-drag--off) {
+  touch-action: none;
+}
+.users-table--moving {
+  user-select: none;
+  -webkit-user-select: none;
+}
+.users-table--moving :deep(tbody > tr) {
+  transition: translate 0.2s ease;
+}
+.users-table--moving :deep(tr.u-row--lifted) {
+  position: relative;
+  z-index: 5;
+  cursor: grabbing;
+  box-shadow: 0 14px 30px -12px rgb(15 23 42 / 40%);
+}
+.users-table--moving :deep(tr.u-row--lifted > td) {
+  background: var(--p-datatable-row-background, var(--p-content-background));
+}
+.users-table--moving :deep(tr.u-row--lifted .u-drag) {
+  color: var(--p-primary-color);
+  cursor: grabbing;
+}
+.users-table--moving :deep(tr.u-row--held),
+.users-table--settling :deep(tbody > tr) {
+  transition: none !important;
+}
 /* Pinned users: a light tint, and a line under the last one parts them from the rest */
 .users-table :deep(tr.u-row--pinned > td) {
   background: color-mix(in srgb, var(--p-primary-color) 5%, transparent);
@@ -1801,10 +2085,66 @@ onBeforeUnmount(() => {
 }
 
 /* Cards (phones) */
+/* Drag handle: the admin's order, as on the table. The page does not scroll from it, so a finger drags. */
+.u-card__drag {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 2.1rem;
+  margin-inline: -0.2rem -0.25rem;
+  color: var(--p-text-muted-color);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.u-card__drag--off {
+  cursor: help;
+  opacity: 0.3;
+}
+/* While a card is moved: it rides above the others, which slide to make room; on release it glides into place */
+.u-cards--moving {
+  user-select: none;
+  -webkit-user-select: none;
+}
+.u-cards--moving .u-card {
+  transition: translate 0.2s ease;
+}
+.u-cards--moving .u-card--lifted {
+  z-index: 5;
+  cursor: grabbing;
+  box-shadow: 0 18px 36px -14px rgb(15 23 42 / 45%);
+}
+.u-cards--moving .u-card--lifted .u-card__drag {
+  color: var(--p-primary-color);
+  cursor: grabbing;
+}
+.u-cards--moving .u-card--held,
+.u-cards--settling .u-card {
+  transition: none !important;
+}
 .u-cards {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+}
+.u-cardlist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+/* The windowed list is one tall box; each mounted card is placed at its real offset, so scrolling the page stays cheap. */
+.u-cardlist--virtual {
+  display: block;
+  position: relative;
+}
+.u-cardlist--virtual > .u-card,
+.u-cardlist--virtual > .users-group--card {
+  position: absolute;
+  inset-inline: 0;
+  margin: 0;
 }
 .u-cardbar {
   display: flex;

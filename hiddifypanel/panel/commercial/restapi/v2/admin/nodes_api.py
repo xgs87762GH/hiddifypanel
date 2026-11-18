@@ -3,15 +3,20 @@
 from __future__ import annotations
 
 import ipaddress
+import socket
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timedelta
 
 from apiflask import abort
-from flask import jsonify, request
+from flask import copy_current_request_context, jsonify, request
 from flask.views import MethodView
 
 import hiddifypanel
 from hiddifypanel import g, hutils
 from hiddifypanel.auth import login_required
+from hiddifypanel.database import db
 from hiddifypanel.hutils.node import async_job, ws_server
 from hiddifypanel.hutils.node.sync_report import NodeSyncReport
 from hiddifypanel.models import Child, ChildMode, Role
@@ -113,6 +118,10 @@ def _node_row(child: Child) -> dict:
     }
 
 
+# The name init_db gives this server's own child row; the dashboard shows "This server" for it
+LOCAL_DEFAULT_NAME = "Root"
+
+
 def _remote_or_404(node_id: int) -> Child:
     child = Child.query.filter(Child.id == node_id, Child.mode == ChildMode.remote).first()
     return child or abort(404, "Node not found")
@@ -174,10 +183,18 @@ class NodeApi(MethodView):
     decorators = [login_required({Role.super_admin})]
 
     def patch(self, node_id: int):
-        """Nodes: Rename a node (`{"name": ...}`), here and on the node"""
+        """Nodes: Rename a node (`{"name": ...}`), here and on the node; id 0 renames this server (empty: back to the default)"""
         _only_on_parent_or_standalone()
-        child = _remote_or_404(node_id)
         name = str((request.get_json(silent=True) or {}).get("name") or "").strip()
+        if node_id == 0:
+            # This server: only the name the dashboard shows, kept on its own child row
+            if len(name) > 100:
+                abort(400, "name must be 0-100 characters")
+            local = Child.query.filter(Child.id == 0).first() or abort(404, "Node not found")
+            local.name = name or LOCAL_DEFAULT_NAME
+            db.session.commit()
+            return {"node": None, "synced_to_node": True}
+        child = _remote_or_404(node_id)
         if not name or len(name) > 100:
             abort(400, "name must be 1-100 characters")
         synced = hutils.node.parent.rename_node(child, name)
@@ -191,6 +208,126 @@ class NodeApi(MethodView):
         return {"status": 200, "msg": "ok", "node_unlinked": unlinked}
 
 
+#: Nodes that cannot be asked, for the top bar's notifications: every open admin page asks, so the answer is kept a while.
+_PROBLEMS_TTL = 120
+_problems: dict = {"at": 0.0, "rows": []}
+_problems_lock = threading.Lock()
+
+
+def _node_problem(child: Child) -> dict | None:
+    base = (child.node_base_url or "").strip()
+    code, detail = ("no_url", "") if not base else hutils.node.panel_contact(base, max_retry=1, timeout=6)[1:]
+    return {"id": child.id, "name": child.name or f"node-{child.id}", "code": code, "detail": detail} if code else None
+
+
+class NodeProblemsApi(MethodView):
+    decorators = [login_required({Role.super_admin})]
+
+    def get(self):
+        """Nodes: The nodes this panel cannot reach now, and why (for the notifications)"""
+        if hutils.node.is_child():
+            return {"problems": []}
+        with _problems_lock:
+            if time.monotonic() - _problems["at"] > _PROBLEMS_TTL:
+                nodes = Child.query.filter(Child.mode == ChildMode.remote).order_by(Child.id).all()
+                checks = [copy_current_request_context(_node_problem) for _ in nodes]
+                with ThreadPoolExecutor(max_workers=8) as pool:
+                    rows = list(pool.map(lambda pair: pair[0](pair[1]), zip(checks, nodes)))
+                _problems.update(at=time.monotonic(), rows=[r for r in rows if r])
+            return {"problems": _problems["rows"]}
+
+
+def node_os(child: Child) -> dict:
+    """The node's operating system (name, version, kernel, architecture; os_id names its logo), asked from the node's own
+    dashboard with the parent's key. Kept an hour (the Nodes page shows it on every card); empty when the node does not
+    answer or is of a version that does not send it."""
+    import json
+
+    from hiddifypanel.cache import redis_client
+    from hiddifypanel.hutils.node.api_client import NodeApiClient, NodeApiErrorSchema
+    from hiddifypanel.models import ConfigEnum, hconfig
+    from hiddifypanel.panel.commercial.restapi.v2.admin.dashboard_schema import DashboardOutputSchema
+
+    key = f"nodes:os:{child.id}"
+    cached = redis_client.get(key)
+    if cached is not None:
+        return json.loads(cached)
+    fields = ("os_id", "os_name", "os_version", "os_pretty", "kernel", "arch")
+    out = dict.fromkeys(fields, "")
+    base = (child.node_base_url or "").strip()
+    if base:
+        try:
+            client = NodeApiClient(base, timeout=8, max_retry=0, apikey=hconfig(ConfigEnum.unique_id))
+            res = client.get("/api/v2/admin/dashboard/?include=system&processes=1", DashboardOutputSchema)
+            if not isinstance(res, NodeApiErrorSchema) and res.system and res.system.host:
+                out = {f: str(getattr(res.system.host, f, "") or "") for f in fields}
+        except Exception:
+            pass  # not reachable now: the card keeps the generic icon
+    redis_client.set(key, json.dumps(out), ex=3600 if out["os_id"] else 300)
+    return out
+
+
+class NodeOsApi(MethodView):
+    decorators = [login_required({Role.super_admin})]
+
+    def get(self, node_id: int):
+        """Nodes: The node's operating system (for its logo and details on the card)"""
+        return node_os(_remote_or_404(node_id))
+
+
+def _node_ips(node_id: int) -> list[str]:
+    """The public addresses of this server (0) or a node: the ones the panel keeps for it, and what its host is."""
+    from hiddifypanel.models import ServerIp
+
+    found: list[str] = []
+    for row in ServerIp.query.filter(ServerIp.child_id == node_id, ServerIp.enabled.is_(True)).all():
+        found.append(row.address)
+    if node_id == 0:
+        found += [str(ip) for ip in hutils.network.get_ips_lazy()]
+    else:
+        base = (_remote_or_404(node_id).node_base_url or "").strip()
+        host = base.split("://", 1)[-1].split("/", 1)[0]
+        name = host[1:].split("]", 1)[0] if host.startswith("[") else host.split(":", 1)[0] if host.count(":") == 1 else host
+        try:
+            found += [info[4][0] for info in socket.getaddrinfo(name, None)] if name else []
+        except OSError:
+            pass
+    out: list[str] = []
+    for value in found:
+        try:
+            ip = ipaddress.ip_address(str(value).strip())
+        except ValueError:
+            continue
+        if ip.is_global and str(ip) not in out:
+            out.append(str(ip))
+    # IPv4 first, at most two of each
+    v4 = [ip for ip in out if ":" not in ip][:2]
+    v6 = [ip for ip in out if ":" in ip][:2]
+    return v4 + v6
+
+
+class NodeIpInfoApi(MethodView):
+    decorators = [login_required({Role.super_admin})]
+
+    def get(self, node_id: int):
+        """Nodes: What is known about this server's (0) or a node's IP addresses, from open sources, kept 7 days"""
+        from hiddifypanel.hutils.network import ip_details
+        from hiddifypanel.models import Domain, FakeMode
+
+        if node_id != 0:
+            _only_on_parent_or_standalone()
+            _remote_or_404(node_id)
+        ips = _node_ips(node_id)
+        refresh = request.args.get("refresh") == "1"
+        rows = [d for d in Domain.query.filter(Domain.child_id == node_id).all() if d.domain]
+        domains = sorted({d.domain for d in rows})
+        # the certificates checked are the server's own: not a Reality or fake domain, whose certificate is another site's
+        own = sorted({d.domain for d in rows if d.fake_mode in (None, FakeMode.valid) and "*" not in d.domain})
+        details = ip_details.describe_all(ips, refresh=refresh, domains=own)
+        left = min((ip_details.ttl_left(ip) for ip in ips), default=0)
+        return {"node_id": node_id, "ips": details, "domains": domains, "refresh_in": left, "ttl": ip_details.TTL}
+
+
 class NodePingApi(MethodView):
     decorators = [login_required({Role.super_admin})]
 
@@ -199,10 +336,11 @@ class NodePingApi(MethodView):
         child = _remote_or_404(node_id)
         base = (child.node_base_url or "").strip()
         if not base:
-            return {"online": False, "version": "", "error": "no_url"}
-        online, error = hutils.node.is_panel_active(base)
+            return {"online": False, "version": "", "error": "", "error_code": "no_url"}
+        # error_code says why (the page explains it and how to fix it); error is the technical text, without the secret path
+        online, code, detail = hutils.node.panel_contact(base)
         info = hutils.node.get_panel_info_by_url(base) if online else None
-        return {"online": online, "version": getattr(info, "version", "") or "", "error": "" if online else error}
+        return {"online": online, "version": getattr(info, "version", "") or "", "error": detail, "error_code": code}
 
 
 def _ping_target(child: Child) -> tuple[str, int]:
@@ -259,14 +397,20 @@ class NodeSyncApi(MethodView):
     def post(self, node_id: int):
         """Nodes: Ask a node to sync (users, admins and its domains) now"""
         _only_on_parent_or_standalone()
-        if not hutils.node.parent.request_child_to_sync(_remote_or_404(node_id)):
-            abort(502, "The node did not answer the sync request")
+        child = _remote_or_404(node_id)
+        if not hutils.node.parent.request_child_to_sync(child):
+            # why: asked again the way the connection check does, so the page can explain it (error_code)
+            base = (child.node_base_url or "").strip()
+            code, detail = ("no_url", "") if not base else hutils.node.panel_contact(base, max_retry=1, timeout=6)[1:]
+            return {"message": "The node did not answer the sync request", "error_code": code or "unknown", "error": detail}, 502
         return {"status": 200, "msg": "ok"}
 
 
 class NodeSyncStatusOut(ApiModel):
     #: None when the node could not be asked (offline, too old for this call)
     report: NodeSyncReport | None = None
+    #: why not (hutils.node.contact_error; the page explains it) and the technical text, without the node's secret path
+    error_code: str = ""
     error: str = ""
     #: the parent's side of the link
     websocket_connected: bool
@@ -283,9 +427,11 @@ class NodeSyncReportApi(MethodView):
         child = _remote_or_404(node_id)
         last_seen = _last_seen(child)
         report = hutils.node.parent.node_sync_report(child)
+        failed = report if isinstance(report, tuple) else ("", "")
         return NodeSyncStatusOut(
             report=report if isinstance(report, NodeSyncReport) else None,
-            error=report if isinstance(report, str) else "",
+            error_code=failed[0],
+            error=failed[1],
             websocket_connected=ws_server.is_connected(child.unique_id),
             last_seen=last_seen.isoformat() if last_seen else None,
         )

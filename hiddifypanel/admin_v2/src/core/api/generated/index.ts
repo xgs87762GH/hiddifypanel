@@ -60,6 +60,7 @@ export type ProxyProto =
   | 'hysteria'
   | 'hysteria2'
   | 'wireguard'
+  | 'openvpn'
   | 'naive'
   | 'mieru'
   | 'anytls'
@@ -466,8 +467,11 @@ export interface DashboardNodeStats {
   name: string
   mode: string
   panel_url?: string | null
+  /** The server's country (ISO code) from its address; '' when unknown. */
+  country?: string
   ok: boolean
   error?: string | null
+  error_code?: string | null
   cpu?: DashboardCpu
   memory?: DashboardMemory
   disk?: DashboardDisk
@@ -586,6 +590,7 @@ export interface DashboardDiskDetail {
   disk: DashboardDisk
   top_folders: DiskFolderUsage[]
   error?: string | null
+  error_code?: string | null
 }
 
 export const dashboardApi = {

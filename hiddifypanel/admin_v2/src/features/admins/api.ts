@@ -1,5 +1,7 @@
 import { getHttp } from '@/core/api/client'
+import { i18n } from '@/core/i18n'
 import type { AdditionalConfig } from '@/shared/utils/additional-configs'
+import type { UserMode } from '@/features/users/api'
 
 export type AdminMode = 'super_admin' | 'admin' | 'agent'
 
@@ -11,6 +13,7 @@ export type AdminCapability =
   | 'modify_user_extra'
   | 'modify_domains'
   | 'modify_outbounds'
+  | 'modify_free_package'
 
 export const ADMIN_CAPABILITIES: AdminCapability[] = [
   'add_sub_admins',
@@ -19,9 +22,31 @@ export const ADMIN_CAPABILITIES: AdminCapability[] = [
   'modify_user_extra',
   'modify_domains',
   'modify_outbounds',
+  'modify_free_package',
 ]
 
 export type AdminCapabilities = Record<AdminCapability, boolean>
+
+/** PrimeIcons class (without `pi `) of each permission, wherever permissions are shown. */
+export const CAPABILITY_ICON: Record<AdminCapability, string> = {
+  add_sub_admins: 'pi-user-plus',
+  override_preferred_outbound: 'pi-directions',
+  add_extra_sublinks: 'pi-paperclip',
+  modify_user_extra: 'pi-palette',
+  modify_domains: 'pi-link',
+  modify_outbounds: 'pi-share-alt',
+  modify_free_package: 'pi-gift',
+}
+
+/** One colour per permission: its icon is grey while the permission is off and turns this colour when it is on. */
+export const CAPABILITY_COLOR: Record<AdminCapability, string> = {
+  add_sub_admins: '#6366f1',
+  override_preferred_outbound: '#0ea5e9',
+  add_extra_sublinks: '#f59e0b',
+  modify_user_extra: '#ec4899',
+  modify_domains: '#10b981',
+  modify_outbounds: '#8b5cf6',
+}
 
 /** Limits of one admin; they count its users and all its sub-admins' users. Null fields: no limit. */
 export interface AdminLimits {
@@ -37,7 +62,15 @@ export interface AdminStats {
   total: number
   active: number
   online: number
+  /** The admin's own traffic counter: its users' and its sub-admins' users' traffic since its last reset. */
   usage_GB: number
+}
+
+/** When the admin's traffic counter goes back to zero (as for users). */
+export interface AdminUsagePeriod {
+  usage_mode: UserMode
+  /** Null without a reset period. */
+  days_to_reset: number | null
 }
 
 /** A domain an admin link can use; the link is `${base}${uuid}/`. */
@@ -49,10 +82,12 @@ export interface LinkDomain {
   base: string
 }
 
-export interface AdminRow {
+export interface AdminRow extends AdminUsagePeriod {
+  id: number
   uuid: string
   name: string
   comment: string
+  telegram_id: number | null
   mode: AdminMode
   can_add_admin: boolean
   capabilities: AdminCapabilities
@@ -100,6 +135,8 @@ export interface AdminsTree {
 export interface AdminPayload {
   name?: string
   comment?: string
+  /** Null clears it. */
+  telegram_id?: number | null
   uuid?: string
   can_add_admin?: boolean
   capabilities?: Partial<AdminCapabilities>
@@ -109,6 +146,9 @@ export interface AdminPayload {
   /** 0 or null: no limit. */
   max_online_users?: number | null
   max_total_usage_GB?: number | null
+  usage_mode?: UserMode
+  /** Sets the admin's used traffic back to zero (edit only). */
+  reset_usage?: boolean
   additional_configs?: AdditionalConfig[]
   /** Null: automatic. */
   default_outbound?: number | null
@@ -133,7 +173,7 @@ export interface OverrideInfo {
   override_defaults: OverrideSettings
 }
 
-export interface MyAccount extends OverrideInfo {
+export interface MyAccount extends OverrideInfo, AdminUsagePeriod {
   uuid: string
   name: string
   mode: AdminMode
@@ -211,6 +251,54 @@ export const adminsApi = {
   async changeMyPassword(currentPassword: string, newPassword: string): Promise<void> {
     await getHttp().put('admins/me/password/', { current_password: currentPassword, new_password: newPassword })
   },
+  async myPasskeys(): Promise<MyPasskeys> {
+    const { data } = await getHttp().get<MyPasskeys>('admins/me/passkeys/')
+    return data
+  },
+  /** Start adding a passkey for this domain: the browser's options. */
+  async passkeyOptions(): Promise<Record<string, unknown>> {
+    const { data } = await getHttp().post<{ options: Record<string, unknown> }>('admins/me/passkeys/options/', {})
+    return data.options
+  },
+  /** One step page per other domain without my passkey, shown in a frame one after the other. */
+  async passkeyTour(): Promise<PasskeyStep[]> {
+    // The step pages speak the dashboard's language.
+    const lang = (i18n.global.locale as unknown as { value: string }).value
+    const { data } = await getHttp().post<{ steps: PasskeyStep[] }>('admins/me/passkeys/tour/', { lang })
+    return data.steps
+  },
+  async addPasskey(name: string, credential: unknown): Promise<Passkey> {
+    const { data } = await getHttp().post<Passkey>('admins/me/passkeys/', { name, credential })
+    return data
+  },
+  async removePasskey(id: number): Promise<void> {
+    await getHttp().delete(`admins/me/passkeys/${id}/`)
+  },
+}
+
+export interface Passkey {
+  id: number
+  name: string
+  /** The domain the passkey belongs to. */
+  domain: string
+  created_at: string | null
+  last_used_at: string | null
+}
+
+/** Another domain's page that adds my passkey there (it tells this page, from `origin`, when it is done). */
+export interface PasskeyStep {
+  domain: string
+  url: string
+  origin: string
+}
+
+export interface MyPasskeys {
+  /** All my passkeys; each one signs in on its own domain. */
+  passkeys: Passkey[]
+  /** The domain a passkey added from this page is for (null on an IP: passkeys need a domain). */
+  domain: string | null
+  /** The panel's domains (this one first) where I have no passkey yet. */
+  missing: string[]
 }
 
 export type MeterTone = 'ok' | 'warn' | 'danger' | 'none'

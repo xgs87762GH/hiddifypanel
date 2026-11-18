@@ -270,7 +270,6 @@
   "Your hiddify instance information \nDomain: {} \nUsage limit: {} GB\nCurrent usage: {} GB\nExpires at: {} \nRemaining days: {} \n\n\n Happy using 🎉 🎉 🎉 \n": "您的 Hiddify 实例信息\n领域： {}\n使用限制：{} GB\n当前使用情况：{} GB\n到期时间：{}\n剩余天数：{}\n\n\n祝你好运！ 🎉🎉🎉",
   "[Admin only visible message:] You can change this message from settings": "[管理员专用消息]：可通过设置自定义。",
   "actions": "行动",
-  "admin link": "行政",
   "admin": {
     "Actions:apply_configs": "应用配置",
     "action_done_sucess": "✅ 行动成功完成。您现在可以离开此页面",
@@ -314,6 +313,7 @@
     "save_panel_link": "请注意，您的面板只能通过以下链接访问。请保存此链接。\n<p><a href='%(adminlink)s' class='btn btn-secondary copy-link'><i class='fa-solid fa-copy'></i></a>\n<a href='%(adminlink)s' class='copy-link' style='word-break: break-all;'>%(adminlink)s</a></p>",
     "waiting_for_update": "⚠️ 请等待大约 5 分钟以确保所有内容均已更新。在此期间，请复制并保存您的代理链接："
   },
+  "admin link": "行政",
   "adminV2": {
     "account": {
       "aliasActive": "留空并保存即可移除。",
@@ -3232,12 +3232,12 @@
   "cf-delete": {
     "failed": "cf-删除失败"
   },
-  "child has been removed!": "孩子已被移走！",
   "child": {
     "register-failed": "child.register-失败",
     "register-success": "子面板注册成功",
     "sync-failed": "child.sync-失败"
   },
+  "child has been removed!": "孩子已被移走！",
   "clickable copy": "社交媒体链接",
   "close": "关闭",
   "cloudflare": {

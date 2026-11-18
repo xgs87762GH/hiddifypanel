@@ -30,8 +30,21 @@
       >
         {{ t('outbounds.torMissing') }}
       </Message>
+      <Message v-if="warpNeedsTerms" severity="warn" :closable="false" class="mb-3">
+        <div class="ob-terms-note">
+          <span>{{ t(state.managed_by_parent ? 'outbounds.terms.bannerParent' : 'outbounds.terms.banner') }}</span>
+          <Button
+            v-if="!state.managed_by_parent"
+            type="button"
+            size="small"
+            :label="t('outbounds.terms.review')"
+            :disabled="busy"
+            @click="reviewWarpTerms"
+          />
+        </div>
+      </Message>
 
-      <TransitionGroup name="ob-row" tag="ol" class="ob-list" :class="{ 'ob-list--dragging': dragId !== null }">
+      <TransitionGroup ref="listEl" name="ob-row" tag="ol" class="ob-list" :class="{ 'ob-list--dragging': drag.id !== null, 'ob-list--still': drag.still }">
         <li
           v-for="(o, i) in rows"
           :key="o.id"
@@ -43,24 +56,24 @@
               'ob-row--off': !o.enabled,
               'ob-row--idle': o.enabled && !o.active,
               'ob-row--new': o.id === justChanged,
-              'ob-row--drag': o.id === dragId,
-              'ob-row--over': o.id === overId && o.id !== dragId,
+              'ob-row--lifted': o.id === drag.id,
+              'ob-row--settling': o.id === drag.id && drag.settling,
             },
           ]"
-          @dragover.prevent="onDragOver(o)"
-          @drop.prevent="onDrop(o)"
+          :style="dragStyle(o, i)"
         >
-          <!-- Order: drag handle (mouse) and number -->
+          <!-- Order: drag handle and number (while dragging: the place it will take, and which way it goes) -->
           <div class="ob-row__order">
             <span
               class="ob-row__handle"
-              draggable="true"
               :aria-label="t('outbounds.drag')"
-              v-tooltip.top="t('outbounds.drag')"
-              @dragstart="onDragStart($event, o)"
-              @dragend="onDragEnd"
+              v-tooltip.top="drag.id === null ? t('outbounds.drag') : ''"
+              @pointerdown="onDragStart($event, o, i)"
             ><i class="pi pi-bars" /></span>
-            <span class="ob-row__n">{{ i + 1 }}</span>
+            <span class="ob-row__n">{{ dragNumber(i) }}</span>
+            <span v-if="o.id === drag.id && drag.to !== drag.from" class="ob-row__dir" aria-hidden="true">
+              <i :class="drag.to < drag.from ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" />
+            </span>
           </div>
 
           <span class="ob-row__icon"><i :class="MODE_ICON[o.mode]" /></span>
@@ -69,6 +82,9 @@
             <div class="ob-row__name">
               <span class="ob-row__name-text" :title="o.name">{{ o.name }}</span>
               <span class="ob-badge">{{ t(`outbounds.mode.${o.mode}`) }}</span>
+              <span v-if="o.mode === 'warp' && o.enabled && state.warp_tos_accepted !== true" class="ob-badge ob-badge--warn" v-tooltip.top="t('outbounds.terms.banner')">
+                <i class="pi pi-exclamation-triangle" />{{ t('outbounds.terms.badge') }}
+              </span>
               <span v-if="o.is_default" class="ob-badge ob-badge--default" v-tooltip.top="t('outbounds.defaultHint')"><i class="pi pi-crown" />{{ t('outbounds.default') }}</span>
               <span v-else-if="!o.enabled" class="ob-badge ob-badge--off">{{ t('outbounds.off') }}</span>
               <span v-else-if="!o.active" class="ob-badge ob-badge--off" v-tooltip.top="t('outbounds.idleHint')"><i class="pi pi-minus-circle" />{{ t('outbounds.idle') }}</span>
@@ -102,8 +118,8 @@
               @update:model-value="(v: boolean) => toggleEnabled(o, v)"
             />
             <div class="ob-row__actions">
-              <Button icon="pi pi-arrow-up" text rounded size="small" severity="secondary" :disabled="busy || i === 0" :aria-label="t('outbounds.moveUp')" v-tooltip.top="t('outbounds.moveUp')" @click="move(o, -1)" />
-              <Button icon="pi pi-arrow-down" text rounded size="small" severity="secondary" :disabled="busy || i === rows.length - 1" :aria-label="t('outbounds.moveDown')" v-tooltip.top="t('outbounds.moveDown')" @click="move(o, 1)" />
+              <Button icon="pi pi-arrow-up" class="ob-row__step" text rounded size="small" severity="secondary" :disabled="busy || i === 0" :aria-label="t('outbounds.moveUp')" v-tooltip.top="t('outbounds.moveUp')" @click="move(o, -1)" />
+              <Button icon="pi pi-arrow-down" class="ob-row__step" text rounded size="small" severity="secondary" :disabled="busy || i === rows.length - 1" :aria-label="t('outbounds.moveDown')" v-tooltip.top="t('outbounds.moveDown')" @click="move(o, 1)" />
               <Button icon="pi pi-pencil" text rounded size="small" :aria-label="t('common.edit')" v-tooltip.top="t('common.edit')" @click="openEdit(o)" />
               <Button icon="pi pi-ellipsis-v" text rounded size="small" severity="secondary" :aria-label="t('outbounds.more')" aria-haspopup="true" @click="openMenu($event, o)" />
             </div>
@@ -114,11 +130,12 @@
 
     <Menu ref="rowMenu" :model="rowItems" popup />
     <OutboundDialog v-model:visible="dialogVisible" :outbound="editing" :mode="addMode" :state="state" @saved="onSaved" />
+    <WarpTermsDialog v-model:visible="termsOpen" @accept="onWarpTermsAccepted" @cancel="onWarpTermsCancelled" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
@@ -134,6 +151,7 @@ import { useDangerConfirm } from '@/shared/composables/useDangerConfirm'
 import { apiErrorMessage } from '@/core/api/client'
 import { strongerRestartMode, type RestartMode } from '@/shared/utils/restart-mode'
 import OutboundDialog from '@/features/outbounds/components/OutboundDialog.vue'
+import WarpTermsDialog from '@/features/outbounds/components/WarpTermsDialog.vue'
 import { MODE_ICON, outboundsApi, type Outbound, type OutboundMode, type OutboundsState } from '@/features/outbounds/api'
 
 const { t } = useI18n()
@@ -149,17 +167,26 @@ const busy = ref(false)
 const justChanged = ref<number | null>(null)
 
 const dialogVisible = ref(false)
+const termsOpen = ref(false)
+/** Runs after the admin accepts. Null when the dialog was closed without accepting. */
+const afterTerms = ref<(() => void) | null>(null)
+const askedWarpTerms = ref(false)
 const editing = ref<Outbound | null>(null)
 const addMode = ref<OutboundMode>('socks')
 const addMenu = ref<InstanceType<typeof Menu> | null>(null)
 const rowMenu = ref<InstanceType<typeof Menu> | null>(null)
 const menuRow = ref<Outbound | null>(null)
 
-const dragId = ref<number | null>(null)
-const overId = ref<number | null>(null)
 
 /** The server's order: first checked first; the last enabled one is the default. */
 const rows = computed(() => state.value?.outbounds ?? [])
+
+/** WARP is switched on, but Cloudflare's terms are not accepted, so it is not actually in use. */
+const warpNeedsTerms = computed(() => {
+  const current = state.value
+  if (!current || current.warp_tos_accepted === true) return false
+  return current.warp_mode !== 'disable' || current.outbounds.some((o) => o.mode === 'warp' && o.enabled)
+})
 
 const addItems = computed<MenuItem[]>(() =>
   (state.value?.addable_modes ?? []).map((mode) => ({ label: t(`outbounds.mode.${mode}`), icon: MODE_ICON[mode], command: () => openAdd(mode) })),
@@ -202,6 +229,7 @@ async function load() {
   loadError.value = null
   try {
     state.value = await outboundsApi.list()
+    maybeAskWarpTerms()
   } catch (err) {
     loadError.value = apiErrorMessage(err) || t('common.loadFailed')
   } finally {
@@ -250,26 +278,136 @@ function move(o: Outbound, delta: number) {
   void reorder(ids, o.id)
 }
 
-function onDragStart(e: DragEvent, o: Outbound) {
-  dragId.value = o.id
-  e.dataTransfer?.setData('text/plain', String(o.id))
-  if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
+/*
+ * Reordering by dragging the handle (mouse, pen or touch): the row lifts and follows the pointer, the rows it passes
+ * slide out of its way, its number shows the place it will take and an arrow which way it goes. On release it settles
+ * into that place and the new order is saved; Escape puts it back. Rows only move by transform while dragging; the
+ * real order changes once, at the end, with transitions off (the positions already match, so nothing jumps).
+ */
+const listEl = ref<{ $el: HTMLElement } | null>(null)
+const drag = reactive({ id: null as number | null, from: -1, to: -1, dy: 0, step: 0, settling: false, still: false })
+let tops: number[] = [] // each row's top and height in page coordinates, measured at the start
+let heights: number[] = []
+let startY = 0
+let lastClientY = 0
+let scrollFrame = 0
+
+function measureRows(): HTMLElement[] {
+  const els = Array.from(listEl.value?.$el.querySelectorAll<HTMLElement>(':scope > .ob-row') ?? [])
+  tops = els.map((el) => el.getBoundingClientRect().top + window.scrollY)
+  heights = els.map((el) => el.getBoundingClientRect().height)
+  return els
 }
-function onDragOver(o: Outbound) {
-  if (dragId.value !== null) overId.value = o.id
+
+function onDragStart(e: PointerEvent, o: Outbound, index: number) {
+  if (e.button !== 0 || drag.id !== null || busy.value) return
+  e.preventDefault()
+  const els = measureRows()
+  if (els.length < 2) return
+  const gap = els.length > 1 ? tops[1] - (tops[0] + heights[0]) : 0
+  Object.assign(drag, { id: o.id, from: index, to: index, dy: 0, step: heights[index] + gap, settling: false, still: false })
+  startY = e.clientY + window.scrollY
+  lastClientY = e.clientY
+  window.addEventListener('pointermove', onDragMove)
+  window.addEventListener('pointerup', onDragEnd)
+  window.addEventListener('pointercancel', onDragCancel)
+  window.addEventListener('keydown', onDragKey)
+  scrollFrame = requestAnimationFrame(autoScroll)
 }
+
+function follow() {
+  drag.dy = lastClientY + window.scrollY - startY
+  // the place: how many of the other rows have their middle above the dragged row's middle
+  const middle = tops[drag.from] + drag.dy + heights[drag.from] / 2
+  let to = 0
+  tops.forEach((top, j) => {
+    if (j !== drag.from && top + heights[j] / 2 < middle) to++
+  })
+  drag.to = to
+}
+
+function onDragMove(e: PointerEvent) {
+  lastClientY = e.clientY
+  follow()
+}
+
+/** Near the top or bottom of the window the page scrolls, so a row can go past what is on screen. */
+function autoScroll() {
+  const edge = 72
+  const speed = lastClientY < edge ? -(edge - lastClientY) / 4 : lastClientY > window.innerHeight - edge ? (lastClientY - window.innerHeight + edge) / 4 : 0
+  if (speed) {
+    window.scrollBy(0, speed)
+    follow()
+  }
+  scrollFrame = requestAnimationFrame(autoScroll)
+}
+
+function stopListening() {
+  window.removeEventListener('pointermove', onDragMove)
+  window.removeEventListener('pointerup', onDragEnd)
+  window.removeEventListener('pointercancel', onDragCancel)
+  window.removeEventListener('keydown', onDragKey)
+  cancelAnimationFrame(scrollFrame)
+}
+
+/** Where the dragged row ends: the heights of the rows it passed (and the gaps), up or down. */
+function settledOffset(): number {
+  const gap = drag.step - heights[drag.from]
+  let offset = 0
+  if (drag.to > drag.from) for (let j = drag.from + 1; j <= drag.to; j++) offset += heights[j] + gap
+  else for (let j = drag.to; j < drag.from; j++) offset -= heights[j] + gap
+  return offset
+}
+
+function finish(save: boolean) {
+  stopListening()
+  if (drag.id === null || drag.settling) return
+  const id = drag.id
+  const moved = save && drag.to !== drag.from
+  drag.settling = true
+  drag.dy = moved ? settledOffset() : 0
+  window.setTimeout(async () => {
+    // The rows stand where the new order puts them: switch the real order with transitions off
+    drag.still = true
+    if (moved) {
+      const ids = rows.value.map((r) => r.id).filter((x) => x !== id)
+      ids.splice(drag.to, 0, id)
+      void reorder(ids, id)
+    }
+    Object.assign(drag, { id: null, from: -1, to: -1, dy: 0, settling: false })
+    await nextTick()
+    requestAnimationFrame(() => (drag.still = false))
+  }, 220)
+}
+
 function onDragEnd() {
-  dragId.value = null
-  overId.value = null
+  finish(true)
 }
-function onDrop(target: Outbound) {
-  const id = dragId.value
-  onDragEnd()
-  if (id === null || id === target.id) return
-  const ids = rows.value.map((r) => r.id).filter((x) => x !== id)
-  ids.splice(ids.indexOf(target.id) + (rows.value.findIndex((r) => r.id === id) < rows.value.findIndex((r) => r.id === target.id) ? 1 : 0), 0, id)
-  void reorder(ids, id)
+function onDragCancel() {
+  finish(false)
 }
+function onDragKey(e: KeyboardEvent) {
+  if (e.key === 'Escape') finish(false)
+}
+
+function dragStyle(o: Outbound, i: number): Record<string, string> | undefined {
+  if (drag.id === null) return undefined
+  if (o.id === drag.id) return { transform: `translateY(${drag.dy}px)` }
+  if (drag.from < drag.to && i > drag.from && i <= drag.to) return { transform: `translateY(${-drag.step}px)` }
+  if (drag.to < drag.from && i >= drag.to && i < drag.from) return { transform: `translateY(${drag.step}px)` }
+  return undefined
+}
+
+/** The number a row will have when dropped here */
+function dragNumber(i: number): number {
+  if (drag.id === null || drag.to === drag.from) return i + 1
+  if (i === drag.from) return drag.to + 1
+  if (drag.from < drag.to && i > drag.from && i <= drag.to) return i
+  if (drag.to < drag.from && i >= drag.to && i < drag.from) return i + 2
+  return i + 1
+}
+
+onBeforeUnmount(stopListening)
 
 function openMenu(e: Event, o: Outbound) {
   menuRow.value = o
@@ -294,12 +432,49 @@ function onSaved(next: OutboundsState, name: string) {
   toast.add({ severity: 'success', summary: t('outbounds.saved', { name }), life: 3000 })
 }
 
+function warpNeedsAcceptance(o: Outbound): boolean {
+  return o.mode === 'warp' && state.value?.warp_tos_accepted !== true
+}
+
+function requireWarpTerms(then: () => void) {
+  if (state.value?.warp_tos_accepted === true) {
+    then()
+    return
+  }
+  afterTerms.value = then
+  termsOpen.value = true
+}
+
+function onWarpTermsAccepted() {
+  const next = afterTerms.value
+  afterTerms.value = null
+  next?.()
+}
+
+function onWarpTermsCancelled() {
+  afterTerms.value = null
+}
+
+function reviewWarpTerms() {
+  requireWarpTerms(() => void run(() => outboundsApi.acceptWarpTerms(), undefined, t('outbounds.terms.accepted')))
+}
+
+function maybeAskWarpTerms() {
+  if (askedWarpTerms.value || !warpNeedsTerms.value || state.value?.managed_by_parent) return
+  askedWarpTerms.value = true
+  reviewWarpTerms()
+}
+
 function toggleEnabled(o: Outbound, enabled: boolean) {
-  void run(() => outboundsApi.update(o.id, { enabled }), o.id)
+  const go = () => void run(() => outboundsApi.update(o.id, { enabled, accept_warp_tos: enabled && o.mode === 'warp' ? true : undefined }), o.id)
+  if (enabled && warpNeedsAcceptance(o)) requireWarpTerms(go)
+  else go()
 }
 
 function makeDefault(o: Outbound) {
-  void run(() => outboundsApi.makeDefault(o.id), o.id, t('outbounds.nowDefault', { name: o.name }))
+  const go = () => void run(() => outboundsApi.makeDefault(o.id, o.mode === 'warp'), o.id, t('outbounds.nowDefault', { name: o.name }))
+  if (warpNeedsAcceptance(o)) requireWarpTerms(go)
+  else go()
 }
 
 function confirmReset(o: Outbound) {
@@ -373,7 +548,7 @@ onMounted(load)
   background: var(--p-content-background);
   border: 1px solid var(--p-content-border-color);
   border-inline-start: 4px solid var(--ob-color);
-  animation: ob-in 0.35s ease both;
+  animation: ob-in 0.35s ease backwards; /* not "both": a held end state would override the drag transforms */
   transition:
     opacity 0.2s ease,
     box-shadow 0.2s ease,
@@ -404,12 +579,69 @@ html[dir='rtl'] .ob-row--default {
 .ob-row--new {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-color) 35%, transparent);
 }
-.ob-row--drag {
-  opacity: 0.45;
+.ob-list--dragging {
+  user-select: none;
 }
-.ob-row--over {
-  transform: translateY(2px);
-  box-shadow: 0 -3px 0 0 var(--p-primary-color);
+.ob-list--dragging .ob-row {
+  /* the rows the dragged one passes slide out of its way */
+  transition:
+    opacity 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.2s ease;
+}
+.ob-list--dragging .ob-row--lifted {
+  /* follows the pointer exactly; lifted above the others */
+  z-index: 2;
+  cursor: grabbing;
+  transition: box-shadow 0.2s ease;
+  box-shadow:
+    0 18px 40px -14px color-mix(in srgb, var(--ob-color) 45%, rgba(0, 0, 0, 0.35)),
+    0 0 0 2px color-mix(in srgb, var(--ob-color) 55%, transparent);
+}
+.ob-list--dragging .ob-row--lifted.ob-row--settling {
+  transition:
+    transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.22s ease;
+  box-shadow: 0 0 0 0 transparent;
+}
+.ob-list--still .ob-row,
+.ob-list--still .ob-row-move {
+  transition: none !important;
+}
+.ob-row__dir {
+  position: absolute;
+  inset-inline-start: 2.05rem;
+  top: 0.35rem;
+  display: grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  font-size: 0.62rem;
+  color: #fff;
+  background: var(--p-primary-color);
+  box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.35);
+  animation: ob-dir 0.9s ease-in-out infinite;
+}
+.ob-row__dir .pi-arrow-up {
+  animation: ob-dir-up 0.9s ease-in-out infinite;
+}
+.ob-row__dir .pi-arrow-down {
+  animation: ob-dir-down 0.9s ease-in-out infinite;
+}
+@keyframes ob-dir-up {
+  0%, 100% { transform: translateY(1px); }
+  50% { transform: translateY(-2px); }
+}
+@keyframes ob-dir-down {
+  0%, 100% { transform: translateY(-1px); }
+  50% { transform: translateY(2px); }
+}
+@keyframes ob-dir {
+  from { scale: 0.6; opacity: 0; }
+  20% { scale: 1; opacity: 1; }
+  to { scale: 1; opacity: 1; }
 }
 
 .ob-row__order {
@@ -429,6 +661,9 @@ html[dir='rtl'] .ob-row--default {
 .ob-row__handle:hover {
   color: var(--p-primary-color);
   background: var(--p-content-hover-background, rgba(127, 127, 127, 0.08));
+}
+.ob-row__handle {
+  touch-action: none; /* a drag on the handle moves the row, not the page */
 }
 .ob-row__handle:active {
   cursor: grabbing;
@@ -552,6 +787,16 @@ html[dir='rtl'] .ob-row__body {
   color: var(--p-text-muted-color);
   background: var(--p-content-hover-background, rgba(127, 127, 127, 0.12));
 }
+.ob-badge--warn {
+  color: var(--p-orange-700);
+  background: color-mix(in srgb, var(--p-orange-500) 16%, transparent);
+}
+.ob-terms-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+}
 .ob-count {
   display: inline-flex;
   align-items: baseline;
@@ -607,8 +852,23 @@ html[dir='rtl'] .ob-row__body {
     padding-inline: 0.4rem 0.75rem;
     border-radius: 14px;
   }
+  /* Phones: the handle is dragged with a finger (the same smooth drag); the ↑/↓ buttons go */
   .ob-row__handle {
-    display: none; /* touch: use the arrows */
+    width: 2rem;
+    height: 2.75rem;
+    font-size: 1.1rem;
+    color: var(--p-text-color);
+  }
+  .ob-row__order {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .ob-row__step {
+    display: none;
+  }
+  .ob-row__dir {
+    inset-inline-start: 1.85rem;
+    top: 0.5rem;
   }
   .ob-row__side {
     grid-column: 1 / -1;
@@ -621,8 +881,14 @@ html[dir='rtl'] .ob-row__body {
   .ob-row {
     animation: none;
   }
-  .ob-row-move {
+  .ob-row-move,
+  .ob-list--dragging .ob-row:not(.ob-row--lifted),
+  .ob-list--dragging .ob-row--lifted.ob-row--settling {
     transition: none;
+  }
+  .ob-row__dir,
+  .ob-row__dir i {
+    animation: none;
   }
 }
 </style>

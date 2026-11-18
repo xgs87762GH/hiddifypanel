@@ -5,6 +5,7 @@ from typing import TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from hiddifypanel.hutils import domain_label
 from hiddifypanel import hutils
 from hiddifypanel.hutils.network.auto_ip_selector import split_pattern
 from hiddifypanel.hutils.proxy import random_or_none
@@ -59,8 +60,8 @@ class DomainIPVar(BaseModel):
     tls_fragment_mode: str = "inherit"
     tls_fragment_enable: bool = False
     tls_fragment_packets: str = tls_fragment_mod.DEFAULT_PACKETS
-    tls_fragment_lengths: list[str] = Field(default_factory=lambda: [tls_fragment_mod.DEFAULT_SIZE])
-    tls_fragment_delays: list[str] = Field(default_factory=lambda: [tls_fragment_mod.DEFAULT_SLEEP])
+    tls_fragment_lengths: list[str] = Field(default_factory=lambda: list(tls_fragment_mod.DEFAULT_LENGTHS))
+    tls_fragment_delays: list[str] = Field(default_factory=lambda: list(tls_fragment_mod.DEFAULT_DELAYS))
     tls_fragment_max_split: str = tls_fragment_mod.DEFAULT_MAX_SPLIT
 
     custom_proxy_ids: set[int] = Field(default_factory=set)
@@ -85,6 +86,11 @@ class DomainIPVar(BaseModel):
     def finalmask(self) -> object:
         """FinalMaskObject for hiddify-core / xray clients (``tricks.finalmask``)."""
         return tls_fragment_mod.finalmask_of(self.extra_params, domain_mode=self.mode)
+
+    @property
+    def link_fragment(self) -> str | None:
+        """The finalmask's TLS fragment as the share-link ``fragment=`` value, for apps that do not read ``fm``."""
+        return tls_fragment_mod.link_fragment_of(self.finalmask)
 
     @property
     def special(self) -> bool:
@@ -164,7 +170,7 @@ class DomainIPVar(BaseModel):
             dst_server=server_host,
             mode=domain_db.mode,
             fake_mode=domain_db.fake_mode,
-            alias=domain_db.alias or domain_db.name,
+            alias=domain_label.for_domain(domain_db),
             need_valid_ssl=bool(domain_db.need_valid_ssl),
             child_id=int(domain_db.child_id or 0),
             ech=bool(domain_db.ech) and domain_db.mode.is_cdn(),
@@ -194,14 +200,24 @@ class DomainIPVar(BaseModel):
         return var
 
     def server(self, force_ip: bool = False) -> str:
+        """The client's address: the domain name, unless "Resolve IP" is on or the name can't be dialed (a fake/reality
+        domain, or, with ``force_ip`` for the IP-mode proxies, a wildcard or empty name)."""
         dst_domain = self.dst_server if isinstance(self.dst_server, str) and self.dst_server else (self.host or self.name or "")
         if self.has_server_domain:
             return dst_domain
         if is_ip_address(dst_domain):
             return strip_ip_brackets(dst_domain)
-        if force_ip or self.resolve_ip or self.fake_mode != FakeMode.valid:
+        if self.resolve_ip or self.fake_mode != FakeMode.valid:
+            return prefer_ipv4_server(self.ips, dst_domain)
+        if force_ip and (not dst_domain or "*" in dst_domain):
             return prefer_ipv4_server(self.ips, dst_domain)
         return dst_domain
+
+    def server_ip(self) -> str:
+        """The client's address as an IP when one is known, for clients that fail when they cannot resolve the name
+        (mieru in Hiddify <= 5.5.5)."""
+        server = self.server(force_ip=True)
+        return server if is_ip_address(server) else prefer_ipv4_server(self.ips, server)
 
     @property
     def keeps_dst_server(self) -> bool:

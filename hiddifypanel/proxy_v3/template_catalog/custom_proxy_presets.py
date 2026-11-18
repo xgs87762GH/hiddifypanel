@@ -41,7 +41,7 @@ from .inbound_builder import (
     supports_hiddify_preset,
     supports_xray_preset,
 )
-from .preset_slots import H3_PROTOS, PresetSlot, iter_grouped_preset_slots, preset_display_name, preset_slug_name, tls_layer_for_xhttp_alpn
+from .preset_slots import H3_PROTOS, PresetSlot, iter_grouped_preset_slots, preset_display_name, preset_slug_name, preset_tag_name, tls_layer_for_xhttp_alpn
 from .proxy_matrix import is_wireguard_endpoint
 
 V2RAY_GATEWAY_PROTOS = frozenset({"vless", "vmess", "trojan"})
@@ -432,8 +432,8 @@ def _preset_tcp_udp(
         return InboundTcpUdp.tcp
     if str(l3).lower() == "h3_quic":
         return InboundTcpUdp.udp
-    if proto_key == "mieru":
-        # "Mieru TCP" listens (and is opened) on TCP only, "Mieru UDP" on UDP only.
+    if proto_key in ("mieru", "openvpn"):
+        # "Mieru TCP" / "OpenVPN TCP" listen (and are opened) on TCP only, the UDP ones on UDP only.
         return InboundTcpUdp.udp if transport_key == "udp" else InboundTcpUdp.tcp
     if proto_key in BOTH_PROTOS:
         return InboundTcpUdp.both
@@ -457,7 +457,7 @@ def _preset_protocol(combo) -> CustomProxyMode:
         return CustomProxyMode.domains_sni_gateway
     if proto in DNS_GATEWAY_PROTOS:
         return CustomProxyMode.domains_dns_gateway
-    if proto in IP_BASED_UDP_PROTOS or proto in ("shadowsocks", "ss", "socks", "wireguard", "ssh", "mieru", "snell") or raw_transport == "tcp":
+    if proto in IP_BASED_UDP_PROTOS or proto in ("shadowsocks", "ss", "socks", "wireguard", "openvpn", "ssh", "mieru", "snell") or raw_transport == "tcp":
         return CustomProxyMode.ip
     return CustomProxyMode.domains_l7_gateway
 
@@ -466,6 +466,43 @@ def _stable_public_port(slug: str) -> int:
     """Deterministic public port in [10000, 50000] from the builtin slug."""
     mixed = zlib.crc32(slug.encode("utf-8")) % 40_001
     return 10_000 + mixed
+
+
+def ip_mode_public_port(proto: str, raw_transport: str, *, wireguard_endpoint: bool, slug: str, child_id: int) -> int:
+    """The public port of an IP-mode preset.
+
+    WireGuard and Shadowsocks 2022 already had a port setting in v12. The preset keeps that port, so an upgrade
+    does not move the service and leave the old port reserved. Anything else gets a stable port from its slug.
+    """
+    if proto == "wireguard" and not wireguard_endpoint:
+        return _hconfig_port(ConfigEnum.wireguard_port, child_id, fallback_slug=slug)
+    if proto in ("shadowsocks", "ss") and raw_transport not in ("shadowtls", "faketls"):
+        return _hconfig_port(ConfigEnum.shadowsocks2022_port, child_id, fallback_slug=slug)
+    return _stable_public_port(slug)
+
+
+def shadowsocks_ports_from_v12(
+    tcp_ports: list[int],
+    udp_ports: list[int],
+    *,
+    generated: int,
+    legacy: int,
+    overridden: bool,
+) -> tuple[list[int], list[int]] | None:
+    """Ports to store on an upgraded Shadowsocks row, or None when the row already has the right ones.
+
+    The generated slug port is replaced by the v12 setting. A port an admin chose, or a row already on that
+    setting, is left alone.
+    """
+    if overridden or not 1 <= legacy <= 65535:
+        return None
+    tcp = [port for port in tcp_ports if port]
+    udp = [port for port in udp_ports if port]
+    if tcp not in ([], [generated]) or udp not in ([], [generated]):
+        return None
+    if tcp == [legacy] and udp == [legacy]:
+        return None
+    return [legacy], [legacy]
 
 
 def _hconfig_port(key: ConfigEnum, child_id: int = 0, *, fallback_slug: str) -> int:
@@ -577,8 +614,8 @@ def _build_preset(
     slug = legacy_slug
     if core == "hiddify-core":
         display_name = f"{display_name} HC"
-        # "snell HC" (not "hiddify-core-custom-snell"): the slug is the name's.
-        slug = proxy_slug(display_name)
+        # "snell HC" (not "hiddify-core-custom-snell"): the slug is the name's, in its original spelling.
+        slug = proxy_slug(f"{preset_tag_name(slot)} HC")
     mode = _preset_protocol(primary)
     custom_path = _preset_custom_path(primary, child_id)
     domain_modes = _group_domain_modes(slot.related)
@@ -588,7 +625,7 @@ def _build_preset(
     tls_layer = slot.tls_layer
     if proto in UDP_ONLY_PROTOS or str(primary.l3).lower() == "h3_quic":
         tls_layer = "quic_tls"
-    if proto in ("shadowsocks", "ss", "socks", "mieru") and raw_transport not in ("shadowtls", "faketls"):
+    if proto in ("shadowsocks", "ss", "socks", "mieru", "openvpn") and raw_transport not in ("shadowtls", "faketls"):
         tls_layer = "http"
     if proto in V2RAY_GATEWAY_PROTOS:
         domain_modes = list(_v2ray_domain_modes(tls_layer, transport_value))
@@ -622,7 +659,7 @@ def _build_preset(
     else:
         tcp_udp = _preset_tcp_udp(
             proto,
-            transport=raw_transport if proto == "mieru" else transport_value,
+            transport=raw_transport if proto in ("mieru", "openvpn") else transport_value,
             l3=primary.l3,
         )
     tag = _backend_tag(primary, core)
@@ -632,11 +669,13 @@ def _build_preset(
     inbound_tcp_ports: tuple[int, ...] = ()
     inbound_udp_ports: tuple[int, ...] = ()
     if mode == CustomProxyMode.ip:
-        if proto == "wireguard" and not is_wireguard_endpoint(primary):
-            # WireGuard listens on hconfig.wireguard_port (wg-quick / firewall), not a slug port.
-            public_port = _hconfig_port(ConfigEnum.wireguard_port, child_id, fallback_slug=slug)
-        else:
-            public_port = _stable_public_port(slug)
+        public_port = ip_mode_public_port(
+            proto,
+            raw_transport,
+            wireguard_endpoint=is_wireguard_endpoint(primary),
+            slug=slug,
+            child_id=child_id,
+        )
         if tcp_udp != InboundTcpUdp.udp:
             inbound_tcp_ports = (public_port,)
         if tcp_udp != InboundTcpUdp.tcp:
@@ -713,7 +752,7 @@ def _build_dns_gateway_preset(slot, child_id: int = 0) -> CustomProxyPreset:
             core="dns_proxy",
             inbound_template=inbound,
             template_slugs=(f"dns_proxy/{proto}/server", f"dns_proxy/{proto}/args"),
-            tag=proxy_slug(display_name),
+            tag=proxy_slug(preset_tag_name(slot)),
             inbound_tcp_ports=(),
             inbound_udp_ports=(),
         ),
@@ -742,7 +781,7 @@ def iter_custom_proxy_presets(child_id: int = 0) -> list[CustomProxyPreset]:
                 xray_built = build_xray_inbound_template(primary, l7_gateway=l7_gateway)
             except ValueError:
                 pass
-        if supports_hiddify_preset(primary) or primary.proto == "wireguard":
+        if supports_hiddify_preset(primary) or primary.proto in ("wireguard", "openvpn"):
             try:
                 hiddify_built = build_hiddify_inbound_template(primary, l7_gateway=l7_gateway)
             except ValueError:

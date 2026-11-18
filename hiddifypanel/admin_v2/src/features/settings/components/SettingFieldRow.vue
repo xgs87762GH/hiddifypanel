@@ -5,8 +5,16 @@ import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
 import Textarea from 'primevue/textarea'
 import ToggleSwitch from 'primevue/toggleswitch'
+import DnsPicker from '@/features/settings/components/DnsPicker.vue'
 import { displayConfigLabel } from '@/shared/utils/config-labels'
+import HtmlFieldControl from './html-editor/HtmlFieldControl.vue'
+import type { BoxParts } from './html-editor/support-frame'
+import { SUPPORT_TEXT_KEY, partSettings, readParts } from '@/features/settings/support-box'
 import type { SettingField, SettingValue } from '@/features/settings/api'
+import IconText from '@/shared/components/IconText.vue'
+import { iconizeHtml, stripEmoji } from '@/shared/utils/emoji-icons'
+import OptionIcon from '@/features/settings/components/OptionIcon.vue'
+import { DESCRIPTION_ICONS, optionIcon } from '@/features/settings/option-icons'
 
 const props = defineProps<{
   field: SettingField
@@ -17,7 +25,10 @@ const props = defineProps<{
   highlighted?: boolean
   /** Show the "advanced" badge (only when advanced items are mixed with essential ones). */
   markAdvanced?: boolean
+  /** All values being edited: the support box's editor also edits its title and button. */
+  values?: Record<string, SettingValue>
 }>()
+const emit = defineEmits<{ companion: [key: string, value: SettingValue] }>()
 
 const model = defineModel<SettingValue>({ required: true })
 
@@ -25,11 +36,19 @@ const { t } = useI18n()
 
 const inputId = computed(() => `setting-${props.field.key}`)
 const label = computed(() => displayConfigLabel(props.field.label))
-const wide = computed(() => props.field.type === 'textarea' || props.field.type === 'html')
+// text: the option without emoji (screen readers, typing to search); label: shown, its emoji as icons
+const choices = computed(() => (props.field.choices ?? []).map((c) => ({ ...c, text: stripEmoji(c.label) })))
+const wide = computed(() => props.field.type === 'textarea')
 const text = computed({
   get: () => String(model.value ?? ''),
   set: (value: string) => {
     model.value = value
+  },
+})
+const parts = computed({
+  get: (): BoxParts | undefined => (props.field.key === SUPPORT_TEXT_KEY && props.values ? readParts(props.values) : undefined),
+  set: (value: BoxParts | undefined) => {
+    if (value) for (const [key, v] of partSettings(value)) emit('companion', key, v)
   },
 })
 const checked = computed({
@@ -53,7 +72,7 @@ const checked = computed({
   >
     <div class="setting-row__info">
       <label :for="inputId" class="setting-row__label">
-        {{ label }}
+        <IconText :text="label" />
         <span v-if="markAdvanced && !field.essential" class="setting-badge">{{ t('settings.advancedBadge') }}</span>
         <span v-if="field.apply_mode === 'reinstall'" class="setting-badge setting-badge--warn setting-badge--on-hover" :title="t('settings.reinstallHint')">
           <i class="pi pi-refresh" />{{ t('settings.reinstallBadge') }}
@@ -63,28 +82,44 @@ const checked = computed({
         </Transition>
       </label>
       <!-- eslint-disable-next-line vue/no-v-html -- sanitized server-side -->
-      <p v-if="field.description" class="setting-row__desc" v-html="field.description" />
+      <p v-if="field.description" class="setting-row__desc" v-html="iconizeHtml(field.description, DESCRIPTION_ICONS[field.key])" />
     </div>
 
     <div class="setting-row__control">
       <ToggleSwitch v-if="field.type === 'bool'" v-model="checked" :input-id="inputId" />
+      <DnsPicker v-else-if="field.key === 'dns_server'" v-model="text" :input-id="inputId" :invalid="Boolean(errors?.length)" />
+      <!-- tall enough to show every option of the settings' lists (uTLS has nine), never more than 60% of the screen -->
       <Select
+        scroll-height="min(26rem, 60vh)"
         v-else-if="field.type === 'select'"
         v-model="text"
         :input-id="inputId"
-        :options="field.choices ?? []"
-        option-label="label"
+        :options="choices"
+        option-label="text"
         option-value="value"
         class="w-full"
         :invalid="Boolean(errors?.length)"
-      />
+      >
+        <template #value="{ value, placeholder }">
+          <span v-if="optionIcon(field.key, value)" class="setting-option">
+            <OptionIcon :icon="optionIcon(field.key, value)!" />{{ choices.find((c) => c.value === value)?.text ?? value }}
+          </span>
+          <IconText v-else :text="(field.choices?.find((c) => c.value === value)?.label ?? value) || placeholder || '\u00a0'" />
+        </template>
+        <template #option="{ option }">
+          <span v-if="optionIcon(field.key, option.value)" class="setting-option">
+            <OptionIcon :icon="optionIcon(field.key, option.value)!" />{{ option.text }}
+          </span>
+          <IconText v-else :text="option.label" />
+        </template>
+      </Select>
+      <HtmlFieldControl v-else-if="field.type === 'html'" v-model="text" v-model:parts="parts" :input-id="inputId" :title="label" :maxlength="field.maxlength" :invalid="Boolean(errors?.length)" />
       <Textarea
         v-else-if="wide"
         :id="inputId"
         v-model="text"
-        class="w-full setting-row__textarea"
-        :class="{ 'font-mono': field.type === 'html' || field.type === 'textarea' }"
-        :rows="field.type === 'html' ? 6 : 4"
+        class="w-full setting-row__textarea font-mono"
+        :rows="4"
         auto-resize
         dir="ltr"
         :maxlength="field.maxlength"
@@ -112,6 +147,12 @@ const checked = computed({
 </template>
 
 <style scoped>
+.setting-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
 .setting-row {
   position: relative;
   display: grid;

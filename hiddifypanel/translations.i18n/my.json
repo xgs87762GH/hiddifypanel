@@ -271,6 +271,7 @@
   "You should visit this page without VPN": {
     " Your country=%(your_country)s\nexpected=%(expected_country)s": "VPN ကို အသုံးမပြုဘဲ ဤစာမျက်နှာသို့ ဝင်ရောက်ကြည့်ရှုပါ။ သင်သည် ၎င်းကို %(expected_country)s နိုင်ငံမှ ဝင်ရောက်ရန် လိုအပ်သော်လည်း၊ သင်သည် %(your_country)s မှ ၎င်းကို လက်ရှိ အသုံးပြုနေပါသည်။"
   },
+  "You should visit this page without VPN. Your country=%(your_country)s\nexpected=%(expected_country)s": "VPN ကို အသုံးမပြုဘဲ ဤစာမျက်နှာသို့ ဝင်ရောက်ကြည့်ရှုပါ။ သင်သည် ၎င်းကို %(expected_country)s နိုင်ငံမှ ဝင်ရောက်ရန် လိုအပ်သော်လည်း၊ သင်သည် %(your_country)s မှ ၎င်းကို လက်ရှိ အသုံးပြုနေပါသည်။",
   "Your hiddify instance information \nDomain: {} \nUsage limit: {} GB\nCurrent usage: {} GB\nExpires at: {} \nRemaining days: {} \n\n\n Happy using 🎉 🎉 🎉 \n": "သင့် ဟစ်ဒီဖိုင်း ဆာဗာ အချက်အလက်များ\nဒိုမိန်း- {}\nအသုံးပြုမှု ကန့်သတ်ချက်- {} GB\nလက်ရှိအသုံးပြုမှု- {} GB\nသက်တမ်းကုန်ဆုံးချိန် - {}\nလက်ကျန်ရက်များ- {}\n\n\nကံကောင်းပါစေ။ 🎉 🎉 🎉",
   "[Admin only visible message:] You can change this message from settings": "[စီမံခန့်ခွဲသူ အထူး စာတို]: အပြင်အဆင်များမှ စိတ်ကြိုက်ပြင်ဆင်နိုင်သည်",
   "actions": "လုပ်ဆောင်မှုများ",
@@ -290,20 +291,25 @@
       "apply_configs": "Configs များ အတည်ပြု",
       "title": "အပြင်အဆင်များ"
     },
+    "core_load": {
+      "error": "<b>Proxy core များအတွက် RAM မလုံလောက်ပါ</b><br>Panel၊ xray နှင့် hiddify-core တို့သည် ဆာဗာ၏ RAM %(ram)s အနက် %(estimate)s ခန့် (%(percent)s%%) လိုအပ်သည်- အသုံးပြုသူ %(users)s ဦး × inbound %(inbounds)s ခု၊ အသုံးပြုသူတိုင်းကို inbound တိုင်းတွင် သိမ်းထားသောကြောင့်ဖြစ်သည်။ ဆာဗာ memory ကုန်ပြီး xray / hiddify-core ကို ထပ်ခါထပ်ခါ ရပ်တန့်ခံရနိုင်သည်။ အသုံးပြုနေသော protocol အရေအတွက်ကို လျှော့ပါ၊ အသုံးပြုသူများကို ပိတ်ပါ သို့မဟုတ် ဆာဗာ RAM ကို တိုးပါ။",
+      "warning": "<b>Proxy core များအတွက် RAM နည်းလာနေသည်</b><br>Panel၊ xray နှင့် hiddify-core တို့သည် ဆာဗာ၏ RAM %(ram)s အနက် %(estimate)s ခန့် (%(percent)s%%) လိုအပ်နိုင်သည်- အသုံးပြုသူ %(users)s ဦး × inbound %(inbounds)s ခု၊ အသုံးပြုသူတိုင်းကို inbound တိုင်းတွင် သိမ်းထားသောကြောင့်ဖြစ်သည်။ အသုံးပြုသူများ ထပ်တိုးပါက memory ကုန်နိုင်သည်။ အသုံးပြုနေသော protocol အရေအတွက်ကို လျှော့ပါ၊ မလိုအပ်သော အသုံးပြုသူများကို ပိတ်ပါ သို့မဟုတ် ဆာဗာ RAM ကို တိုးပါ။"
+    },
     "define_mode": "🥇🥈🥉 စီမံခန့်ခွဲမုဒ်ကို သတ်မှတ်ပါ။",
     "incomplete_setup_warning": "သင်စနစ်အား အပြည့်အဝ မတပ်ဆင်ရသေးပုံရသည်။ စနစ်ထည့်သွင်းမှု အပြီးသတ်ရန် <a class='btn btn-success' href='%(quick_setup)s'>ဤနေရာကိုနှိပ်ပါ</a> ။",
     "menu": {
       "api": "API",
+      "broadcast": "မက်ဆေ့ချ် ပို့ရန်",
       "config": "အပြင်အဆင်များ",
       "dashboard_v2": "နောက်သို့",
       "domain": "ဒိုမိန်းများ",
       "home": "ဒိုင်ခွက်",
+      "inbox": "စာဝင်ပုံး",
       "proxy": "ပရောက်စီများ",
       "proxy_stats": "ပရောက်စီများ အခြေအနေ",
       "support": "အကူအညီ",
       "telegram": "တယ်လီဂရမ်",
-      "user": "အသုံးပြုသူများ",
-      "broadcast": "Hantar Mesej"
+      "user": "အသုံးပြုသူများ"
     },
     "no_user_warning": "သင်မည်သည့်အသုံးပြုသူများကိုမျှ မဖန်တီးရသေးပုံရသည်။ မူရင်းအသုံးပြုသူလင့်ခ်- %(default_link)s",
     "proxy": {
@@ -393,31 +399,7 @@
       "title": "ကျွန်ုပ်၏အကောင့်",
       "under": "{name} အောက်တွင်",
       "unlimited": "ကန့်သတ်ချက် မရှိ",
-      "wrongCurrent": "လက်ရှိစကားဝှက် မမှန်ပါ",
-      "userPage": {
-        "edit": "Suai",
-        "brandTitleHint": "klik Pesan di bahagian atas halaman.",
-        "sub": "What your users (and your sub-admins' users) see on their page. Empty fields use the panel's settings.",
-        "brandTitle": "Tajuk",
-        "none": "Nothing changed: your users see the panel's page.",
-        "title": "Laman Pengguna",
-        "intro": "Leave a field empty to keep what your users get now (shown in the field).",
-        "advanced": "Mahir ",
-        "supportLink": "Pautan",
-        "supportLinkHint": "Shown in the support box, e.g. your Telegram channel or chat.",
-        "supportText": "Sila guna mod teks",
-        "count": "{n} item customized | {n} items customized",
-        "supportTextHint": "Sama ada nama penuh pengguna dipapar dalam menu pengguna atau tidak.",
-        "lang": "Laman Pengguna",
-        "langHint": "kepada ahli pasukan anda yang belum mengemas kini",
-        "empty": "Tidak ditetapkan",
-        "customPage": "Nama pengguna biasa",
-        "customPageHint": "The address of a static site shown instead of the user page (e.g. your build of hiddify-user-front on GitHub Pages). The panel serves it from its own domain.",
-        "inherit": "sekarang",
-        "saved": "Halaman pengguna disimpan",
-        "badUrl": "Sila cuba pautan yang bermula dengan \\'https://\\'"
-      },
-      "outboundReadOnly": "Ditetapkan oleh pentadbir di atas anda; anda boleh melihatnya tetapi tidak mengubahnya."
+      "wrongCurrent": "လက်ရှိစကားဝှက် မမှန်ပါ"
     },
     "actions": {
       "applyConfigs": "ကွန်ဖစ်များ အသုံးချရန်",
@@ -537,14 +519,9 @@
         "placement": "အဖွဲ့တွင် နေရာချရန်",
         "superNoLimits": "Super admin များတွင် ကန့်သတ်ချက် မရှိပါ။",
         "upTo": "အများဆုံး {max} အထိ (သင့်ကန့်သတ်ချက်)",
+        "used": "အသုံးပြုထားသော traffic",
         "uuidHint": "အလိုအလျောက် ဖန်တီးသည်။ သိပြီးသား ID ကို ပြန်သုံးလိုမှသာ ပြောင်းပါ။",
-        "uuidInvalid": "ဤသည် မှန်ကန်သော UUID မဟုတ်ပါ",
-        "capabilities": "Kebenaran",
-        "capabilitiesDone": "Selesai",
-        "capabilitiesHint": "Tap to change what this admin is allowed to do. You can only grant permissions you have.",
-        "capabilitiesNone": "Tiada nota khas",
-        "capabilitiesEdit": "Kebenaran",
-        "capabilitiesCount": "KEIZINAN | Kebenaran"
+        "uuidInvalid": "ဤသည် မှန်ကန်သော UUID မဟုတ်ပါ"
       },
       "limit": {
         "max_active_users": "အများဆုံး အသုံးပြုနေသူ",
@@ -561,6 +538,7 @@
         "usernameHint": "ဤလင့်ခ်သည် ဝင်ရောက်ရာစာမျက်နှာကို ဖွင့်ပေးပြီး ၎င်းတို့သည် ဤအသုံးပြုသူအမည်နှင့် စကားဝှက်ဖြင့် ဝင်ရောက်သည်။"
       },
       "meLocked": "ဤသည် သင်ဖြစ်သည်၊ ဤနေရာတွင် သင့်အသုံးပြုသူများ၏ ကွန်ဖစ်များကိုသာ ပြောင်းနိုင်သည်။ စကားဝှက်ကို ကျွန်ုပ်၏အကောင့်တွင် ပြောင်းပါ။",
+      "messageTitle": "{name} ထံ မက်ဆေ့ချ်",
       "meter": {
         "active": "အသက်ဝင်သည်",
         "activeHint": "ဖွင့်ထားပြီး ရက်နှင့် traffic ကျန်သောအသုံးပြုသူများ၊ ခွင့်ပြုထားသောအရေအတွက်အနက်",
@@ -569,12 +547,18 @@
         "total": "စုစုပေါင်း",
         "totalHint": "အသုံးပြုသူအားလုံး၊ ခွင့်ပြုထားသောအရေအတွက်အနက်",
         "traffic": "Traffic",
-        "trafficHint": "ဤအသုံးပြုသူများအားလုံး အသုံးပြုထားသော traffic၊ ခွင့်ပြုထားသောစုစုပေါင်းအနက်"
+        "trafficHint": "နောက်ဆုံးပြန်စချိန်မှစ၍ ဤအသုံးပြုသူများအားလုံး အသုံးပြုထားသော traffic၊ ခွင့်ပြုထားသောစုစုပေါင်းအနက်"
       },
       "mode": {
         "admin": "အက်ဒမင်",
         "agent": "ကိုယ်စားလှယ်",
         "super_admin": "Super admin"
+      },
+      "modeHint": {
+        "daily": "Traffic ကို နေ့တိုင်း ပြန်စသည်။",
+        "monthly": "Traffic ကို ပထမဆုံးအသုံးပြုချိန်မှစ၍ ရက် ၃၀ တိုင်း ပြန်စသည်။",
+        "no_reset": "Traffic ကို ဘယ်တော့မှ ပြန်မစပါ- ကန့်သတ်ချက်သည် အမြဲတမ်းအတွက်ဖြစ်သည်။",
+        "weekly": "Traffic ကို ပထမဆုံးအသုံးပြုချိန်မှစ၍ ရက် ၇ ရက်တိုင်း ပြန်စသည်။"
       },
       "more": "နောက်ထပ်လုပ်ဆောင်ချက်များ",
       "myConfigs": "ကျွန်ုပ်၏အသုံးပြုသူများအတွက် ကွန်ဖစ်များ",
@@ -598,25 +582,9 @@
         "online": "အွန်လိုင်း",
         "users": "အသုံးပြုသူ | အသုံးပြုသူ"
       },
+      "telegramMessage": "ဤ admin ထံ Telegram မက်ဆေ့ချ် ပို့ရန်",
       "title": "အက်ဒမင်များ",
-      "you": "သင်",
-      "capability": {
-        "override_preferred_outbound": "Change preferred outbound",
-        "modify_user_extra": "Laman Pengguna",
-        "modify_outbounds": "Urus",
-        "add_sub_admins": "Tambah sub-pentadbir",
-        "modify_domains": "DOMAIN DISEPADUKAN",
-        "add_extra_sublinks": "Tambah sifat ekstra"
-      },
-      "readOnlyNode": "Admins are managed on the parent panel: here they are shown read-only.",
-      "capabilityHint": {
-        "add_sub_admins": "Cipta ejen mereka sendiri dalam had yang anda tetapkan.",
-        "override_preferred_outbound": "Pilih laluan keluar yang dilalui oleh trafik pengguna.",
-        "add_extra_sublinks": "Lampirkan konfigurasi tambahan atau pautan langganan untuk penggunanya.",
-        "modify_domains": "Tambah dan edit domain pada panel ini.",
-        "modify_outbounds": "Konfigurasikan keluar pelayan (WARP, SOCKS,…).",
-        "modify_user_extra": "Tukar penjenamaan dan parameter tambahan pada halaman pengguna."
-      }
+      "you": "သင်"
     },
     "appTitle": "HiddifyManager",
     "apply": {
@@ -811,15 +779,18 @@
       "confirmDelete": "ဤအရာကို ဖျက်ရန် သေချာပါသလား?",
       "copied": "ကူးယူပြီးပါပြီ",
       "copy": "ကူးယူရန်",
+      "decrease": "လျှော့ရန်",
       "delete": "ဖျက်ရန်",
       "deleted": "အောင်မြင်စွာ ဖျက်ပြီးပါပြီ",
       "disabled": "ပိတ်ထားသည်",
+      "done": "ပြီးပါပြီ",
       "duplicate": "ပွားရန်",
       "edit": "တည်းဖြတ်ရန်",
       "enabled": "ဖွင့်ထားသည်",
       "filter": "စစ်ထုတ်ရန်",
       "filteredOf": "စစ်ထုတ်ထားသည်: {total} မှ {n} ခုကို ပြနေသည်",
       "format": "ဖော်မက်",
+      "increase": "တိုးရန်",
       "loadFailed": "ဒေတာ မဖွင့်နိုင်ပါ",
       "no": "မဟုတ်ပါ",
       "noMatch": "ဤစစ်ထုတ်မှုများနှင့် ကိုက်ညီမှု မရှိပါ",
@@ -832,9 +803,7 @@
       "validate": "စစ်ဆေးရန်",
       "validationFailed": "စစ်ဆေးမှု မအောင်မြင်ပါ",
       "validationOk": "စစ်ဆေးမှု အောင်မြင်ပါသည်",
-      "yes": "ဟုတ်ကဲ့",
-      "none": "None",
-      "close": "Close"
+      "yes": "ဟုတ်ကဲ့"
     },
     "dashboard": {
       "allNodes": "nodes အားလုံး",
@@ -912,6 +881,13 @@
       "subtitle": "traffic၊ အသုံးပြုသူများနှင့် ဆာဗာကျန်းမာရေးကို တစ်ချက်တည်း ကြည့်ရန်",
       "swap": "Swap",
       "thisServer": "ဤဆာဗာ",
+      "tip": {
+        "dailyAverage": "နေ့စဉ် ပျမ်းမျှ",
+        "last30Days": "နောက်ဆုံး ရက် ၃၀",
+        "last7Days": "နောက်ဆုံး ရက် ၇",
+        "previous30Days": "ယခင် ရက် ၃၀",
+        "previous7Days": "ယခင် ရက် ၇"
+      },
       "title": "ဒက်ရှ်ဘုတ်",
       "today": "ယနေ့",
       "todayOnline": "ယနေ့ အွန်လိုင်း",
@@ -944,66 +920,7 @@
       "weekUsers": "အပတ်",
       "weeklyAverage": "အပတ်စဉ်ပျမ်းမျှ",
       "weeklyOnline": "အပတ်စဉ်အွန်လိုင်း",
-      "yesterday": "မနေ့",
-      "health": {
-        "checkNow": "Check now",
-        "firstRun": "The first check is running; it takes a minute or two.",
-        "checked": "Every config tested from the server · {ago}",
-        "notTested": "Not tested",
-        "never": "Not checked yet. Press “Check now”.",
-        "unavailable": "Could not read the config health from the panel. Check the logs, then press “Check now”.",
-        "note": "Tested with {user}'s subscription. A config that fails from the server itself never works for anyone; filtering in Iran is not tested here.",
-        "notice": {
-          "where": "Details: Dashboard › Config health.",
-          "failed": "{n} of {total} configs do not work from the server."
-        },
-        "problem": {
-          "certificate": {
-            "hint": "The certificate of {host} is missing, expired or made for another name. Check this domain in Domains and renew its certificate.",
-            "title": "The panel could not open its own subscription: the TLS certificate of {host} is not valid"
-          },
-          "core": {
-            "hint": "hiddify-core or Xray on the server could not read the subscription. Updating the panel usually fixes it.",
-            "title": "The config tester could not run"
-          },
-          "dns": {
-            "hint": "The server could not look up this domain. Check its DNS record: it must point to this server.",
-            "title": "The domain {host} could not be found"
-          },
-          "empty": {
-            "hint": "No usable config was found. Check that this app's protocols are on in Protocols and that the test user is active.",
-            "title": "The subscription has no config for this app"
-          },
-          "http": {
-            "hint": "The panel sent an HTTP error instead of the subscription. The panel's log shows why.",
-            "title": "The subscription page of {host} answered with an error"
-          },
-          "other": {
-            "hint": "The exact message is in the technical details below.",
-            "title": "The subscription could not be tested"
-          },
-          "timeout": {
-            "title": "The panel's own subscription ({host}) did not answer in time",
-            "hint": "The server took too long to send it: it may be busy, or {host} may point to another server. Press “Check now” again in a minute."
-          },
-          "unreachable": {
-            "hint": "Nothing answered at this address. Check that {host} points to this server and that the panel's services (HAProxy, nginx) are running.",
-            "title": "The panel could not connect to {host}"
-          }
-        },
-        "reason": {
-          "closed": "The server closed the connection",
-          "noExit": "It connects, but traffic does not get out to the internet",
-          "refused": "The connection was refused",
-          "timeout": "No answer in time",
-          "tls": "The TLS handshake failed"
-        },
-        "running": "Checking…",
-        "subtitle": "Every config, tested from the server every 6 hours",
-        "technical": "Technical details",
-        "title": "Config health",
-        "working": "{ok} of {total} work"
-      }
+      "yesterday": "မနေ့"
     },
     "domain": {
       "addFailed": "ဒိုမိန်း မထည့်နိုင်ပါ",
@@ -1039,9 +956,51 @@
           "dns": "ဒိုမိန်းသည် ဤဆာဗာ (သို့မဟုတ် ၎င်းရှေ့ရှိ CDN) ကို ညွှန်ရမည်။",
           "port80": "ပို့တ် 80 သည် အင်တာနက်မှ ရောက်နိုင်ရမည်။"
         },
-        "waiting": "လက်မှတ် ရယူနေသည်…",
-        "rateLimited": "Rate limited by the certificate authority",
-        "rateLimitedHint": "Let's Encrypt and ZeroSSL refused because too many certificates were asked for recently. A self-signed certificate is used meanwhile; the panel tries again by itself when the limit is over."
+        "waiting": "လက်မှတ် ရယူနေသည်…"
+      },
+      "certError": {
+        "badName": {
+          "lead": "“{domain}” အတွက် လက်မှတ် ထုတ်ပေး၍ မရပါ (ဥပမာ အစက် မပါ)၊ ထို့ကြောင့် Let's Encrypt နှင့် ZeroSSL က ငြင်းပယ်သည်။",
+          "step1": "ဤဒိုမိန်းကို ပြင်ပြီး အမည်အပြည့်အစုံ ထည့်ပါ၊ ဥပမာ sub.example.com။",
+          "step2": "မသုံးပါက ⋮ မီနူးမှ ဖျက်ပါ။",
+          "title": "အမှန်တကယ် ဒိုမိန်းအမည် မဟုတ်ပါ"
+        },
+        "caDown": {
+          "lead": "Let's Encrypt သို့မဟုတ် ZeroSSL သည် ယခု အလုပ်များနေသည် သို့မဟုတ် မရောက်နိုင်ပါ၊ “{domain}” တွင် ပြဿနာ မရှိပါ။",
+          "step1": "မိနစ်အနည်းငယ် စောင့်ပြီး ထပ်ကြိုးစားပါ ကို နှိပ်ပါ၊ ပန်နယ်ကလည်း ကိုယ်တိုင် ထပ်ကြိုးစားသည်။",
+          "step2": "ဆက်မအောင်မြင်ပါက ဤဆာဗာမှ အင်တာနက်သို့ HTTPS ချိတ်ဆက်နိုင်မနိုင် စစ်ပါ။",
+          "title": "လက်မှတ်ထုတ်ပေးသူက မတုံ့ပြန်ပါ"
+        },
+        "caa": {
+          "lead": "“{domain}” ၏ DNS တွင် Let's Encrypt သို့မဟုတ် ZeroSSL ကို ခွင့်မပြုသော CAA record ရှိသည်။",
+          "step1": "DNS ပံ့ပိုးသူထံတွင် letsencrypt.org ကို ခွင့်ပြုသော CAA record ထည့်ပါ သို့မဟုတ် CAA record များကို ဖျက်ပါ။",
+          "step2": "မိနစ်အနည်းငယ် စောင့်ပြီး ထပ်ကြိုးစားပါ ကို နှိပ်ပါ။",
+          "title": "CAA record က လက်မှတ်ကို ပိတ်ထားသည်"
+        },
+        "details": "နည်းပညာဆိုင်ရာ အသေးစိတ်",
+        "dns": {
+          "lead": "လက်မှတ်ထုတ်ပေးသူက “{domain}” ကို ရှာသော်လည်း လိပ်စာ မတွေ့ပါ သို့မဟုတ် ဤဆာဗာ မဟုတ်သော လိပ်စာ တွေ့သည်။",
+          "step1": "DNS ပံ့ပိုးသူထံတွင် ဤအမည်အတွက် ဤဆာဗာ၏ IP ဖြင့် A (IPv4) သို့မဟုတ် AAAA (IPv6) record ထည့်ပါ။",
+          "step2": "ပြောင်းလဲမှု ပျံ့နှံ့ရန် မိနစ်အနည်းငယ် စောင့်ပြီး ထပ်ကြိုးစားပါ ကို နှိပ်ပါ။",
+          "step3": "Cloudflare ကဲ့သို့ CDN ရှေ့တွင် ရှိပါက ဤဒိုမိန်း၏ အမျိုးအစားကို CDN ထားပါ။",
+          "title": "ဒိုမိန်းက ဤဆာဗာသို့ မညွှန်ပါ"
+        },
+        "howToFix": "ပြင်ဆင်နည်း",
+        "other": {
+          "lead": "လက်မှတ်ထုတ်ပေးသူက “{domain}” အတွက် တောင်းဆိုမှုကို ငြင်းပယ်သည်၊ အကြောင်းရင်းကို အောက်ပါ နည်းပညာဆိုင်ရာ အသေးစိတ်တွင် ကြည့်ပါ။",
+          "step1": "ဒိုမိန်းက ဤဆာဗာ၏ IP သို့ ညွှန်ကြောင်း စစ်ပါ။",
+          "step2": "Port 80 ကို အင်တာနက်မှ ဖွင့်ထားကြောင်း စစ်ပါ။",
+          "step3": "ထို့နောက် ထပ်ကြိုးစားပါ ကို နှိပ်ပါ၊ မရသေးပါက နည်းပညာဆိုင်ရာ အသေးစိတ်ကို Hiddify support သို့ ပို့ပါ။",
+          "title": "လက်မှတ် ထုတ်ပေး၍ မရပါ"
+        },
+        "port80": {
+          "lead": "လက်မှတ်ထုတ်ပေးသူက “{domain}” ကို စစ်ရန် port 80 မှ ဤဆာဗာသို့ မရောက်နိုင်ပါ။",
+          "step1": "ဆာဗာ၏ firewall နှင့် cloud ပံ့ပိုးသူ၏ firewall တွင် port 80 (TCP) ကို ဖွင့်ပါ။",
+          "step2": "ထို့နောက် ထပ်ကြိုးစားပါ ကို နှိပ်ပါ။",
+          "title": "Port 80 သို့ မရောက်နိုင်ပါ"
+        },
+        "showLess": "လျှော့ပြရန်",
+        "showMore": "ပိုပြရန်"
       },
       "copyDomain": "ဒိုမိန်း ကူးယူရန်",
       "deleteMessage": "၎င်း၏ ကွန်ဖစ်များ အသုံးပြုသူတိုင်းအတွက် အလုပ်မလုပ်တော့ပါ။ ဒိုမိန်းတစ်ခု အနည်းဆုံး ကျန်ရမည်။",
@@ -1084,36 +1043,7 @@
         "showAll": "ဒိုမိန်းအားလုံး",
         "showDomains": "ကွန်ဖစ်များ ပြရန်",
         "showDomainsHint": "ဤဒိုမိန်းတွင် စာမျက်နှာဖွင့်သော အသုံးပြုသူများသည် ဤဒိုမိန်းများ၏ ကွန်ဖစ်များကို မြင်ရမည်။",
-        "tlsMode": "TLS မုဒ်",
-        "cdnIpScannerGo": "Open the scanner",
-        "cdnIpScanner": "Find working IPs with the scanner",
-        "cdnIpScannerHint": "Scans Cloudflare IPs on your internet and saves the best ones here, per operator.",
-        "fragment": "TLS Fragment",
-        "fragmentHint": "Override the panel TLS Fragment setting for this CDN domain only. Different operators and CDNs often need different size / delay values.",
-        "fragmentModeLabel": "Mode",
-        "fragmentMode": {
-          "inherit": "Use panel setting",
-          "on": "Always on",
-          "off": "Always off"
-        },
-        "fragmentModeHint": {
-          "on": "Fragment is forced on for this domain, even if the panel setting is off.",
-          "off": "Fragment is forced off for this domain, even if the panel setting is on."
-        },
-        "fragmentInheritHint": "Follows the panel TLS Fragment setting.",
-        "fragmentInheritDetail": "Panel default: {state} ({size}, {sleep}, {packets}). Leave size/sleep/packets empty to use those values.",
-        "fragmentOn": "on",
-        "fragmentSize": "Lengths",
-        "fragmentOff": "off",
-        "fragmentSleep": "Delays",
-        "fragmentScannerGo": "Try presets in the scanner",
-        "fragmentPackets": "Packets",
-        "fragmentPacketsHint": "Usually tlshello, or 1-3.",
-        "fragmentLengths": "Lengths",
-        "fragmentLengthsHint": "One or more ranges, comma-separated (FinalMask lengths).",
-        "fragmentDelays": "Delays",
-        "fragmentDelaysHint": "One or more intervals, comma-separated (FinalMask delays).",
-        "fragmentMaxSplit": "Max split"
+        "tlsMode": "TLS မုဒ်"
       },
       "getCert": "လက်မှတ် ရယူရန်",
       "guide": {
@@ -1215,6 +1145,33 @@
       "renewCert": "လက်မှတ် သက်တမ်းတိုးရန်",
       "saved": "{name} ကို သိမ်းပြီးပါပြီ",
       "search": "ဒိုမိန်း သို့မဟုတ် အမည် ရှာရန်",
+      "show": {
+        "all": "All domains",
+        "allHint": "Users see every domain's configs, including ones added later.",
+        "clear": "Clear",
+        "clearSearch": "Clear search",
+        "empty": "No other domains yet.",
+        "filter": {
+          "all": "All",
+          "cdn": "CDN",
+          "direct": "Real certificate",
+          "fake": "Fake & Reality",
+          "selected": "Selected"
+        },
+        "group": {
+          "cdn": "CDN",
+          "direct": "Real certificate",
+          "fake": "Fake TLS & Reality"
+        },
+        "noMatch": "No domain matches",
+        "node": "Node",
+        "noneTicked": "Nothing ticked yet: users still see all domains.",
+        "pickHint": "Users see only the domains you tick.",
+        "search": "Search domain, name or node",
+        "selected": "{n} of {total} selected",
+        "thisServer": "This server",
+        "tickServer": "Tick all domains of this server"
+      },
       "stats": {
         "all": "ဒိုမိန်းများ",
         "attention": "လက်မှတ်လိုအပ်သည်",
@@ -1222,6 +1179,18 @@
         "valid": "လက်မှတ်များ အဆင်ပြေ"
       },
       "subtitle": "အသုံးပြုသူများ ချိတ်ဆက်သော လိပ်စာများ၊ တစ်ခုစီ ဤဆာဗာသို့ ရောက်ပုံနှင့် ၎င်းတို့၏ လက်မှတ်များ",
+      "tip": {
+        "autoRenew": "အလိုအလျောက် သက်တမ်းတိုး",
+        "certificate": "လက်မှတ်",
+        "covers": "ပါဝင်သည်",
+        "fingerprint": "Fingerprint",
+        "issuedBy": "ထုတ်ပေးသူ",
+        "key": "Key",
+        "noCertNeeded": "မလိုပါ- TLS ကို ချေးယူ သို့မဟုတ် အတုလုပ်ထားသည်",
+        "off": "ပိတ်",
+        "on": "ဖွင့်",
+        "sni": "ပြသသော အမည် (SNI)"
+      },
       "title": "ဒိုမိန်းများ",
       "tls": {
         "decoy": "Decoy TLS",
@@ -1239,10 +1208,7 @@
         "self_signed": "Self-signed",
         "self_signedHint": "ယာယီ self-signed လက်မှတ်: app များက သတိပေး သို့မဟုတ် ပယ်သည်။ အစစ်အမှန်ကို ရယူပါ။",
         "valid": "မှန်ကန်သည်",
-        "validHint": "အစစ်အမှန်လက်မှတ်၊ အလိုအလျောက် သက်တမ်းတိုးသည်။",
-        "failed": "Certificate failed",
-        "rateLimited": "Rate limited",
-        "renewFailed": "Valid · renewal failed"
+        "validHint": "အစစ်အမှန်လက်မှတ်၊ အလိုအလျောက် သက်တမ်းတိုးသည်။"
       },
       "tlsMode": {
         "dns": "DNS",
@@ -1311,46 +1277,6 @@
         "title": "ဒိုမိန်းတစ်ခု ထည့်ရန်",
         "tlsQ": "ဘယ် TLS လဲ?",
         "unlikely": "DNS မကိုက်ညီပါ"
-      },
-      "emptyTitle": "ဒိုမိန်းများ မရှိသေးပါ",
-      "emptyHint": "ပထမဆုံး ဒိုမိန်းကို ထည့်သွင်းပါ။",
-      "tricks": {
-        "lead": "Optional client-side FinalMask for this CDN domain. Use a template or paste your own object.",
-        "docs": "FinalMask docs",
-        "title": "Tricks",
-        "off": "None",
-        "offHint": "No trick — normal TLS handshake",
-        "presets": {
-          "default": "Default",
-          "fine": "Fine",
-          "coarse": "Coarse",
-          "multi": "Multi",
-          "tight": "Tight",
-          "1-3": "Packets 1-3"
-        },
-        "preview": "What clients get",
-        "tlsFragment": {
-          "name": "TLS Fragment",
-          "tune": "Tune fragment",
-          "tuneHint": "Start from a preset, then edit lengths / delays if needed. Values go into finalmask.tcp[].settings.",
-          "hint": "Splits the TLS ClientHello (FinalMask fragment)",
-          "packets": "Packets",
-          "packetsHint": "tlshello = first TLS record; 1-3 = first few TCP packets.",
-          "lengths": "Lengths",
-          "lengthsHint": "Byte ranges per piece, comma-separated (e.g. 10-100 or 3-5, 6-8).",
-          "delays": "Delays",
-          "maxSplitHint": "How many pieces at most (e.g. 3-6).",
-          "maxSplit": "Max split",
-          "delaysHint": "Milliseconds between pieces, comma-separated (e.g. 50-200)."
-        },
-        "custom": {
-          "name": "Custom",
-          "hint": "Paste any FinalMaskObject (tcp / udp / quicParams)",
-          "tune": "Custom FinalMask",
-          "tuneHint": "Edit the FinalMask JSON directly. It is stored as tricks.finalmask and sent to clients as-is.",
-          "invalidJson": "Not valid JSON",
-          "mustObject": "Must be a JSON object (not an array)"
-        }
       }
     },
     "donation": {
@@ -1395,7 +1321,9 @@
       "previewTitle": "Template နမူနာ"
     },
     "footer": {
-      "text": "HiddifyManager"
+      "links": "ဝက်ဘ်ပေါ်ရှိ Hiddify",
+      "text": "HiddifyManager",
+      "website": "ဝက်ဘ်ဆိုက်"
     },
     "legacy": {
       "loading": "ဖွင့်နေသည်…",
@@ -1437,6 +1365,7 @@
     },
     "menu": {
       "baseConfigs": "Base ကွန်ဖစ်များ",
+      "close": "မီနူး ပိတ်ရန်",
       "customProxies": "Proxy များ",
       "dashboard": "ဒက်ရှ်ဘုတ်",
       "group": {
@@ -1446,18 +1375,15 @@
       },
       "myAccount": "ကျွန်ုပ်၏အကောင့်",
       "nodeHome": "Node",
+      "open": "မီနူး ဖွင့်ရန်",
       "outbounds": "Outbound များ",
       "protocols": "Protocol များ",
       "proxyEditor": "Proxy တည်းဖြတ်ရန်",
+      "qrCode": "QR ကုဒ်",
       "signOut": "ထွက်ရန်",
       "templateVariables": "Template Variable များ",
       "templates": "Template များ",
-      "utils": "Utils",
-      "cleanIp": "Scanner",
-      "configTester": "Config Tester",
-      "ssh": "SSH Terminal",
-      "textDecoders": "Text Decoders",
-      "tools": "Tools"
+      "utils": "Utils"
     },
     "nodeHome": {
       "connectedTo": "ဤ node သည် မိဘပန်နယ်နှင့် ချိတ်ဆက်ထားသည်",
@@ -1487,9 +1413,70 @@
       },
       "addNode": "Node ထည့်ရန်",
       "addTileText": "နောက်ထပ် Hiddify server တစ်ခုကို ချိတ်ဆက်ပြီး ဒီနေရာကနေ စီမံပါ။",
+      "checkAgain": "ထပ်စစ်ရန်",
       "checkConnection": "ချိတ်ဆက်မှု စစ်ဆေးရန်",
       "checking": "စစ်ဆေးနေသည်…",
       "connection": "ချိတ်ဆက်မှု",
+      "contact": {
+        "auth": {
+          "fix": "ဤနေရာတွင် နိုဒ်ကို ဖျက်ပါ (အမှိုက်ပုံး ခလုတ်)၊ ထို့နောက် \"နိုဒ်ထည့်ရန်\" နှင့် နိုဒ်၏ admin link ဖြင့် ပြန်ထည့်ပါ။",
+          "title": "နိုဒ်က ဤပန်နယ်ကို မသိပါ",
+          "why": "နိုဒ်က ပြန်ဖြေသော်လည်း ဤပန်နယ်၏ ကီးကို ငြင်းပယ်ခဲ့သည်။ ဤပန်နယ်သည် ၎င်း၏ ပင်မပန်နယ် မဟုတ်တော့ပါ — နိုဒ်ကို ပြန်ထည့်သွင်းခဲ့သည်၊ backup မှ ပြန်ယူခဲ့သည် သို့မဟုတ် အခြားပင်မပန်နယ်နှင့် ချိတ်ဆက်ခဲ့သည်။ ၎င်း၏ အစီရင်ခံစာများကို ဤနေရာသို့ ပို့နိုင်သေးသဖြင့် Online ဟု ပြနိုင်သည်။"
+        },
+        "dns": {
+          "fix": "domain ၏ DNS record သည် နိုဒ်ဆာဗာကို ညွှန်ကြောင်း စစ်ပါ။ နိုဒ်လိပ်စာ ပြောင်းသွားပါက ဤနေရာတွင် ဖျက်ပြီး link အသစ်ဖြင့် ပြန်ထည့်ပါ။",
+          "title": "နိုဒ်၏ domain ကို ရှာမတွေ့ပါ",
+          "why": "နိုဒ်လိပ်စာရှိ domain သည် မည်သည့် IP ကိုမျှ မညွှန်ပါ — သက်တမ်းကုန်သည်၊ DNS record ဖျက်/ပြောင်းထားသည် သို့မဟုတ် ဤဆာဗာ၏ DNS မအလုပ်လုပ်ပါ။"
+        },
+        "gateway": {
+          "fix": "တစ်မိနစ်စောင့်ပြီး ထပ်စစ်ပါ။ ဆက်ဖြစ်နေပါက နိုဒ်ဆာဗာ၏ service များကို ပြန်စပြီး CDN က နိုဒ်၏ လက်ရှိ IP ကို ညွှန်ကြောင်း သေချာစေပါ။",
+          "title": "CDN က နိုဒ်ကို မရောက်နိုင်ပါ",
+          "why": "နိုဒ်လိပ်စာသည် CDN သို့မဟုတ် proxy (ဥပမာ Cloudflare) မှတဆင့် သွားပြီး ၎င်းက နိုဒ်ပန်နယ်ကို မရောက်နိုင်ပါ — ပန်နယ် ပြန်စနေသည် သို့မဟုတ် ရပ်နေသည်။"
+        },
+        "hint": "အကြောင်းရင်းနှင့် ဖြေရှင်းနည်း",
+        "liveTitle": "တိုက်ရိုက်ဇယားများ မရနိုင်ပါ",
+        "no_url": {
+          "fix": "ဤနေရာတွင် နိုဒ်ကို ဖျက်ပြီး \"နိုဒ်ထည့်ရန်\" နှင့် နိုဒ်၏ admin link ဖြင့် ပြန်ထည့်ပါ။",
+          "title": "ဤပန်နယ်တွင် နိုဒ်၏ လိပ်စာ မရှိပါ",
+          "why": "နိုဒ်က ၎င်းကို မည်သို့ရောက်ရမည်ကို ဤပန်နယ်အား မပြောခဲ့သဖြင့် ဤပန်နယ်က မည်သည့်အရာမျှ မမေးနိုင်ပါ။"
+        },
+        "not_found": {
+          "fix": "နိုဒ်ကို ဤပန်နယ်နှင့် တူညီသော ဗားရှင်းသို့ အပ်ဒိတ်လုပ်ပါ။ admin link ပြောင်းသွားပါက ဤနေရာတွင် ဖျက်ပြီး link အသစ်ဖြင့် ပြန်ထည့်ပါ။",
+          "title": "နိုဒ်ပန်နယ်သည် ဤလိပ်စာတွင် မရှိတော့ပါ",
+          "why": "နိုဒ်က ပြန်ဖြေသော်လည်း ဤလိပ်စာတွင် Hiddify ပန်နယ် မရှိပါ — admin path သို့မဟုတ် domain ပြောင်းသွားသည်၊ သို့မဟုတ် ဗားရှင်း အလွန်ဟောင်းသည်။"
+        },
+        "not_panel": {
+          "fix": "\"ဖွင့်ရန်\" ဖြင့် နိုဒ်ကို ဖွင့်ပြီး ပန်နယ်ပွင့်မပွင့် စစ်ပါ။ နိုဒ်လိပ်စာ ပြောင်းသွားပါက ဤနေရာတွင် ဖျက်ပြီး မှန်ကန်သော link ဖြင့် ပြန်ထည့်ပါ။",
+          "title": "နိုဒ်လိပ်စာတွင် အခြားအရာက ဖြေသည်",
+          "why": "အဖြေသည် Hiddify ပန်နယ်မှ မဟုတ်ပါ — အခြား website၊ CDN error စာမျက်နှာ သို့မဟုတ် network filter က ဖြေခဲ့သည်။"
+        },
+        "refused": {
+          "fix": "နိုဒ်ဆာဗာတွင် service များကို ပြန်စပါ (နိုဒ်ပန်နယ်၏ Actions စာမျက်နှာ သို့မဟုတ် ဆာဗာ reboot)၊ port 443 ပွင့်ကြောင်း သေချာစေပြီး ထပ်စစ်ပါ။",
+          "title": "နိုဒ်က ချိတ်ဆက်မှုကို ငြင်းပယ်သည်",
+          "why": "ဤဆာဗာသည် နိုဒ်လိပ်စာသို့ ရောက်သော်လည်း ချိတ်ဆက်မှုကို မည်သည့်အရာကမျှ လက်မခံပါ — နိုဒ်၏ web service များ ရပ်နေသည် သို့မဟုတ် firewall က ငြင်းပယ်သည်။"
+        },
+        "server_error": {
+          "fix": "နိုဒ်ပန်နယ်ကို ဖွင့်ပြီး Actions စာမျက်နှာတွင် log ကို ကြည့်ပါ သို့မဟုတ် service များကို ပြန်စပါ၊ ထို့နောက် ထပ်စစ်ပါ။",
+          "title": "နိုဒ်ပန်နယ်တွင် အမှားဖြစ်သည်",
+          "why": "နိုဒ်ပန်နယ်က ပြန်ဖြေသော်လည်း internal error ဖြင့် ဖြစ်သည် — ဖြေနေစဉ် နိုဒ်ပေါ်တွင် တစ်ခုခု ပျက်သွားသည်။"
+        },
+        "syncTitle": "ထပ်တူပြုခြင်း အသေးစိတ် မရနိုင်ပါ",
+        "timeout": {
+          "fix": "နိုဒ်ဆာဗာ ဖွင့်ထားပြီး \"ဖွင့်ရန်\" ဖြင့် ပန်နယ်ပွင့်မပွင့် စစ်ပါ။ ပွင့်ပါက နိုဒ်၏ firewall က ဤဆာဗာကို port 443 တွင် ခွင့်ပြုကြောင်း သေချာစေပြီး ထပ်စစ်ပါ။",
+          "title": "နိုဒ်က အချိန်မီ မဖြေပါ",
+          "why": "နိုဒ်ဆာဗာက စက္ကန့်အနည်းငယ်အတွင်း မဖြေပါ — ပိတ်ထားခြင်း၊ ဝန်များခြင်း၊ ပြန်စနေခြင်း သို့မဟုတ် firewall က ဆာဗာနှစ်ခုကြား traffic ကို ပိတ်ခြင်း ဖြစ်နိုင်သည်။"
+        },
+        "tls": {
+          "fix": "နိုဒ်ပန်နယ်၏ Domains စာမျက်နှာတွင် domain certificate ကို စစ်ပါ (domain အသစ်သည် မိနစ်အနည်းငယ်အတွင်း ရရှိသည်)၊ ထို့နောက် ထပ်စစ်ပါ။",
+          "title": "နိုဒ်နှင့် လုံခြုံသော ချိတ်ဆက်မှု မအောင်မြင်ပါ",
+          "why": "နိုဒ်က ပြန်ဖြေသော်လည်း ၎င်း၏ HTTPS certificate သည် ဤလိပ်စာအတွက် မမှန်ကန်ပါ — သက်တမ်းကုန်သည်၊ မထုတ်ရသေးပါ သို့မဟုတ် အခြားအမည်အတွက် ဖြစ်သည်။"
+        },
+        "unknown": {
+          "fix": "တစ်မိနစ်အကြာ ထပ်စစ်ပါ။ ဆက်ဖြစ်နေပါက နည်းပညာဆိုင်ရာ အသေးစိတ်ကို ကူးယူပြီး support သို့ ပို့ပါ။",
+          "title": "နိုဒ်ကို မစစ်နိုင်ပါ",
+          "why": "နိုဒ်ကို မေးနေစဉ် မမျှော်လင့်သော ပြဿနာ ဖြစ်ခဲ့သည်။"
+        }
+      },
       "differentVersion": "Node သည် {node} ဖြင့် လည်ပတ်ပြီး ဤပန်နယ်သည် {panel} ဖြင့် လည်ပတ်သည်။ ဗားရှင်းတူအောင် ထားပါ။",
       "empty": {
         "cta": "သင့်ပထမ node ကို ထည့်ပါ",
@@ -1515,18 +1502,7 @@
         "rejected": "Node က ချိတ်ဆက်ခြင်းကို ငြင်းပယ်သည်။ အခြားမိဘပန်နယ်နှင့် ချိတ်ထားပြီးသား ဖြစ်နိုင်သည် သို့မဟုတ် ဗားရှင်း အဟောင်းလွန်းသည်။",
         "self": "ဤသည် ဤပန်နယ်၏ လင့်ခ်ဖြစ်သည်။ node ဆာဗာ၏ လင့်ခ်ကို သုံးပါ။",
         "timeout": "Node က ဖြေကြားရန် အချိန်ကြာလွန်းသည်။ စစ်ဆေးပြီး ထပ်စမ်းပါ။",
-        "unreachable": "Node ကို မရောက်နိုင်ပါ။ လင့်ခ်နှင့် node အွန်လိုင်းဖြစ်မဖြစ် စစ်ဆေးပါ။",
-        "node_connection": "The connection between this panel and the node broke while it was registering (the node may have restarted its web server). Try again in a minute.",
-        "node_auth": "The node did not accept the admin link. Copy the node's admin link again.",
-        "node_no_domain": "The node has no main domain with a valid certificate. Add one on the node first.",
-        "node_node_data": "The node failed while saving the data it got from this panel.",
-        "node_no_parent_url": "The node does not know the address of this panel.",
-        "node_old": "The node is too old to be added from here. Update the node first.",
-        "node_parent_bad_answer": "This panel gave the node an answer it could not read. Update both panels to the same version.",
-        "node_parent_connection": "The node could not reach this panel. Check that this panel's address opens from the node's server.",
-        "node_parent_rejected": "The node reached this panel, but this panel refused it. The detail says why.",
-        "node_timeout": "The node did not answer in time. It may be busy or restarting: check it and try again.",
-        "node_parent_timeout": "The node tried to register with this panel, but this panel did not answer in time (probably busy saving the node's data). Try again."
+        "unreachable": "Node ကို မရောက်နိုင်ပါ။ လင့်ခ်နှင့် node အွန်လိုင်းဖြစ်မဖြစ် စစ်ဆေးပါ။"
       },
       "info": {
         "fromNode": "node မှ နောက်ဆုံးစာ",
@@ -1547,7 +1523,19 @@
       },
       "moreInfo": "နောက်ထပ်အချက်အလက်",
       "neverSeen": "ဘယ်တော့မှ မဟုတ်",
+      "notice": {
+        "title": "နိုဒ် \"{name}\" ကို မရောက်နိုင်ပါ",
+        "where": "နိုဒ်များ စာမျက်နှာတွင် \"မရောက်နိုင်ပါ\" ပေါ်သို့ မောက်စ်တင်၍ ကြည့်ပါ။"
+      },
       "openAdmin": "ဖွင့်ရန်",
+      "os": {
+        "arch": "Architecture",
+        "kernel": "Kernel",
+        "system": "စနစ်",
+        "title": "Operating system",
+        "unknown": "node က မည်သည့် operating system သုံးကြောင်း မပြောပါ (ယခု မရောက်နိုင်ပါ သို့မဟုတ် ၎င်း၏ ပန်နယ် ဗားရှင်းဟောင်း ဖြစ်သည်)။",
+        "version": "ဗားရှင်း"
+      },
       "pingDialog": {
         "avg": "ပျမ်းမျှ",
         "button": "Ping",
@@ -1585,16 +1573,13 @@
       "syncNow": "ယခု sync လုပ်ရန်",
       "synced": "{name} sync လုပ်ပြီးပါပြီ",
       "title": "Nodes",
-      "unreachable": "မရောက်နိုင်ပါ",
-      "errorReg": "Registration id {id} (it is in the log lines of both panels)",
-      "errorSide": {
-        "between": "Failed on the way between this panel and the node",
-        "node": "Failed on the node",
-        "parent": "Failed on this panel"
-      },
-      "syncInfoTitle": "Sync details: {name}",
-      "syncInfo": "Sync details",
-      "syncInfoUnavailable": "The node could not be asked"
+      "unreachable": "မရောက်နိုင်ပါ"
+    },
+    "notifications": {
+      "dismiss": "ပိတ်ရန်",
+      "new": "အသစ်",
+      "title": "အသိပေးချက်များ",
+      "unread": "အသိပေးချက်အသစ် {n} ခု | အသိပေးချက်အသစ် {n} ခု"
     },
     "outbounds": {
       "add": "Outbound ထည့်ရန်",
@@ -1706,8 +1691,35 @@
       "resetTitle": "{name} ကို built-in စာရင်းများသို့ ပြန်လည်သတ်မှတ်မလား?",
       "saved": "{name} ကို သိမ်းပြီးပါပြီ",
       "subtitle": "traffic သည် ဤဆာဗာမှ ထွက်ရာနေရာကို အစီအစဉ်အတိုင်း ရွေးပါ: WARP မှတစ်ဆင့်၊ တိုက်ရိုက်၊ ပိတ်ဆို့ သို့မဟုတ် Socks၊ Tor၊ Psiphon မှ ထွက်။",
-      "title": "Outbound များ",
-      "torMissing": "Tor is enabled but the `tor` program is not installed on this server, so it is left out of the configs. Install Tor (e.g. apt install tor) and Apply Configs."
+      "terms": {
+        "accept": "လက်ခံသည်",
+        "accepted": "Cloudflare စည်းကမ်းများကို လက်ခံပြီးပါပြီ။ WARP စတင်ရန် ကွန်ဖစ်ကို အသုံးချပါ။",
+        "acceptedSave": "Cloudflare စည်းကမ်းများကို လက်ခံပြီးပါပြီ။ WARP စတင်ရန် ဆက်တင်ကို သိမ်းပြီး ကွန်ဖစ်ကို အသုံးချပါ။",
+        "badge": "သင်၏ လက်ခံမှု လိုအပ်သည်",
+        "banner": "WARP ကို ဖွင့်ထားသော်လည်း Cloudflare စည်းကမ်းများကို မလက်ခံရသေးသောကြောင့် လမ်းကြောင်းကို WARP မှ မပို့ပါ။",
+        "bannerParent": "WARP ကို ဖွင့်ထားသော်လည်း မိခင်ပန်နယ်တွင် Cloudflare စည်းကမ်းများကို မလက်ခံရသေးသောကြောင့် လမ်းကြောင်းကို WARP မှ မပို့ပါ။",
+        "body": "WARP ထွက်ပေါက်မှ ထွက်သည့် လမ်းကြောင်းကို Cloudflare က ၎င်း၏ ဝန်ဆောင်မှုစည်းကမ်းနှင့် ကိုယ်ရေးလုံခြုံမှုမူဝါဒအတိုင်း ကိုင်တွယ်သည်။ Hiddify က ထိုစည်းကမ်းများကို သင့်အစား မလက်ခံပါ။ Cloudflare ဆိုက်တွင် ဖတ်ပြီး WARP အလုပ်လုပ်စေလိုလျှင် ဤနေရာတွင် လက်ခံပါ။",
+        "cancel": "မလုပ်တော့ပါ",
+        "check": "WARP အတွက် Cloudflare ၏ ဝန်ဆောင်မှုစည်းကမ်းနှင့် ကိုယ်ရေးလုံခြုံမှုမူဝါဒကို ဖတ်ပြီး လက်ခံပါသည်။",
+        "lead": "WARP သည် ဤဆာဗာ၏ အထွက်လမ်းကြောင်းကို Cloudflare မှတစ်ဆင့် ပို့သည်။ Cloudflare စည်းကမ်းများကို မလက်ခံမချင်း ၎င်း အလုပ်မလုပ်ပါ။",
+        "privacyLink": "ကိုယ်ရေးလုံခြုံမှုမူဝါဒ",
+        "review": "စည်းကမ်းများကို ဖတ်ရန်",
+        "termsLink": "ဝန်ဆောင်မှုစည်းကမ်း",
+        "title": "Cloudflare WARP စည်းကမ်းများ"
+      },
+      "title": "Outbound များ"
+    },
+    "pager": {
+      "first": "ပထမ စာမျက်နှာ",
+      "jump": "စာမျက်နှာသို့ သွားရန်",
+      "label": "စာမျက်နှာများ",
+      "last": "နောက်ဆုံး စာမျက်နှာ",
+      "next": "နောက်",
+      "of": "/ {pages}",
+      "pageOf": "စာမျက်နှာ {pages} ခုအနက် {page}",
+      "prev": "ယခင်",
+      "report": "{total} ခုအနက် {first}–{last} ကို ပြသနေသည်",
+      "slider": "စာမျက်နှာပြောင်းရန် ဆွဲပါ"
     },
     "passwordRules": {
       "common": "အသုံးများသော စကားဝှက် မဟုတ်ရ",
@@ -1991,11 +2003,32 @@
         "xhttp": "xHTTP"
       },
       "uploadTcpUdp": "Upload TCP သို့မဟုတ် UDP",
-      "version": "ဗားရှင်း",
-      "quickEnable": "Enable now",
-      "quickEnableDone": "Settings saved and proxy enabled",
-      "quickEnableHint": "This proxy needs these settings. Set them here and enable it now:",
-      "wireguardTemplate": "WireGuard .conf template"
+      "version": "ဗားရှင်း"
+    },
+    "pwa": {
+      "gotIt": "နားလည်ပါပြီ",
+      "guide": {
+        "android1": "Chrome တွင် အပေါ်ရှိ ⋮ မီနူးကို နှိပ်ပါ",
+        "android2": "“Add to home screen” (သို့ “Install app”) ကို ရွေးပါ",
+        "android3": "Install ကို နှိပ်ပါ။ panel သည် app ကဲ့သို့ ဖွင့်မည်",
+        "computer": "ကွန်ပျူတာ",
+        "desktop1": "Chrome တွင် လိပ်စာဘား အဆုံးရှိ install icon ကို နှိပ်ပါ",
+        "desktop2": "Install ကို နှိပ်ပါ",
+        "desktop3": "panel သည် ၎င်း၏ ကိုယ်ပိုင် window တွင် app ကဲ့သို့ ဖွင့်မည်",
+        "ios1": "Safari တွင် အောက်ဘားရှိ ••• ခလုတ်ကို နှိပ်ပါ",
+        "ios2": "Share ကို နှိပ်ပါ",
+        "ios3": "“Add to Home Screen” ကို ရွေးပါ",
+        "ios4": "Add ကို နှိပ်ပါ။ panel သည် home screen ပေါ်တွင် ရောက်ပါပြီ",
+        "platform": "သင့်စက်",
+        "tabAndroid": "Android · Chrome",
+        "tabDesktop": "{os} · Chrome",
+        "tabIos": "iPhone · Safari"
+      },
+      "installNow": "ယခု install လုပ်ရန်",
+      "later": "နောက်မှ",
+      "never": "နောက်ထပ် မပြပါနှင့်",
+      "text": "သင့်ဖုန်း သို့ ကွန်ပျူတာရှိ app များကဲ့သို့ panel ကို တစ်ချက်နှိပ်ရုံဖြင့် ဖွင့်နိုင်ပါသည်။",
+      "title": "panel ကို app အဖြစ် install လုပ်ရန်"
     },
     "qr": {
       "clickToCopy": "ပုံကို ကူးယူရန် နှိပ်ပါ",
@@ -2132,8 +2165,219 @@
       "advancedBadge": "အဆင့်မြင့်",
       "categories": "ဆက်တင်အမျိုးအစားများ",
       "changed": "ပြောင်းလဲပြီး",
+      "dns": {
+        "custom": "စိတ်ကြိုက်",
+        "customHelp": "IP လိပ်စာ လေးခုအထိ (IPv4 သို့မဟုတ် IPv6)၊ ကော်မာဖြင့် ခွဲပါ။ ဆာဗာ၏ ကိုယ်ပိုင် DNS အတွက်လည်း သုံးသည်။",
+        "customHint": "သင့်ကိုယ်ပိုင် DNS လိပ်စာများ",
+        "customPlaceholder": "ဥပမာ 1.1.1.1, 1.0.0.1",
+        "group": {
+          "adblock": "ကြော်ငြာပိတ် DNS",
+          "custom": "စိတ်ကြိုက် DNS",
+          "family": "ကြော်ငြာပိတ် + လူကြီးအကြောင်းအရာ စစ်ထုတ်",
+          "normal": "ပုံမှန် DNS"
+        },
+        "invalid": "ကော်မာဖြင့် ခွဲထားသော IP လိပ်စာ တစ်ခုမှ လေးခုအထိ ထည့်ပါ၊ ဥပမာ 1.1.1.1, 1.0.0.1",
+        "placeholder": "DNS ဆာဗာ ရွေးပါ"
+      },
       "fixErrors": "မီးမောင်းထိုးထားသော field များကို ပြင်ပါ။",
       "hiddenCount": "အဆင့်မြင့်ဆက်တင် {count} ခု ဝှက်ထားသည် | အဆင့်မြင့်ဆက်တင် {count} ခု ဝှက်ထားသည်",
+      "htmlEditor": {
+        "alt": "အစားထိုး စာ",
+        "apply": "သုံးရန်",
+        "blockFormat": "စာပိုဒ် ပုံစံ",
+        "blocks": {
+          "h": "ခေါင်းစဉ် {n}",
+          "p": "စာပိုဒ်",
+          "pre": "ကုဒ် ဘလောက်",
+          "quote": "ကိုးကား"
+        },
+        "boxMore": "ပိုမိုကြည့်ရန်",
+        "boxParts": "Title and button",
+        "boxTitle": "အကူအညီ",
+        "buttonText": "ခလုတ် စာ",
+        "cancel": "မလုပ်တော့ပါ",
+        "cleaned": "ရှင်းပြီး: {n} ခု ဖယ်ရှားခဲ့သည်",
+        "close": "ပိတ်ရန်",
+        "copied": "HTML ကူးယူပြီး",
+        "copyFailed": "ဤနေရာတွင် ကူးယူခွင့် မရှိပါ",
+        "customColor": "စိတ်ကြိုက် အရောင်",
+        "defaultText": "Default: {text}",
+        "editButton": "HTML Editor",
+        "find": {
+          "find": "ရှာရန်",
+          "matchCase": "စာလုံးကြီး/သေး ခွဲ",
+          "matches": "{n} ခု တွေ့သည်",
+          "next": "နောက်တစ်ခု",
+          "replace": "အစားထိုးရန်",
+          "replaceAll": "အားလုံး အစားထိုး",
+          "replaced": "{n} ခု အစားထိုးပြီး"
+        },
+        "font": "ဖောင့်",
+        "fonts": {
+          "default": "မူလ ဖောင့်"
+        },
+        "formatCode": "ကုဒ်ကို စီရန်",
+        "full": "ကိရိယာ အားလုံး",
+        "imageUrl": "ပုံ လိပ်စာ (URL)",
+        "insert": "ထည့်ရန်",
+        "linkText": "စာ",
+        "linkTextHint": "အလွတ်: ရွေးထားသောစာ သို့မဟုတ် လင့်ခ်",
+        "lite": "အခြေခံ ကိရိယာများ",
+        "loadingSource": "ကုဒ် editor ကို ဖွင့်နေသည်…",
+        "moreLink": "Opens the \"Support Website\" setting",
+        "moreText": "Button text",
+        "newTab": "တဘ်အသစ်တွင် ဖွင့်ရန်",
+        "ok": "OK",
+        "opened": "{name} ဖွင့်ပြီး",
+        "path": "Element လမ်းကြောင်း",
+        "placeholder": "အသုံးပြုသူများ support box တွင် မြင်ရမည့် စာကို ရေးပါ…",
+        "preview": "အစမ်းကြည့်",
+        "previewNote": "အသုံးပြုသူ စာမျက်နှာတွင် မြင်ရသည့်အတိုင်း။ ဆက်တင်များ သိမ်းသောအခါ ပြောင်းလဲမှုများ ထုတ်ပြန်သည်။",
+        "previewTitle": "Support box အစမ်းကြည့်",
+        "sampleAnswer": "အဖြေ။",
+        "sampleButton": "ဆက်သွယ်ရန်",
+        "sampleQuestion": "သင့်မေးခွန်း?",
+        "sampleText": "သင့်စာ",
+        "saveHint": "သုံးထားသော စာကို ဆက်တင်များ သိမ်းသောအခါ ထုတ်ပြန်သည်",
+        "showMore": "Show the button",
+        "showTitle": "Show the title",
+        "size": "အရွယ်အစား",
+        "source": "ကုဒ်",
+        "sourceFailed": "ကုဒ် editor ကို မဖွင့်နိုင်ပါ",
+        "sourceHint": "ပုံစံချ ကိရိယာများသည် အစမ်းကြည့်တွင် ရှိသည်",
+        "style": {
+          "angle": "ထောင့်",
+          "background": "နောက်ခံ",
+          "border": "ဘောင်",
+          "color": "အရောင်",
+          "dashed": "မျဉ်းပြတ်",
+          "dotted": "အစက်",
+          "fullWidth": "အကျယ် အပြည့်",
+          "gradient": "Gradient",
+          "margin": "အောက် အကွာ",
+          "noTarget": "Block တစ်ခုထဲ cursor ထားပါ",
+          "none": "မရှိ",
+          "padding": "အတွင်း အကွာ",
+          "parent": "မိခင် block",
+          "radius": "ထောင့် ဝိုင်း",
+          "reset": "ပုံစံ ဖယ်ရန်",
+          "shadow": "အရိပ်",
+          "shadow_glow": "အလင်း",
+          "shadow_none": "မရှိ",
+          "shadow_soft": "ပျော့",
+          "shadow_strong": "ပြင်း",
+          "solid": "အပြည့်",
+          "textColor": "စာ အရောင်"
+        },
+        "templates": {
+          "groups": {
+            "contact": "ဆက်သွယ်ရန်နှင့် အကူအညီ",
+            "guide": "လမ်းညွှန်များ",
+            "news": "သတင်းနှင့် အခြေအနေ",
+            "sales": "အစီအစဉ်များနှင့် ကမ်းလှမ်းချက်များ"
+          },
+          "insert": "ထည့်ရန်",
+          "names": {
+            "alerts": "အခြေအနေ စာများ",
+            "announcement": "ကြေညာချက်",
+            "apps": "အက်ပ် ဒေါင်းလုဒ်",
+            "changelog": "အသစ်များ",
+            "columns": "ကော်လံ နှစ်ခု",
+            "contacts": "ဆက်သွယ်ရန် စာရင်း",
+            "darkCard": "အမှောင်ရောင် ဆက်သွယ်ရန်ကတ်",
+            "faq": "မေးလေ့ရှိသော မေးခွန်းများ",
+            "hero": "Support ဘန်နာ",
+            "hours": "Support အချိန်",
+            "minimal": "ရိုးရှင်းသော လက်မှတ်",
+            "offer": "လျှော့စျေး ကမ်းလှမ်းချက်",
+            "persian": "ပါရှန်းဘာသာ အကူအညီဘန်နာ",
+            "plan": "Plan ကတ်",
+            "plans": "အစီအစဉ် နှစ်ခု",
+            "referral": "သူငယ်ချင်းကို ဖိတ်ပါ",
+            "renew": "သက်တမ်းတိုး သတိပေးချက်",
+            "rules": "စည်းမျဉ်းများ",
+            "serverStatus": "ဆာဗာ အခြေအနေ",
+            "social": "Social ခလုတ်များ",
+            "stats": "ကိန်းဂဏန်းများ",
+            "steps": "စတင်ရန်",
+            "testimonial": "ဖောက်သည် သုံးသပ်ချက်",
+            "tips": "ပြဿနာဖြေရှင်းရန် အကြံ"
+          },
+          "note": "အသင့်သုံး ဒီဇိုင်းများ: တစ်ခုရွေးပြီး စာကို ပြင်ပါ။",
+          "replace": "အားလုံး အစားထိုး",
+          "title": "Template များ"
+        },
+        "title": "HTML Editor",
+        "titleText": "Title",
+        "tooLong": "ဤဆက်တင်အတွက် ရှည်လွန်းသည်",
+        "toolbar": "ပုံစံချ ကိရိယာများ",
+        "tools": {
+          "alignCenter": "အလယ်ညှိ",
+          "alignJustify": "နှစ်ဖက်ညှိ",
+          "alignLeft": "ဘယ်ညှိ",
+          "alignRight": "ညာညှိ",
+          "blockStyle": "Block ပုံစံ",
+          "bold": "စာလုံးထူ",
+          "box": "ဘောင်",
+          "bulletList": "အမှတ်အသား စာရင်း",
+          "button": "ခလုတ်",
+          "clean": "ကုဒ် ရှင်းရန်",
+          "clear": "ပုံစံ ဖယ်ရန်",
+          "colAfter": "နောက်တွင် ကော်လံထည့်",
+          "colBefore": "ရှေ့တွင် ကော်လံထည့်",
+          "colDelete": "ကော်လံ ဖျက်",
+          "copy": "HTML ကူးယူ",
+          "download": "HTML ဖိုင် ဒေါင်းလုဒ်",
+          "emoji": "Emoji",
+          "faq": "မေးခွန်း-အဖြေ",
+          "find": "ရှာ၍ အစားထိုး",
+          "highlight": "အလင်းပေး",
+          "hr": "ပိုင်းခြားမျဉ်း",
+          "image": "ပုံ",
+          "indent": "အင်တင်း တိုး",
+          "italic": "စာလုံးစောင်း",
+          "lineHeight": "စာကြောင်း အမြင့်",
+          "link": "လင့်ခ်",
+          "ltr": "ဘယ်မှ ညာ",
+          "numberList": "နံပါတ် စာရင်း",
+          "open": "HTML ဖိုင် ဖွင့်ရန်",
+          "outdent": "အင်တင်း လျှော့",
+          "quote": "ကိုးကား",
+          "redo": "ပြန်လုပ်",
+          "rowAbove": "အပေါ်တွင် အတန်းထည့်",
+          "rowBelow": "အောက်တွင် အတန်းထည့်",
+          "rowDelete": "အတန်း ဖျက်",
+          "rtl": "ညာမှ ဘယ်",
+          "strike": "မျဉ်းဖြတ်",
+          "subscript": "အောက်စာ",
+          "superscript": "အပေါ်စာ",
+          "symbol": "အထူး အက္ခရာ",
+          "table": "ဇယား",
+          "tableDelete": "ဇယား ဖျက်",
+          "tableTools": "ဇယား ကိရိယာ",
+          "templates": "Template များ",
+          "textColor": "စာ အရောင်",
+          "underline": "မျဉ်းသား",
+          "undo": "နောက်ပြန်",
+          "unlink": "လင့်ခ် ဖယ်ရန်"
+        },
+        "toolset": "ကိရိယာအစု",
+        "unapplied": "မသုံးရသေးပါ",
+        "url": "လင့်ခ် (URL)",
+        "variant": {
+          "copyLite": "Lite စာသားကို ကူးယူရန်",
+          "full": "Full",
+          "fullEmpty": "Full စာသား မရှိပါ- ဘောက်စ်ထဲ မဆံ့လျှင် “ဆက်ဖတ်ရန်” သည် Lite စာသားကို ပြသည်။",
+          "fullHint": "“ဆက်ဖတ်ရန်” ဖြင့် ပြသည်",
+          "label": "မည်သည့် စာသား",
+          "lite": "Lite",
+          "liteHint": "ဘောက်စ်ထဲတွင် ပြသည်"
+        },
+        "view": "Editor ပုံစံ",
+        "viewButton": "ကြည့်ရန်",
+        "width": "အကျယ် (px)",
+        "wrap": "စာကြောင်း ခွဲရန်"
+      },
       "invalid": "ဤတန်ဖိုး မမှန်ကန်ပါ။",
       "leaveUnsaved": "မသိမ်းရသေးသော ပြောင်းလဲမှုများ ရှိသည်။ ထွက်မလား?",
       "noMatch": "သင့်ရှာဖွေမှုနှင့် ကိုက်ညီသော ဆက်တင် မရှိပါ။",
@@ -2141,8 +2385,6 @@
       "reinstallBadge": "ပြန်လည်ထည့်သွင်းရန်",
       "reinstallHint": "၎င်းကို ပြောင်းလျှင် အသက်ဝင်ရန် ပြန်လည်ထည့်သွင်းရန် လိုသည်",
       "reloading": "ဘာသာစကား ပြောင်းပြီးပါပြီ၊ ပြန်ဖွင့်နေသည်…",
-      "telegramConnected": "Telegram bot ချိတ်ဆက်ပြီး: @{username}",
-      "telegramFailed": "Telegram bot ချိတ်ဆက်၍ မရပါ",
       "required": "ဤ field လိုအပ်သည်။",
       "search": "ဆက်တင်အားလုံး ရှာရန်…",
       "showAdvanced": "အဆင့်မြင့်ဆက်တင်များ ပြရန်",
@@ -2150,11 +2392,11 @@
       "showLess": "လျှော့ပြရန်",
       "showMore": "အဆင့်မြင့်ဆက်တင် {count} ခု ထပ်ပြရန် | အဆင့်မြင့်ဆက်တင် {count} ခု ထပ်ပြရန်",
       "subtitle": "ဤပန်နယ် လည်ပတ်ပုံနှင့် ပတ်သက်သမျှ။ အသုံးများသောဆက်တင်များ အရင်၊ အဆင့်မြင့်များကို တောင်းလျှင်ပြမည်။",
+      "telegramConnected": "Telegram bot ချိတ်ဆက်ပြီး: @{username}",
+      "telegramFailed": "Telegram bot ချိတ်ဆက်၍ မရပါ",
       "title": "ဆက်တင်များ"
     },
     "tags": {
-      "note": "မှတ်စု",
-      "pin": "ပင်ထိုး",
       "addTag": "Tag",
       "bulk": "Tag",
       "bulkHint": "ရွေးထားသူများ၏ tag များ: အမှန်ခြစ်ဆိုသည်မှာ အားလုံးတွင် ရှိသည်",
@@ -2185,8 +2427,10 @@
       "namePlaceholder": "သင့်ကိုယ်ပိုင် tag အမည်ပေးပါ",
       "newTag": "Tag အသစ်",
       "none": "Tag မရှိသေးပါ",
+      "note": "မှတ်စု",
       "pick": "Tag များ ရွေးရန်",
       "pickHint": "အများကြီး ရွေးနိုင်သည်",
+      "pin": "ပင်ထိုး",
       "rename": "အမည်ပြောင်းရန်",
       "save": "သိမ်းရန်",
       "saveFailed": "Tag များ မသိမ်းနိုင်ပါ",
@@ -2217,11 +2461,11 @@
       "openWeb": "Browser တွင် ဖွင့်ရန်",
       "promptLead": "ဤပန်နယ်တွင် Telegram bot {bot} ရှိသည်။ သင့်အကောင့်နှင့် ချိတ်ပါ:",
       "promptTitle": "သင့် Telegram ကို ချိတ်ဆက်မလား?",
+      "reconnect": "ပြန်ချိတ်ရန်",
+      "scan": "သို့မဟုတ် သင့်ဖုန်းကင်မရာဖြင့် ဤကုဒ်ကို စကန်ဖတ်ပါ။",
       "stepCreate": "chat ထဲမှာပဲ အသုံးပြုသူအသစ် ဖန်တီးပါ",
       "stepStart": "ဘော့ကို စတင်ပါ- မီနူး ပွင့်လာမည်",
-      "stepUsers": "အသုံးပြုသူများနှင့် ၎င်းတို့၏ အသုံးပြုမှုကို ကြည့်ပါ",
-      "reconnect": "ပြန်ချိတ်ရန်",
-      "scan": "သို့မဟုတ် သင့်ဖုန်းကင်မရာဖြင့် ဤကုဒ်ကို စကန်ဖတ်ပါ။"
+      "stepUsers": "အသုံးပြုသူများနှင့် ၎င်းတို့၏ အသုံးပြုမှုကို ကြည့်ပါ"
     },
     "template": {
       "builtin": "Built-in",
@@ -2266,91 +2510,37 @@
       "name": "အမည်",
       "skipHint": "အခြေအနေ မပြည့်မီသောအခါ ဤ proxy ၏ render ကို ကျော်ရန် SKIP ကို output လုပ်ပါ သို့မဟုတ် skip() ကို ခေါ်ပါ"
     },
-    "notifications": {
-      "title": "အသိပေးချက်များ",
-      "unread": "အသိပေးချက်အသစ် {n} ခု | အသိပေးချက်အသစ် {n} ခု",
-      "new": "အသစ်",
-      "dismiss": "ပိတ်ရန်"
-    },
-    "pwa": {
-      "guide": {
-        "platform": "သင့်စက်",
-        "tabIos": "iPhone · Safari",
-        "tabAndroid": "Android · Chrome",
-        "tabDesktop": "{os} · Chrome",
-        "ios1": "Safari တွင် အောက်ဘားရှိ ••• ခလုတ်ကို နှိပ်ပါ",
-        "ios2": "Share ကို နှိပ်ပါ",
-        "ios3": "“Add to Home Screen” ကို ရွေးပါ",
-        "ios4": "Add ကို နှိပ်ပါ။ panel သည် home screen ပေါ်တွင် ရောက်ပါပြီ",
-        "android1": "Chrome တွင် အပေါ်ရှိ ⋮ မီနူးကို နှိပ်ပါ",
-        "android2": "“Add to home screen” (သို့ “Install app”) ကို ရွေးပါ",
-        "android3": "Install ကို နှိပ်ပါ။ panel သည် app ကဲ့သို့ ဖွင့်မည်",
-        "computer": "ကွန်ပျူတာ",
-        "desktop1": "Chrome တွင် လိပ်စာဘား အဆုံးရှိ install icon ကို နှိပ်ပါ",
-        "desktop2": "Install ကို နှိပ်ပါ",
-        "desktop3": "panel သည် ၎င်း၏ ကိုယ်ပိုင် window တွင် app ကဲ့သို့ ဖွင့်မည်"
-      },
-      "gotIt": "နားလည်ပါပြီ",
-      "installNow": "ယခု install လုပ်ရန်",
-      "later": "နောက်မှ",
-      "never": "နောက်ထပ် မပြပါနှင့်",
-      "text": "သင့်ဖုန်း သို့ ကွန်ပျူတာရှိ app များကဲ့သို့ panel ကို တစ်ချက်နှိပ်ရုံဖြင့် ဖွင့်နိုင်ပါသည်။",
-      "title": "panel ကို app အဖြစ် install လုပ်ရန်",
-      "bannerText": "Open it from your home screen or desktop, in its own window, like an app.",
-      "iosAdd": "Choose “Add to Home Screen”",
-      "install": "Install",
-      "installButton": "Install as an app",
-      "bannerTitle": "Install the panel as an app",
-      "menuInstall": "Choose “Install app” (or “Add to Home screen”)",
-      "iosShare": "Tap the Share button",
-      "menuOpen": "Open the browser menu",
-      "perkFast": "One tap from your home screen",
-      "perkWindow": "Its own full-screen window, no browser bars",
-      "perkFresh": "Always the latest version of the panel"
-    },
     "theme": {
-      "dark": "မှောင်မုဒ်",
-      "light": "လင်းမုဒ်",
-      "default": "Hiddify theme (မူလ)",
       "caddy": "Smart Caddy theme",
+      "caddyShort": "Smart Caddy",
       "color": "Theme",
+      "colors": {
+        "blue": "အပြာ",
+        "brown": "အညိုရင့်",
+        "graphite": "ခဲတံရောင်",
+        "green": "အစိမ်း",
+        "orange": "လိမ္မော်",
+        "pink": "ပန်းရောင်",
+        "purple": "ခရမ်း",
+        "red": "အနီ",
+        "spacegray": "Space Gray မီးခိုး",
+        "yellow": "အဝါ"
+      },
+      "dark": "မှောင်မုဒ်",
+      "default": "Hiddify theme (မူလ)",
+      "glass": "ဖန်",
       "glassHint": "အရောင်တိုင်းသည် အလင်းနှင့် အမှောင် နှစ်မျိုးလုံးတွင် အလုပ်လုပ်သည်။ အလင်းတွင် မှုန်သောမှန်၊ အမှောင်တွင် Smart Caddy မှောင်သောမှန်။",
+      "glassLess": "ပိုမှိန်",
+      "glassMore": "ဖန်ပိုများ",
+      "hiddify": "Hiddify",
+      "light": "လင်းမုဒ်",
+      "liquid": "Liquid Glass",
+      "liquidHint": "iOS ပုံစံ — အဝိုင်းထိန်းချုပ်ကိရိယာများ၊ ဖြည်းဖြည်းစီးဆင်းသော အရောင်ပေါ်ရှိ ဖန်။ အလင်းနှင့် အမှောင် နှစ်မျိုးလုံး၊ အထက်တွင် ရွေးထားသော အရောင်ဖြင့်။",
       "menu": "အသွင်အပြင်နှင့် ဘာသာစကား",
       "mode": "အလင်း သို့မဟုတ် အမှောင်",
-      "retry": "ထပ်ကြိုးစားရန်",
-      "colors": {
-        "red": "အနီ",
-        "pink": "ပန်းရောင်",
-        "orange": "လိမ္မော်",
-        "yellow": "အဝါ",
-        "green": "အစိမ်း",
-        "blue": "အပြာ",
-        "purple": "ခရမ်း",
-        "graphite": "ခဲတံရောင်",
-        "spacegray": "Space Gray မီးခိုး",
-        "brown": "အညိုရင့်"
-      }
+      "retry": "ထပ်ကြိုးစားရန်"
     },
     "users": {
-      "guide": {
-        "title": "အသုံးပြုသူ စာမျက်နှာအသစ်မှ ကြိုဆိုပါသည်",
-        "intro": "အများဆုံး လိုအပ်သော အသုံးပြုသူများကို လက်လှမ်းမီအောင် ထားပါ။",
-        "pinTitle": "အသုံးပြုသူများကို ပင်ထိုးရန်",
-        "pinText": "အသုံးပြုသူအမည်ဘေးရှိ tag စက်ဝိုင်းကို နှိပ်ပြီး မီနူး၏ ထိပ်ဆုံးရှိ ပင်ထိုး ကို ရွေးပါ။ အသုံးပြုသူသည် အပေါ်ဆုံးတန်းသို့ ရောက်ပြီး ထိုနေရာတွင် ရှိနေမည်။",
-        "dragTitle": "အသုံးပြုသူများကို တန်းများကြား ရွှေ့ရန်",
-        "dragText": "တန်းကို ၎င်း၏ လက်ကိုင်ဖြင့် ဆွဲပါ (ဥပမာ တန်း ၅ မှ တန်း ၂ သို့)။ ပင်ထိုးထားသူများ အချင်းချင်း ရွှေ့နိုင်ပြီး ကျန်သူများ အောက်တွင် ရှိနေသည်။",
-        "resizeTitle": "အသုံးပြုမှု ကော်လံကို ချဲ့ရန်",
-        "resizeText": "Name နှင့် Usage ကြား နယ်နိမိတ်ကို ဆွဲပါ။ Usage ကျယ်လာပြီး Name ကျဉ်းလာမည်။",
-        "gotIt": "နားလည်ပါပြီ"
-      },
-      "layout": {
-        "drag": "ဤအသုံးပြုသူကို ရွှေ့ရန် ဆွဲပါ",
-        "dragOff": "အသုံးပြုသူများကို ရွှေ့ရန် ကော်လံစီခြင်းကို ဖယ်ပါ",
-        "pin": "အပေါ်တွင် ပင်ထိုးရန်",
-        "unpin": "ပင်ဖြုတ်ရန်",
-        "crossGroups": "ပင်ထိုးထားသူများသည် အခြားသူများ၏ အပေါ်တွင် ရှိနေသည်။ အုပ်စုကြား ရွှေ့ရန် ပင်ထိုး/ဖြုတ်ပါ။",
-        "crossOwners": "အက်ဒမင်အလိုက် အုပ်စုဖွဲ့ထားစဉ် အသုံးပြုသူကို ထိုအက်ဒမင်၏ အသုံးပြုသူများကြားတွင်သာ ရွှေ့နိုင်သည်။"
-      },
       "add": "အသုံးပြုသူ ထည့်ရန်",
       "addLimits": {
         "apply": "ထည့်ရန်",
@@ -2438,8 +2628,7 @@
         "outboundHint": "ဤအသုံးပြုသူအတွက် သီးသန့် outbound ရွေးထားသည်",
         "subs": "အပို sub {n} ခု | အပို sub {n} ခု",
         "subsHint": "ဤအသုံးပြုသူအတွက် ထပ်တိုးထားသော subscription ဖွဲ့စည်းမှုများ",
-        "telegramHint": "Telegram အကောင့် ချိတ်ဆက်ထားသည်",
-        "telegramMessage": "Send a Telegram message to this user"
+        "telegramHint": "Telegram အကောင့် ချိတ်ဆက်ထားသည်"
       },
       "filter": {
         "active": "အသက်ဝင်သည်",
@@ -2459,15 +2648,12 @@
         "not_started": "မစတင်ရသေးပါ",
         "not_startedHint": "ဘယ်တော့မှ မချိတ်ဆက်ရသေးပါ: ၎င်းတို့၏ရက်များ ပထမဆုံးချိတ်ဆက်ချိန်မှ စတင်မည်",
         "unseen_week": "တစ်ပတ်ကြာ မတွေ့ရ",
-        "unseen_weekHint": "အရင်က ချိတ်ဆက်ဖူးသော်လည်း နောက်ဆုံး ၇ ရက်အတွင်း မဟုတ်",
-        "online": "Online",
-        "onlineHint": "Connected in the last 2 minutes",
-        "telegram": "Has Telegram",
-        "telegramHint": "Users who started the bot: they can get messages"
+        "unseen_weekHint": "အရင်က ချိတ်ဆက်ဖူးသော်လည်း နောက်ဆုံး ၇ ရက်အတွင်း မဟုတ်"
       },
       "filtersLabel": "အသုံးပြုသူများ စစ်ထုတ်ရန်",
       "form": {
         "add": "အသုံးပြုသူ ထည့်ရန်",
+        "addAtEnd": "အသုံးပြုသူကို အဆုံးတွင် ထည့်ရန်",
         "addSubtitle": "သိမ်းပြီးနောက် အသုံးပြုသူ၏လင့်ခ်နှင့် QR ကုဒ်ကို ပို့ရန်အဆင်သင့် ဖွင့်ပေးမည်။",
         "addTitle": "အသုံးပြုသူအသစ်",
         "advanced": "အဆင့်မြင့်",
@@ -2541,13 +2727,32 @@
         "uuidInvalid": "ဤသည် မှန်ကန်သော UUID မဟုတ်ပါ",
         "waitingText": "{n} ရက်သည် ပထမဆုံးချိတ်ဆက်ချိန်တွင် စတင်မည်။",
         "waitingUnlimited": "ပထမဆုံးချိတ်ဆက်ချိန်တွင် စတင်ပြီး သက်တမ်းမကုန်ပါ။",
-        "who": "ဘယ်သူ",
-        "outboundReadOnly": "You can see the preferred outbound but only an admin with permission can change it."
+        "who": "ဘယ်သူ"
       },
       "groupByOwner": "အက်ဒမင်အလိုက် အုပ်စုဖွဲ့ရန်",
       "groupCount": "အသုံးပြုသူ {n} ဦး | အသုံးပြုသူ {n} ဦး",
+      "guide": {
+        "dragText": "တန်းကို ၎င်း၏ လက်ကိုင်ဖြင့် ဆွဲပါ (ဥပမာ တန်း ၅ မှ တန်း ၂ သို့)။ ပင်ထိုးထားသူများ အချင်းချင်း ရွှေ့နိုင်ပြီး ကျန်သူများ အောက်တွင် ရှိနေသည်။",
+        "dragTitle": "အသုံးပြုသူများကို တန်းများကြား ရွှေ့ရန်",
+        "gotIt": "နားလည်ပါပြီ",
+        "intro": "အများဆုံး လိုအပ်သော အသုံးပြုသူများကို လက်လှမ်းမီအောင် ထားပါ။",
+        "pinText": "အသုံးပြုသူအမည်ဘေးရှိ tag စက်ဝိုင်းကို နှိပ်ပြီး မီနူး၏ ထိပ်ဆုံးရှိ ပင်ထိုး ကို ရွေးပါ။ အသုံးပြုသူသည် အပေါ်ဆုံးတန်းသို့ ရောက်ပြီး ထိုနေရာတွင် ရှိနေမည်။",
+        "pinTitle": "အသုံးပြုသူများကို ပင်ထိုးရန်",
+        "resizeText": "Name နှင့် Usage ကြား နယ်နိမိတ်ကို ဆွဲပါ။ Usage ကျယ်လာပြီး Name ကျဉ်းလာမည်။",
+        "resizeTitle": "အသုံးပြုမှု ကော်လံကို ချဲ့ရန်",
+        "title": "အသုံးပြုသူ စာမျက်နှာအသစ်မှ ကြိုဆိုပါသည်"
+      },
       "inlineEdit": "စာရင်းတွင်း တည်းဖြတ်ရန်",
       "inlineHint": "စာရင်းတွင်း တည်းဖြတ်ခြင်း ဖွင့်ထားသည်: အမည်၊ အသုံးပြုမှုကန့်သတ်ချက်၊ သက်တမ်း၊ မုဒ် သို့မဟုတ် မှတ်ချက်ကို နှိပ်၍ စာရင်းတွင် တိုက်ရိုက်ပြောင်းပါ။ အသုံးပြုမှုကို ပြန်လည်သတ်မှတ်ရုံသာ ရသည်။",
+      "layout": {
+        "crossGroups": "ပင်ထိုးထားသူများသည် အခြားသူများ၏ အပေါ်တွင် ရှိနေသည်။ အုပ်စုကြား ရွှေ့ရန် ပင်ထိုး/ဖြုတ်ပါ။",
+        "crossOwners": "အက်ဒမင်အလိုက် အုပ်စုဖွဲ့ထားစဉ် အသုံးပြုသူကို ထိုအက်ဒမင်၏ အသုံးပြုသူများကြားတွင်သာ ရွှေ့နိုင်သည်။",
+        "drag": "ဤအသုံးပြုသူကို ရွှေ့ရန် ဆွဲပါ",
+        "dragHandle": "ဤအသုံးပြုသူကို ရွှေ့ရန် ဆွဲပါ",
+        "dragOff": "အသုံးပြုသူများကို ရွှေ့ရန် ကော်လံစီခြင်းကို ဖယ်ပါ",
+        "pin": "အပေါ်တွင် ပင်ထိုးရန်",
+        "unpin": "ပင်ဖြုတ်ရန်"
+      },
       "limitReached": "သင်၏ အသုံးပြုသူကန့်သတ်ချက်သို့ ရောက်ပါပြီ။ အထက်ရှိ အက်ဒမင်ကို တိုးမြှင့်ပေးရန် တောင်းဆိုပါ။",
       "link": "လင့်ခ်",
       "linkTitle": "{name} ၏လင့်ခ်",
@@ -2570,7 +2775,6 @@
       "none": "အသုံးပြုသူ မရှိသေးပါ",
       "of": "၏",
       "online": "အွန်လိုင်း",
-      "pageReport": "{totalRecords} အနက် {first}–{last}",
       "perPage": "စာမျက်နှာတစ်ခုလျှင် အသုံးပြုသူ",
       "refresh": "ပြန်လည်ဆန်းသစ်ရန်",
       "resetTag": {
@@ -2601,30 +2805,7 @@
         "no_data": "အသုံးပြုမှုကန့်သတ်ချက်ကို အားလုံးသုံးပြီးပြီ"
       },
       "subtitle": "ဤပန်နယ်မှတစ်ဆင့် ချိတ်ဆက်သူအားလုံး: ၎င်းတို့၏ဒေတာ၊ ကျန်ချိန်နှင့် လင့်ခ်များ။",
-      "title": "အသုံးပြုသူများ",
-      "autoRefresh": "Auto refresh",
-      "autoRefreshOff": "Off",
-      "readOnlyNode": "Users are managed on the parent panel: here they are shown read-only.",
-      "bulkCreate": {
-        "menu": "Add many users",
-        "title": "Add many users",
-        "subtitle": "Same package for everyone. Names are your prefix plus a number.",
-        "who": "Who",
-        "prefix": "Name prefix",
-        "prefixPlaceholder": "e.g. USER-30d",
-        "countHint": "Between 1 and {max}",
-        "count": "How many",
-        "prefixHint": "Each user is named prefix-01, prefix-02, …",
-        "preview": "Names",
-        "linksTitle": "User links",
-        "domain": "Link domain",
-        "copy": "Copy all",
-        "links": "Links",
-        "create": "Create {n} user | Create {n} users",
-        "download": "Download .txt",
-        "done": "{n} user created | {n} users created",
-        "linksSubtitle": "{n} link ready to copy | {n} links ready to copy"
-      }
+      "title": "အသုံးပြုသူများ"
     },
     "utils": {
       "addQuery": "Query ထည့်ရန်",
@@ -2676,732 +2857,6 @@
       "preview": "Compile လုပ်ထားသော နမူနာ",
       "title": "စစ်ဆေးမှု",
       "warnings": "သတိပေးချက်များ"
-    },
-    "broadcast": {
-      "audience": {
-        "active": "Aktif",
-        "all": "Semua Orang",
-        "expired": "Tamat tempoh atau dilumpuhkan",
-        "hint": "Hanya pengguna yang memulakan bot anda dikira; pengguna yang dipadam tidak akan menerima mesej.",
-        "offline_1d": "Luar talian 1 hari+",
-        "offline_1w": "Luar talian 1 minggu+",
-        "selected": "Pengguna telah dipilih",
-        "offline_1h": "Luar talian 1 jam+",
-        "title": "Siapa yang mendapatnya"
-      },
-      "confirm": {
-        "title": "Hantar mesej ini?",
-        "text": "Ia diberikan kepada pengguna {n} ({audience}) dalam Telegram. Ia tidak boleh ditarik balik. | Ia diberikan kepada pengguna {n} ({audience}) dalam Telegram. Ia tidak boleh ditarik balik."
-      },
-      "extra": {
-        "addImage": "Pralihat cetakan",
-        "badType": "Gunakan imej JPEG, PNG atau WebP.",
-        "imageHint": "Klik atau lepas · JPEG, PNG atau WebP · sehingga 10 MB",
-        "title": "Imej dan pilihan",
-        "removeImage": "Buang imej",
-        "tooBig": "Imej lebih besar daripada 10 MB.",
-        "usage": "Tambahkan penggunaan dan butang setiap pengguna",
-        "usageHint": "Their remaining data and days, with buttons to their usage and panel, after your text."
-      },
-      "format": {
-        "plain": "Jelas"
-      },
-      "fromUsers": "Mesej",
-      "dialogTitle": "Mesej kepada {n} pengguna yang dipilih | Mesej kepada {n} pengguna yang dipilih",
-      "message": {
-        "title": "Mesej",
-        "toolbar": "Pemformatan",
-        "help": {
-          "html": "Tag Telegram: b, i, u, s, a, kod, pre, blockquote, tg-spoiler.",
-          "markdown": "**bold** _italic_ __underline__ ~~strike~~ {'|'}{'|'}spoiler{'|'}{'|'} `code` > quote",
-          "plain": "Dan kemudian anda ulangi soalan sama seperti yang ditulis."
-        },
-        "placeholder": {
-          "html": "gak ada adab",
-          "markdown": "Write your message… **bold**, _italic_, [link](https://…)",
-          "plain": "Mesej Anda"
-        }
-      },
-      "noBot": {
-        "action": "Buka tetapan",
-        "text": "Add your bot's token in the settings; users who start the bot can then get messages.",
-        "title": "Belum dipasang"
-      },
-      "preview": {
-        "botLabel": "Bot",
-        "buttonUsage": "Penggunaan",
-        "title": "Pratonton",
-        "bot": "Bot",
-        "buttonLink": "Panel",
-        "empty": "Selepas itu - demi sesungguhnya! - kamu (wahai orang-orang yang derhaka) akan melihatnya dengan penglihatan yang yakin (semasa kamu dilemparkan ke dalamnya)!",
-        "usage": "Ia digunakan"
-      },
-      "progress": {
-        "again": "Baru menggunakan TemplateComment",
-        "done": "Dihantar",
-        "sending": "Menghantar...",
-        "counts": "{sent} of {total} delivered",
-        "errors": "Tidak dihantar",
-        "failed": "Tidak dihantar"
-      },
-      "recipients": {
-        "active": "Aktif",
-        "all": "All",
-        "count": "{n} daripada {total} dipilih",
-        "more": "Tunjukkan {n} lagi",
-        "failed": "Tidak dapat memuatkan pengguna",
-        "empty": "Tiada pengguna khalayak ini memulakan bot.",
-        "none": "Tiada",
-        "inactive": "Tamat tempoh atau dilumpuhkan",
-        "never": "Tidak pernah",
-        "noMatch": "Tiada ID pengguna",
-        "title": "Siapa yang mendapatnya",
-        "search": "Cari mengikut id"
-      },
-      "send": {
-        "button": "Hantar",
-        "choose": "Dia faham.",
-        "failed": "Tidak dapat menghantar MDN.",
-        "to": "To {n} user | To {n} users"
-      },
-      "title": "Hantar Mesej",
-      "tool": {
-        "bold": "Bold",
-        "italic": "Italic",
-        "code": "Kod",
-        "link": "Pautan",
-        "list": "Senarai",
-        "strike": "Strikethrough",
-        "underline": "Underline",
-        "quote": "Quote",
-        "spoiler": "Spoiler",
-        "pre": "Blok HTML"
-      },
-      "subtitle": "Reach your users in Telegram, with text, formatting and an image"
-    },
-    "cleanIp": {
-      "addCount": "Add {count}",
-      "addSpares": "Add as spares",
-      "advancedHint": "Use it when the IPs found above still don't connect: some operators cut a connection after a little upload, which a browser can't test. Gives you a command to run on a phone or computer.",
-      "advancedTag": "Optional",
-      "advanced": "Full test with upload, from another device",
-      "auto": "Switch a filtered REALITY SNI to a working spare by itself",
-      "asUnknown": "The AS number of this network was not detected (the panel's IP database has no entry for it).",
-      "autoTitle": "Automatic switch",
-      "best": "best {ms} ms",
-      "built": "{count} IPs for {isp}.",
-      "byAuto": "by itself, filtered on {isp}",
-      "byAdmin": "by an admin",
-      "candidatesFound": "{ok} of {tested} SNIs to test work here",
-      "candidates": "SNIs to test",
-      "candidatesCount": "{count} names",
-      "candidatesFrom": "from OONI",
-      "candidatesHint": "Sites OONI saw reachable in Iran, one per line; edit freely. The REALITY SNIs in use and the spares are always tested too.",
-      "candidatesReload": "Load again",
-      "cmdNote": "Valid for 24 hours. It can only add IPs to this domain. Run it again on each ISP (e.g. a phone on MCI, then on Irancell).",
-      "cmdUnix": "Linux, macOS, Android (Termux): needs python3",
-      "copyAll": "Copy all",
-      "cmdWindows": "Windows (PowerShell): needs Python",
-      "domain": "CDN domain",
-      "dropped": "The old value had IPs without an ISP name; it is replaced (the two forms can't be mixed).",
-      "editScript": "Edit the template",
-      "estimate": "About {count} IPs from {ranges} ranges.",
-      "existingWarn": "This domain already has {count} addresses for {who}; saving replaces them:",
-      "flow1": "Where and for whom?",
-      "flow1DomainHint": "The CDN domain to put the IPs in.",
-      "filtered": "filtered",
-      "flow1Domain": "Which domain?",
-      "flow1Hint": "The CDN domain to put IPs in, and the operator whose users will get them.",
-      "flow2": "Find IPs that work",
-      "flow2Hint": "Tested from this browser, on the internet it is on now: open this page on the operator you picked above, with the VPN off.",
-      "flow3": "Add them to the domain",
-      "flow3Scanning": "Scanning… the fastest IPs show up here when it ends.",
-      "flow3On": "on",
-      "flow3Wait": "Run the scan above: its fastest IPs show up here.",
-      "flow3Sentence": "These {count} IPs go to users of",
-      "flowAllHint": "What will be saved: the IPs above for this operator; the other operators' rows stay as they are. You can edit it.",
-      "flowIps": "IPs to save",
-      "flowIpsHint": "The fastest of the scan; remove some, or add IPs, ranges or domains of your own.",
-      "flowShowAll": "Show all IPs of this domain (every operator)",
-      "fullLead": "For operators that cut connections after a little upload: test from a phone or computer on that operator.",
-      "fullHint": "Some ISPs let a connection open and then cut it after about 1.3 KB of upload. A browser can't test that; this command can. Run it on a computer or phone (Termux) on the ISP you want IPs for, with the VPN off. Through each IP it uploads to this panel and checks the whole upload arrived; the IPs that pass are tested 3 more times, so flaky ones get a loss % and go last. The best ones are saved for that ISP.",
-      "fullTitle": "Full test (with upload)",
-      "goDomains": "Go to Domains",
-      "history": "Switches",
-      "help": "What is this?",
-      "howItWorks": "The scan runs in this browser, on the internet it is connected to (the panel's server is abroad and can't test it). Open this page on each ISP you care about, e.g. on a phone with MCI and then with Irancell, and save each result: Hiddify gives every user the IPs of their own ISP.",
-      "ip": "IP",
-      "isp": "ISP",
-      "latency": "Latency",
-      "kept": "Kept {count} IPs of other ISPs.",
-      "loading": "Loading…",
-      "makeAgain": "Make a new command",
-      "loss": "{pct}% loss",
-      "makeCommand": "Make the command",
-      "noCdnDomain": "There is no CDN or worker domain. Add one on the Domains page first.",
-      "newSni": "Another SNI",
-      "noSpares": "No spare yet: add a few ordinary sites below, or from an SNI test's results.",
-      "noReality": "This panel has no REALITY domain.",
-      "noneFound": "No IP answered. Try more IPs per range, or a longer timeout.",
-      "notTested": "Not tested yet: run the SNI test below on an operator.",
-      "off": "Off",
-      "notYet": "Press Start to scan.",
-      "on": "On",
-      "ovFiltered": "filtered",
-      "otherUsers": "every other operator",
-      "ovAuto": "auto switch",
-      "ovHealthy": "healthy",
-      "ovSnis": "REALITY SNIs",
-      "ovSpares": "spares",
-      "passed": "{count} work",
-      "perIsp": "IPs for this ISP",
-      "perRange": "Random IPs per range",
-      "pickIsp": "Pick the ISP",
-      "pickIspFirst": "Pick the ISP these results are for.",
-      "platformWindows": "Windows",
-      "platformUnix": "Linux / macOS / Android",
-      "preview": "CDN IP field (you can edit it)",
-      "previewTitle": "IPs of this domain, per operator (editable)",
-      "qHowMany": "How many IPs?",
-      "qHowManyHint": "The fastest ones from your scan.",
-      "qWhere": "In which domain?",
-      "qWhereHint": "The CDN domain in your users' links.",
-      "qWho": "For which operator's users?",
-      "qWhoHint": "Users who connect with this operator get these IPs.",
-      "qWhoMulti": "Starts with your internet's AS; add other operators or AS numbers. None: every other operator.",
-      "ranges": "IP ranges",
-      "rangesCloudflare": "Cloudflare",
-      "rangesCount": "{count} ranges",
-      "rangesCustom": "custom",
-      "rangesDone": "Done",
-      "rangesEdit": "Edit",
-      "rangesHint": "One CIDR per line, /8 to /30. Random IPs are picked from each; the full test uses them too.",
-      "rangesReset": "Back to Cloudflare's ranges",
-      "rangesInvalid": "Not an IPv4 range (like 104.16.0.0/13), skipped: {list}",
-      "realityHint": "The REALITY SNI test connects to this server with each REALITY SNI, as a REALITY client does, and tells you on which operators it is filtered. Keep a few spare SNIs: a filtered one can be switched to a spare that works, by you or by itself. Before any switch the panel tests a real REALITY connection through the site, and applies the configs after it; users get the new SNI with their next subscription update.",
-      "realityTitle": "REALITY SNIs",
-      "received": "Results received",
-      "rebuild": "Rebuild",
-      "refreshNetwork": "Detect again",
-      "reportSaved": "Saved {count} IPs for {isp}:",
-      "reportLine": "{tested} tested with {kb} KB upload to the panel, {found} work",
-      "reportNotSaved": "Hiddify has no name for this ISP, so nothing was saved.",
-      "retry": "Try again",
-      "save": "Save to the domain",
-      "saveFirstScan": "Run step 1 first: its best IPs are put here.",
-      "saveHint": "The best IPs go into the CDN domain's “CDN IP” field as “IP ISP” pairs; the other ISPs' IPs already there are kept.",
-      "saveSettings": "Save",
-      "saveTitle": "Save for this ISP",
-      "scan": "Scan",
-      "saved": "Saved on {domain}. Users get them with their next subscription update.",
-      "scanAgain": "Scan again",
-      "scanSettings": "Scan settings",
-      "scriptHint": "Made for this command from its template (Base configs page). An edit there applies to the next download of any command, this one too.",
-      "scanSettingsSummary": "{ranges} ranges · about {count} IPs · {sec} s per IP",
-      "scanning": "Scanning…",
-      "scriptTitle": "The script this command runs",
-      "settingsSaved": "Saved.",
-      "showAllResults": "Show all {count} results",
-      "showLess": "Show less",
-      "sniServerBlocked": "The server itself did not answer on this operator (its address is blocked or down), so the SNIs were not judged.",
-      "sniTestHint": "It runs on a phone or computer, with the VPN off, on the operator to check. It first connects with the server's own name: if that fails, the server's address is blocked there and the SNIs are not judged. Run it once on each operator that matters.",
-      "sniTestLead": "Run this command on a device on the operator to check: it shows which SNIs that operator filters and records it here.",
-      "sniTestTitle": "Test the SNIs",
-      "spares": "Spare SNIs (one per line)",
-      "sparesAdded": "{count} spares added",
-      "sparesFull": "At most {max} spares: the rest were not added.",
-      "sparesInvalid": "Not a site name, left in the box: {list}",
-      "sparesPasteHint": "Paste a list too (one per line, or separated by spaces / commas). {count} of {max}.",
-      "sparesHint": "A filtered SNI is switched to one of these when it works on that operator. The full test checks them too.",
-      "sparesPlaceholder": "A site, e.g. www.example.com, or paste a list",
-      "sparesTitle": "Spare SNIs",
-      "statBest": "fastest",
-      "start": "Start",
-      "statTested": "tested",
-      "statWorking": "working",
-      "stateBad": "Filtered on {count}",
-      "stateNone": "Not tested",
-      "stop": "Stop",
-      "switch": "Switch",
-      "subtitle": "Find Cloudflare IPs that work on your internet and give them to the users of your ISP",
-      "stateOk": "Healthy",
-      "switched": "Now using {sni}; the configs are being applied.",
-      "tabIp": "IP scanner",
-      "tabReality": "REALITY SNI",
-      "tested": "{done} of {total} tested",
-      "timeout": "Timeout per IP",
-      "unknownIspAs": "AS{asn} (an operator Hiddify has no name for)",
-      "title": "Scanner",
-      "unknownIsp": "An ISP Hiddify has no name for",
-      "uploadSize": "Upload size",
-      "unsaved": "not saved",
-      "viewScript": "View the script",
-      "useThese": "Use these IPs above",
-      "tabFragment": "Fragment",
-      "yourNetwork": "Your network (as the panel sees it)",
-      "waiting": "Waiting for a run of the command…",
-      "vpnWarning": "This browser is not in the panel's country: a VPN or proxy is probably on. Turn it off, otherwise you test the VPN, not your ISP.",
-      "pickDomain": "Pick a CDN domain",
-      "fragment": {
-        "lead": "CDN domains often need their own TLS Fragment (FinalMask) values. Pick a domain, try a preset, then check with Config Tester or a client on that ISP.",
-        "current": "Current for this domain",
-        "noCdn": "Add a CDN or worker domain first.",
-        "mode": {
-          "on": "On",
-          "inherit": "Off",
-          "off": "Off"
-        },
-        "enabled": "on",
-        "disabled": "off",
-        "presetsHint": "Applies a FinalMask TLS Fragment trick on this domain. Then test from the ISP you care about.",
-        "presetsTitle": "Presets",
-        "apply": "Apply",
-        "currentBtn": "Applied",
-        "applied": "Saved «{name}» on {domain}",
-        "testHint": "Fragment cannot be measured in the browser IP scan. After applying, use Config Tester or a client on that network to see which preset works.",
-        "presets": {
-          "off": "Off",
-          "offHint": "Disable fragment for this domain",
-          "fine": "Fine / fast interval",
-          "default": "Default",
-          "coarse": "Coarse length",
-          "tight": "Tight (small & fast)",
-          "multi": "Multi lengths",
-          "1-3": "Packets 1-3"
-        }
-      }
-    },
-    "configTester": {
-      "advanced": "More options",
-      "appHint": "The client the subscription is for: a format it cannot read is shown as an error. Xray gets share links converted to xray JSON.",
-      "app": "Application",
-      "copyName": "Copy name",
-      "contentLabel": "Contents to test",
-      "contentPlaceholder": "Paste share links (one per line, or base64), an xray / hiddify-core / sing-box JSON, or Clash Meta YAML…",
-      "delay": "Delay",
-      "details": "Details",
-      "editText": "Edit text",
-      "empty": "(empty)",
-      "failed": "Failed",
-      "fetchedWith": "Fetched with",
-      "filter": {
-        "all": "All",
-        "failed": "Not working",
-        "ok": "Working"
-      },
-      "find": "Find",
-      "findHint": "Click to browse users, or type a name, note, or uuid — pick one to fill their subscription link",
-      "findEmpty": "No matching user",
-      "forceXray": "Ask for xray JSON",
-      "gone": "This test is no longer kept (tests are kept for an hour). Start it again.",
-      "forceXrayHint": "Adds force_xray_json=1 to the link, so the panel gives xray configs even if that subscription is off in its settings.",
-      "history": {
-        "again": "Test this one again",
-        "header": "Ping history: {name}",
-        "avg": "Average",
-        "min": "Fastest",
-        "max": "Slowest",
-        "more": "Test 3 more times",
-        "title": "Ping history",
-        "success": "Worked"
-      },
-      "log": "Log (trace)",
-      "mode": {
-        "content": "Contents",
-        "label": "What to test",
-        "link": "Subscription link"
-      },
-      "lost": "The test stopped because the panel was restarted. Start it again for the rest.",
-      "name": "Config",
-      "noMatch": "Nothing here.",
-      "ok": "Works",
-      "onlyWorking": "Only working",
-      "open": "Details",
-      "original": "Original config",
-      "pasted": "Pasted contents",
-      "raw": "Original (as received)",
-      "parsed": "Parsed by hiddify-core",
-      "reconnecting": "Reconnecting… the test goes on in the panel.",
-      "repeats": "Tests per config",
-      "rerunFailed": "Test failed again",
-      "rerun": "Test again",
-      "showViewer": "Show viewer",
-      "rerunAll": "Test all again",
-      "signedOut": "You are signed out of the panel. The test goes on in the panel: sign in again, then open this page again.",
-      "runConfig": "Config that ran",
-      "sort": {
-        "delay": "Fastest first",
-        "order": "Subscription order",
-        "name": "Name",
-        "label": "Sort"
-      },
-      "sourceClash": "Clash Meta subscription",
-      "sourceCore": "hiddify-core subscription",
-      "sortDelay": "Sort by delay",
-      "sourceParsed": "Links converted by hiddify-core",
-      "sourceXray": "xray subscription",
-      "start": "Start test",
-      "state": {
-        "failed": "Failed",
-        "idle": "Not tested",
-        "ok": "Works",
-        "waiting": "Testing…"
-      },
-      "status": "Status",
-      "stop": "Stop",
-      "sub": {
-        "collapseAll": "Collapse",
-        "apply": "Apply",
-        "clickToEdit": "Tap a link to edit it",
-        "countOf": "{n} of {total} links",
-        "copyLink": "Copy link",
-        "configs": "Configs",
-        "count": "{n} links",
-        "editNode": "Edit as JSON",
-        "edited": "edited",
-        "expandAll": "Expand all",
-        "inDecoded": "in decoded part",
-        "items": "{n} configs",
-        "keys": "{n} keys",
-        "links": "Share links",
-        "noMatch": "Nothing matches.",
-        "none": "No links found.",
-        "parsedHint": "What hiddify-core made of the links; this is what was tested.",
-        "received": "Subscription received",
-        "reset": "Undo changes",
-        "testEdited": "Test with edits",
-        "search": "Search links and configs…",
-        "testThis": "Test this link",
-        "whole": "The whole subscription",
-        "text": "Text",
-        "view": "View"
-      },
-      "subscription": "Subscription",
-      "subtitle": "Run every config of a subscription in its own core and check that it connects.",
-      "timeout": "Timeout (s)",
-      "summary": "{ok} of {done} work ({total} total)",
-      "testUrl": "Test URL",
-      "title": "Config Tester",
-      "uaHint": "Sent when fetching the link, so the panel gives the xray or hiddify-core format.",
-      "ua": "User agent",
-      "uaPreset": "Preset",
-      "url": "Subscription link",
-      "workers": "Parallel workers",
-      "urlPlaceholder": "Paste a link, or pick a user…",
-      "waiting": "Waiting"
-    },
-    "nodeSync": {
-      "active": "Active",
-      "adminsOnNode": "Admins on this node",
-      "autoOff": "Paused",
-      "all": "All",
-      "autoOn": "Auto refresh",
-      "connected": "Connected",
-      "connectedSince": "Connected since",
-      "cursor": "Feed cursor",
-      "disconnected": "Disconnected",
-      "disabled": "Disabled",
-      "deleted": "{n} deleted",
-      "enabled": "{n} enabled",
-      "host": "Parent host",
-      "ids": "Identifiers",
-      "inactive": "Inactive",
-      "items": "Exchanged items ({n})",
-      "itemsMore": "… and {n} more",
-      "kind": {
-        "admins": "Admins",
-        "domains": "Domains",
-        "outbounds": "Outbounds",
-        "usage": "Usage report",
-        "users": "Users"
-      },
-      "lastBatch": "Last change batch",
-      "lastHttpSync": "Last HTTP fallback sync",
-      "lastError": "Last error",
-      "link": "Link to the parent",
-      "lastUsage": "Last usage sync (parent time)",
-      "listEmpty": "Nothing matches.",
-      "listShown": "{n} of {total}",
-      "never": "No sync noted yet",
-      "noLog": "No syncs noted yet.",
-      "nodeId": "This node's unique id",
-      "noWs": "No state yet",
-      "parentId": "Parent unique id",
-      "parentUrl": "Parent address",
-      "rawData": "Data ({size})",
-      "rawTruncated": "only its beginning is kept",
-      "rawUnreadable": "The data could not be read.",
-      "recent": "Recent syncs",
-      "rows": "{n} rows",
-      "refresh": "Refresh",
-      "showData": "Show what was exchanged",
-      "showList": "Show the list",
-      "search": "Search",
-      "source": {
-        "http_sync": "HTTP sync",
-        "inventory": "inventory check",
-        "register": "register",
-        "ws_feed": "live feed",
-        "usage_report": "usage report"
-      },
-      "state": {
-        "error": "The last try failed",
-        "fresh": "Synced in the last 10 minutes",
-        "never": "No sync noted",
-        "stale": "Last sync is older than 10 minutes"
-      },
-      "subtitle": "Read only, for debugging: what this node holds and when each kind of data last came from the parent.",
-      "title": "Sync with the parent",
-      "took": "{ms} ms",
-      "usersOnNode": "Users on this node",
-      "websocket": "Live connection"
-    },
-    "operatorIps": {
-      "add": "Add",
-      "addressCount": "{count} addresses for these operators",
-      "asOption": "{code} (by AS number)",
-      "asText": "Edit as text",
-      "asTable": "Edit as table",
-      "badAddress": "Not an IP, range or name: {list}",
-      "defaults": "Fill the defaults",
-      "defaultsHint": "Each operator without an address gets its ircf.space one",
-      "for": "For",
-      "host": "IP, range or domain, then space or Enter",
-      "name": {
-        "AFR": "Afranet",
-        "HWB": "HiWeb",
-        "AST": "Asiatech",
-        "ITC": "Zirsakht (ITC)",
-        "ASK": "Andishe Sabz",
-        "MBT": "Mobinnet",
-        "MCI": "Hamrah-e Aval",
-        "MKH": "Mokhaberat",
-        "MTN": "Irancell",
-        "PRS": "ParsOnline",
-        "OTHER": "Other",
-        "RSP": "Respina",
-        "PSM": "Pishgaman",
-        "SHT": "Shatel",
-        "RTL": "Rightel",
-        "ZTL": "Zitel"
-      },
-      "operator": "Operator",
-      "searchOrAs": "Search, or type AS254",
-      "remove": "Remove"
-    },
-    "ssh": {
-      "add": "New / upload",
-      "addCommand": "New command",
-      "all": "All",
-      "binary": "This is not a text file ({size}). You can download it.",
-      "builtin": "built-in",
-      "byPassword": "Password",
-      "byKey": "Private key",
-      "cannotSave": "Not available here: the page needs HTTPS.",
-      "chooseFile": "Choose file",
-      "close": "Close",
-      "closeConfirm": "Close {name}? Its connection will be disconnected.",
-      "closeRunConfirm": "Close these results? Commands still running will be stopped.",
-      "closeTab": "Close",
-      "closed": "The connection closed.",
-      "commandPlaceholder": "e.g. systemctl status hiddify-panel",
-      "commands": "Commands",
-      "cmd": {
-        "installHiddify": "Install Hiddify Manager"
-      },
-      "commandName": "Name",
-      "conflictText": "is already in this folder. Replace it, or keep both (the new one gets a number)?",
-      "commandsHint": "Saved commands, run on one or several open connections at once.",
-      "conflictTitle": "A file with this name exists",
-      "copyLink": "Copy link",
-      "connect": "Connect",
-      "copyLinkHint": "A link that opens this connection again, for your account only",
-      "create": "Create",
-      "couldNotConnect": "Could not connect",
-      "discard": "Close without saving your changes?",
-      "discardGo": "Discard changes",
-      "disconnect": "Disconnect",
-      "download": "Download",
-      "dropHere": "Drop files to upload here",
-      "edit": "Edit",
-      "emptyDir": "This folder is empty.",
-      "err": {
-        "badName": "This name is not allowed here.",
-        "connection": "The connection to the server was lost. Reconnect and try again.",
-        "exists": "{name} already exists.",
-        "isDir": "{name} is a folder.",
-        "missingTool": "{tool} is not installed on the server: install it there (e.g. apt install {tool}) and try again.",
-        "noSpace": "The server's disk is full (or your quota is used up).",
-        "notEmpty": "The folder is not empty.",
-        "notDir": "{name} is not a folder.",
-        "notFound": "{name} is not there (it may have been moved or deleted). Refresh the list.",
-        "permission": "Permission denied: your user may not do this with {name}. Log in as a user who may, or change its permissions.",
-        "readonly": "The file system is read-only here.",
-        "timeout": "The server took too long to answer.",
-        "tooLarge": "The file is too large."
-      },
-      "editCommand": "Edit command",
-      "exited": "The session ended (exit code {status}).",
-      "extract": "Extract",
-      "extractHere": "Extract",
-      "extractInto": "Extract into",
-      "extractedTo": "extracted to {path}",
-      "extracting": "extracting…",
-      "files": "Files",
-      "home": "Home folder",
-      "forget": "Forget",
-      "host": "Server",
-      "inFolder": "in {path}",
-      "keepBoth": "Keep both",
-      "keyChanged": "The server's key has changed",
-      "keepEditing": "Keep editing",
-      "keyChangedHint": "This server answered with a different key than the one you trusted before. This happens after a reinstall, but it can also mean someone is in the middle. Only continue if you expect it.",
-      "keyName": "Name of this key",
-      "keyNamePlaceholder": "e.g. my laptop key",
-      "keyPad": "Key pad",
-      "keyText": "New private key",
-      "keys": "Extra keys",
-      "lastResults": "Last results",
-      "linkCopied": "Link copied",
-      "linkHint": "Copy it from here (the browser did not allow copying).",
-      "linkNotYours": "This link has no secret you can open (made by another admin, or without one): sign in to fill it in.",
-      "linkTitle": "Link to this connection",
-      "name": "Name",
-      "namePlaceholder": "e.g. Main server, Node 1",
-      "needsTrust": "Its host key is not trusted yet: trust it in its tab",
-      "newConnection": "New connection",
-      "newFile": "New file",
-      "newFolder": "New folder",
-      "newHost": "Trust this server?",
-      "newTab": "New connection",
-      "newKey": "+ New key",
-      "noCommands": "No saved command yet: add one below.",
-      "noConnected": "No connection is open yet.",
-      "noOutput": "No output",
-      "noSecret": "No saved password or key",
-      "none": "None",
-      "note": "The panel connects from its own server. Passwords and keys are used for this connection only and never saved.",
-      "openTab": "Open tab",
-      "noteSaved": "The panel connects from its own server. The connection, with its password or key, is kept in this browser, encrypted for your account.",
-      "passphrase": "Key passphrase",
-      "optional": "Only if the key has one",
-      "password": "Password",
-      "permExec": "Execute / enter",
-      "permWrite": "Write",
-      "permNone": "No access",
-      "permRead": "Read",
-      "port": "Port",
-      "ranOn": "Sent to {n} connection(s)",
-      "privateKey": "Private key",
-      "reconnect": "Reconnect",
-      "readOnly": "Read-only",
-      "refresh": "Refresh",
-      "removeArchive": "Delete the archive afterwards",
-      "replace": "{name} is already there. Replace it?",
-      "replaceGo": "Replace",
-      "run": "Run",
-      "resize": "Resize the files panel",
-      "runOnChosen": "Run on {n} connection(s)",
-      "runOn": "Run on",
-      "runOnOpen": "Open sessions",
-      "runOnSaved": "Saved connections",
-      "runOnce": "Run without saving",
-      "save": "Save",
-      "saveIt": "Save this connection in this browser",
-      "saved": "Saved connections",
-      "savedPick": "Saved connections ({n})… type to search",
-      "savedUnreadable": "The saved connections of this browser could not be read.",
-      "stConnecting": "connecting…",
-      "stExit": "exit {status}",
-      "stRunning": "running…",
-      "stopAll": "Stop all",
-      "subtitle": "Open a terminal on any server and browse its files, right from the panel.",
-      "stFailed": "failed",
-      "summary": "{ok} succeeded · {failed} failed · {running} running",
-      "terminal": "Terminal",
-      "title": "SSH Terminal",
-      "tooLarge": "This file is {size}: too large to show here.",
-      "truncated": "Only the first 5000 entries are shown.",
-      "trust": "Trust and connect",
-      "tooManyTabs": "Too many tabs open: close some and run again",
-      "trustHint": "This is the first connection to {host} from this browser. Check that the key below is your server's (run ssh-keygen -lf on its host key) before sending your password.",
-      "unsaved": "Not saved",
-      "uploadExtract": "Upload & extract",
-      "uploadExtractGo": "Upload & extract",
-      "uploadFiles": "Upload files",
-      "username": "User",
-      "yourAccess": "what you may do"
-    },
-    "wsTest": {
-      "admins": "Admins",
-      "autoPing": "Every second",
-      "avg": "Average",
-      "buildTime": "Built in",
-      "clear": "Clear",
-      "button": "Live connection test",
-      "choice": {
-        "auto": "Automatic"
-      },
-      "connected": "Connected",
-      "echo": "Download",
-      "empty": "No messages yet.",
-      "echoResult": "{size} in {ms} ms ({speed})",
-      "feed": "Node feed",
-      "issue": "Not taken: {issue}",
-      "gapAvg": "Average gap",
-      "feedHint": "The first batch a new node would receive, and its size on the wire.",
-      "jitter": "Jitter",
-      "jsonSize": "JSON",
-      "lastError": "Last error",
-      "last": "Last",
-      "lastBatch": "Last batch",
-      "lastSeen": "Last seen",
-      "latency": "Latency",
-      "log": "Messages",
-      "max": "Max",
-      "min": "Min",
-      "noNodes": "This panel has no nodes.",
-      "nodes": "Nodes",
-      "node": "Node",
-      "notConnected": "Not connected",
-      "ping": "Ping",
-      "parentHost": "Parent address",
-      "preview": "Preview",
-      "publish": "Publish a change",
-      "push": "Change notification",
-      "pushHint": "Publishes a change on Redis, as an edit does; open pages and connected nodes are woken the same way.",
-      "pushResult": "Came back after {ms} ms",
-      "pushVerdict": {
-        "missing": "Not all messages came: something on the way holds the stream back (buffering proxy?).",
-        "ok": "All messages came without asking: the server pushes."
-      },
-      "pushTimeout": "No notification within 5 seconds: Redis pub/sub is not reaching this server.",
-      "received": "Received",
-      "reconnect": "Reconnect",
-      "rows": "Rows received",
-      "refresh": "Refresh",
-      "server": "Process {pid} · {threads} threads · node protocol v{protocol} · clock difference {skew}",
-      "serverPush": "Server push",
-      "serverPushHint": "The server sends 5 messages, one a second, on its own: nothing is asked for in between.",
-      "startPush": "Start",
-      "state": {
-        "connecting": "Connecting",
-        "idle": "Not used yet",
-        "open": "Connected",
-        "offline": "Disconnected (pages fall back to asking over HTTP)"
-      },
-      "subtitle": "The connection the pages use for updates: which way it goes (HTTP/3, HTTP/2, WebSocket), latency, throughput, and messages the server pushes on its own.",
-      "throughput": "Throughput",
-      "title": "Live connection test",
-      "toParent": "WebSocket to parent",
-      "transport": {
-        "auto": "Automatic",
-        "websocket": "WebSocket",
-        "stream": "Stream"
-      },
-      "users": "Users",
-      "websocket": "WebSocket",
-      "wireSize": "Compressed"
     }
   },
   "adminuser": {
@@ -3410,6 +2865,14 @@
   "all": "အားလုံး",
   "android": "အန်းဒရွိုက်",
   "app": {
+    "clash_verge_rev": {
+      "description": "Desktop အတွက် Clash Verge Rev client",
+      "title": "Clash Verge Rev"
+    },
+    "cmfa": {
+      "description": "Android အတွက် Clash Meta",
+      "title": "Android အတွက် Clash Meta"
+    },
     "foxray": {
       "description": "FoXray ဖော်ပြချက်",
       "title": "FoXray"
@@ -3425,7 +2888,7 @@
     "hiddify": {
       "next": {
         "description": "HiddifyApp ဖော်ပြချက်",
-        "title": "HiddifyApp"
+        "title": "Hiddify"
       }
     },
     "hiddifyn": {
@@ -3450,7 +2913,7 @@
     },
     "singbox": {
       "description": "Sing-box အက်ပ်သည် Sing-box ပရိုတိုကောအတွက် တရားဝင်အက်ပ်ဖြစ်သည်။",
-      "title": "Sing-box အက်ပ်"
+      "title": "Sing-box"
     },
     "stash": {
       "description": "Stash ဖော်ပြချက်",
@@ -3460,20 +2923,12 @@
       "description": "Streisand ဖော်ပြချက်",
       "title": "Streisand"
     },
+    "v2rayn": {
+      "title": "v2rayN"
+    },
     "v2rayng": {
       "description": "V2RayNG ဖော်ပြချက်",
       "title": "V2RayNG"
-    },
-    "clash_verge_rev": {
-      "description": "Desktop အတွက် Clash Verge Rev client",
-      "title": "Clash Verge Rev"
-    },
-    "cmfa": {
-      "description": "Android အတွက် Clash Meta",
-      "title": "Android အတွက် Clash Meta"
-    },
-    "v2rayn": {
-      "title": "v2rayN"
     }
   },
   "at least one domain should exist": "ဒိုမိန်း အနည်းဆုံး တစ်ခု ရှိရမည်",
@@ -3482,127 +2937,7 @@
   "auto_cdn_ip": "☑️ အလိုအလျောက် CDN အိုင်ပီ ရွေးချယ်သူ",
   "bot": {
     "admin_welcome": "ရေး 🎉 🎉 🎉 စီမံခန့်ခွဲဘော့ က ကြိုဆိုပါတယ်။ သင့်လုပ်ဆောင်ချက်ကို ရွေးချယ်ပါ",
-    "welcome": "ရေး 🎉 🎉 🎉 \nဟစ်ဒီဖိုင်း ဘော့ က ကြိုဆိုပါတယ်\nပန်နယ်ရှိ လင့်ခ်ကို နှိပ်၍ သော်လည်းကောင်း UID အသုံးပြုသူကို ထည့်သွင်းခြင်းဖြင့်သော်လည်းကောင်း စတင်ပါ။",
-    "account_title": "My account",
-    "add_days": "📅 Add days",
-    "add_gb": "📦 Add data",
-    "added_days": "{n} days added",
-    "added_gb": "{n} GB added",
-    "admin_summary": "👥 Users  <b>{total}</b>\n🟢 Active  <b>{active}</b>\n⚡️ Online  <b>{online}</b>\n⏳ Ending soon  <b>{expiring}</b>",
-    "admin_hello": "👋 Hi <b>{name}</b>",
-    "ago_hours": "{n} h ago",
-    "ago_days": "{n} days ago",
-    "back": "‹ Back",
-    "ago_minutes": "{n} min ago",
-    "backup_failed": "Backup failed.",
-    "backup_caption": "💾 Panel backup",
-    "backup_working": "Preparing backup…",
-    "btn_backup": "💾 Backup",
-    "btn_check": "🩺 Check status",
-    "btn_new": "➕ New user",
-    "btn_panel": "🖥 Open panel",
-    "btn_status": "📊 Server status",
-    "btn_users": "👥 Users",
-    "cancel": "✖️ Cancel",
-    "close": "✖️ Close",
-    "confirm": "✅ Confirm",
-    "cpu": "CPU",
-    "data": "Data",
-    "days_expired": "Package ended",
-    "days_left": "<b>{left}</b> of {total} days left  ·  until {date}",
-    "days_not_started": "{total} days  ·  starts on first connection",
-    "delete": "🗑 Delete",
-    "delete_confirm": "⚠️ Delete this user? Their configs stop working right away.",
-    "deleted": "{name} deleted",
-    "disabled": "Disabled",
-    "disable": "⏸ Disable",
-    "done": "Done",
-    "disk": "Disk",
-    "enabled": "Enabled",
-    "enable": "▶️ Enable",
-    "f_active": "Active",
-    "f_all": "All",
-    "f_ended": "Ended",
-    "f_expiring": "Ending soon",
-    "f_online": "Online",
-    "gb": "GB",
-    "gone": "This user no longer exists.",
-    "last_online": "Last online",
-    "last_user": "At least one user must remain.",
-    "limit_reached": "Your user limit is reached.",
-    "link_hiddify": "Import into Hiddify app",
-    "link_home": "Personal page",
-    "link_sub": "Subscription link",
-    "linked": "Your Telegram is now linked.",
-    "links": "🔗 Links",
-    "links_hint": "Tap a link to copy it.",
-    "links_title": "Links",
-    "manage": "⚙️ Manage",
-    "menu": "🏠 Menu",
-    "my_page": "🌐 My page",
-    "never": "never",
-    "new_count": "👥 How many users?",
-    "new_create": "✅ Create",
-    "new_days": "📅 How many days?",
-    "new_done_many": "<b>{n} users created</b>  ·  {gb} GB  ·  {days} days\nEach card above can be forwarded to its user.",
-    "new_done_one": "User created: its card is above, ready to forward.",
-    "new_gb": "📦 How much data?",
-    "new_name": "✏️ Name",
-    "new_summary": "📦 Data  <b>{gb}</b>\n📅 Days  <b>{days}</b>\n👥 Count  <b>{count}</b>\n🏷 Name  <b>{name}</b>",
-    "new_name_prompt": "Send a name for the new user(s). Several users get numbers after it.",
-    "new_title": "New user",
-    "not_allowed": "You don't have access to this.",
-    "new_working": "Creating…",
-    "notify_admin": "⏳ <b>{n} users are ending soon</b>",
-    "notify_admin_line": "• {name} · {days}d · {used}/{total} GB",
-    "notify_admin_more": "…and {n} more",
-    "notify_data": "<b>{name}</b>, only <b>{left}</b> of data is left. Contact your provider to renew.",
-    "notify_days": "<b>{name}</b>, your package ends in <b>{n} days</b>. Contact your provider to renew.",
-    "owner": "Owner",
-    "online_now": "Online now",
-    "online_line": "Online now <b>{now}</b> · today <b>{today}</b>",
-    "panel": "Panel",
-    "pick_days": "How many days to add?",
-    "pick_gb": "How much data to add?",
-    "qr": "📷 QR code",
-    "ram": "RAM",
-    "read_only_node": "This is a node: manage users on the parent panel.",
-    "renew": "♻️ Renew",
-    "refresh": "🔄 Refresh",
-    "renewed": "Package renewed",
-    "reset_usage": "🔄 Reset usage",
-    "resets_in": "Usage resets in {n} days",
-    "search": "🔍 Search",
-    "search_clear": "✖️ Clear",
-    "search_prompt": "Send a name, UUID, comment or Telegram id.",
-    "sending": "Sending {n} user cards…",
-    "search_results": "Results for “{q}”",
-    "status_active": "<b>Active</b>",
-    "status_disabled": "<b>Disabled</b>",
-    "status_expired": "<b>Expired</b>",
-    "status_no_data": "<b>Out of data</b>",
-    "status_title": "Server status",
-    "time": "Time",
-    "traffic": "Traffic",
-    "traffic_month": "30 days",
-    "traffic_today": "Today",
-    "traffic_total": "All time",
-    "traffic_week": "7 days",
-    "traffic_yesterday": "Yesterday",
-    "unit_d": "d",
-    "unit_m": "m",
-    "unit_h": "h",
-    "unknown": "I didn't get that. Use the buttons below 👇",
-    "updated": "Updated ✓",
-    "updated_at": "Updated {time}",
-    "usage_reset": "Usage reset",
-    "uptime": "Uptime",
-    "used_of": "<b>{used}</b> used of {total}  ·  {left} left",
-    "users_block": "Users",
-    "users_count": "{n} users",
-    "users_empty": "No users here.",
-    "users_line": "Total <b>{total}</b> · active <b>{active}</b>",
-    "users_title": "Users"
+    "welcome": "ရေး 🎉 🎉 🎉 \nဟစ်ဒီဖိုင်း ဘော့ က ကြိုဆိုပါတယ်\nပန်နယ်ရှိ လင့်ခ်ကို နှိပ်၍ သော်လည်းကောင်း UID အသုံးပြုသူကို ထည့်သွင်းခြင်းဖြင့်သော်လည်းကောင်း စတင်ပါ။"
   },
   "cdn": "🔀 CDN (Cloudflare ပရောက်စီ, ...)",
   "cf-delete": {
@@ -3628,6 +2963,14 @@
     "Invalid_port": "မရေရာသော Port။ ၎င်းသည် ကော်မာ ခွဲထားသော ကိန်းပြည့် ဥပမာ 2052,2053 ဖြစ်သင့်သည်။",
     "Invalid_proxy_path": "မရေရာသော ပရောက်စီလမ်းကြောင်း။ ၎င်းသည် ASCI စာကြောင်းဖြစ်သင့်သည် (az AZ 0-9)",
     "Invalid_telegram_bot_token": "တယ်လီဂရမ်ဘော့တိုကင် မမှန်ကန်ပါ။",
+    "acme_accounts": {
+      "description": "ပန်နယ်၏ ACME အကောင့်သော့များ (Let's Encrypt၊ ZeroSSL)၊ လက်မှတ်ထုတ်ပေးသူ တစ်ခုလျှင် တစ်ခု",
+      "label": "ACME အကောင့်များ"
+    },
+    "acme_email": {
+      "description": "Contact email of the Let's Encrypt and ZeroSSL accounts the panel gets certificates with. Changing it registers new accounts.",
+      "label": "📧 Certificate (ACME) Email"
+    },
     "additional_configs": {
       "description": "ထုတ်ပေးသော subscription များထဲသို့ အပိုကွန်ဖစ်များ ပေါင်းထည့်ပါ",
       "label": "အပိုကွန်ဖစ်များ"
@@ -3674,13 +3017,13 @@
       "description": "AnyTLS protocol ကို ဖွင့်ပါ",
       "label": "AnyTLS"
     },
-    "backup_keep_days": {
-      "description": "Automatic backups older than this are deleted so they do not fill the disk. 0 keeps them all",
-      "label": "🗄️ Keep Backups (days)"
-    },
     "auto_update": {
       "description": "နေ့စဉ် နံနက် 3:00 နာရီတွင် အပ်ဒိတ်အသစ်ကို စစ်ဆေးပါမည်။ အပ်ဒိတ်အသစ်ရရှိပါက၊ ကျွန်ုပ်တို့သည် စနစ်အား အလိုအလျောက် မွမ်းမံပါမည်။",
       "label": "🔄 အလိုအလျောက် မွမ်းမံ"
+    },
+    "backup_keep_days": {
+      "description": "Automatic backups older than this are deleted so they do not fill the disk. 0 keeps them all",
+      "label": "🗄️ Keep Backups (days)"
     },
     "block_iran_sites": {
       "description": "အစိုးရမှ ထောက်လှမ်းခြင်းမှ ကာကွယ်ရန် ပြည်တွင်းဆိုက်များကို ပိတ်ဆို့ပါ။",
@@ -3691,12 +3034,32 @@
       "label": "အသုံးပြုသူစာမျက်နှာ စိတ်ကြိုက်ပြင်ဆင်"
     },
     "branding_freetext": {
-      "description": "Branding စာသား။ ဤအကွက်၏ စာသားကို အသုံးပြုသူ၏ စာမျက်နှာ၏ ပံ့ပိုးမှုကဏ္ဍတွင် ပြသမည်ဖြစ်သည်။ HTML tags များကို သုံးစွဲနိုင်သည်။\n<p><br /> <a href=\"https://htmleditor.online/full\" target=\"_blank\">HTML တည်းဖြတ်သူ</a></p>",
+      "description": "Branding စာသား။ ဤအကွက်၏ စာသားကို အသုံးပြုသူ၏ စာမျက်နှာ၏ ပံ့ပိုးမှုကဏ္ဍတွင် ပြသမည်ဖြစ်သည်။ HTML tags များကို သုံးစွဲနိုင်သည်။",
       "label": "📢 အထောက်အကူ အပိုင်း စာသား"
+    },
+    "branding_freetext_full": {
+      "description": "အသုံးပြုသူ စာမျက်နှာတွင် “ဆက်ဖတ်ရန်” ဖြင့် ပြသည်။ ဗလာ- မဆံ့လျှင် “ဆက်ဖတ်ရန်” သည် အကူအညီ စာသားကို ပြသည်။",
+      "label": "အကူအညီ စာသား (အပြည့်)"
     },
     "branding_site": {
       "description": "အသုံးပြုသူ၏စာမျက်နှာ၏ ပံ့ပိုးကူညီမှုကဏ္ဍတွင် ပြသမည့်လင့်ခ်။\nသင်၏ တယ်လီဂရမ်ချန်နယ် သို့မဟုတ် တယ်လီဂရမ် PV ကိုလည်း ဤနေရာတွင် ထည့်နိုင်သည်။",
       "label": "🆔 ပံ့ပိုးမှုလင့်ခ် (အမှတ်တံဆိပ်ခေါင်းစဉ်နှင့် အသုံးပြုသူစာမျက်နှာ၏ ပံ့ပိုးမှုကဏ္ဍတွင်ပါရှိသည်)"
+    },
+    "branding_support_more": {
+      "description": "Opens the Support Website link. Empty: \"View More\".",
+      "label": "\"View More\" button text"
+    },
+    "branding_support_more_show": {
+      "description": "",
+      "label": "Show the \"View More\" button"
+    },
+    "branding_support_title": {
+      "description": "The title above the support text. Empty: \"Support\".",
+      "label": "Support box title"
+    },
+    "branding_support_title_show": {
+      "description": "",
+      "label": "Show the support box title"
     },
     "branding_title": {
       "description": "အသုံးပြုသူစာမျက်နှာတွင်ပြသရန် စိတ်ကြိုက်ခေါင်းစဉ်ကို ထည့်သွင်းပါ။ (အသုံးပြုသူ၏ကြိုဆိုရေးစာသား မတိုင်ခင်)",
@@ -3707,15 +3070,23 @@
       "label": "🔂 အောက်ပါ အိုင်ပီများကို အသုံးပြုရန် Config ကို အတင်းအကျပ်လုပ်ပါ။"
     },
     "cloudflare": {
-      "description": "<a href='https://github.com/hiddify/hiddify-config/wiki/Get-Cloudflare-API' target='_blank'>ညွှန်ကြားချက်ကို</a> လိုက်နာပြီး Cloudflare API Key ကို ကူးထည့်ပါ။",
+      "description": "<a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>ညွှန်ကြားချက်ကို</a> လိုက်နာပြီး Cloudflare API Key ကို ကူးထည့်ပါ။",
       "label": "🔑 Cloudflare API"
     },
     "common_proxy_core": {
       "both": "နှစ်ခုလုံး",
-      "description": "protocol တစ်ခုသည် Xray နှင့် Hiddify Core နှစ်ခုလုံးတွင် ရှိလျှင် ရွေးထားသော core သာ ဖွင့်ထားမည်။ နှစ်ခုလုံးထားလိုလျှင် နှစ်ခုလုံးကို ရွေးပါ။",
-      "hiddify_core": "Hiddify Core (singbox)",
+      "description": "protocol တစ်ခုသည် XRay နှင့် Hiddify Core နှစ်ခုလုံးတွင် ရှိလျှင် ရွေးထားသော core သာ ဖွင့်ထားမည်။ နှစ်ခုလုံးထားလိုလျှင် နှစ်ခုလုံးကို ရွေးပါ။",
+      "hiddify_core": "Hiddify Core (Sing-Box)",
       "label": "🎛️ Common Proxy Core",
-      "xray": "Xray"
+      "xray": "XRay"
+    },
+    "config_health_enable": {
+      "description": "Test every config of the subscription from the server after a start and every 6 hours, and warn the admins (Telegram) when configs stop working. Each check connects through every config to the server: some hosting providers take that for a flood. “Check now” on the dashboard always works.",
+      "label": "🩺 Automatic config health checks"
+    },
+    "config_tester_disabled": {
+      "description": "Config စမ်းသပ်သူက ပိတ်ထားသော စိတ်ကြိုက်ပရောက်စီများ၊ ပြန်ဖွင့်နိုင်ရန် သိမ်းထားသည်",
+      "label": "Config စမ်းသပ်သူက ပိတ်ထားသော ပရောက်စီများ"
     },
     "core_type": {
       "description": "☢️ XRay သည် ပြီးပြည့်စုံသော Core တစ်ခုဖြစ်သည်။\n<br>\n📦 Singbox : SagerNet မှတီထွင်သည်။ အူတိုင်ကောင်းတစ်ခုလည်း ဖြစ်သည်။",
@@ -3746,7 +3117,7 @@
       "label": "🪪 မူလ User Agent"
     },
     "dns_server": {
-      "description": "✳️ ပုံသေ 1.1.1.1 <br>\n🚧 မဲဝဲရ် ပိတ်ပင် 1.1.1.2 <br>\n🔞 အညှီအဟောက် ပိတ်ပင် 1.1.1.3",
+      "description": "ဆာဗာနှင့် ၎င်း၏ proxy များ အသုံးပြုသော DNS။ စာရင်းမှ အများသုံး DNS ကို ရွေးပါ၊ သို့မဟုတ် “စိတ်ကြိုက်” ဖြင့် သင့်ကိုယ်ပိုင်ကို ထည့်ပါ။ ဆာဗာ၏ စနစ် DNS လည်း လိုက်ပြောင်းပါမည်။",
       "label": "🖥 DNS ဆာဗာ"
     },
     "dnstt": {
@@ -3770,7 +3141,7 @@
       "label": "DNSTT Resolver များ"
     },
     "domain_fronting": {
-      "description": "SNI တွင် သင့်ဝဘ်ဆိုဒ်အစား အခြားဝဘ်ဆိုဒ်ကို အတုယူရန် ၎င်းကို အသုံးပြုသည်။ ထို့ကြောင့်၊ GFW သည် သင့် ဒိုမိန်းကို စစ်ထုတ်၍မရပါ။\n<a href='https://github.com/hiddify/hiddify-config/wiki/%D8%A7%D8%B3%D8%AA%D9%81%D8%A7%D8%AF%D9%87-%D8%A7%D8%B2-%D8%AF%D8%A7%D9%85%DB%8C%D9%86-%D9%81%D8%B1%D8%A7%D9%86%D8%AA%DB%8C%D9%86%DA%AF'>လမ်းညွှန်</a> ။ ⚠️CloudFlare သည် Domain Fronting ကို မပံ့ပိုးပါ။",
+      "description": "SNI တွင် သင့်ဝဘ်ဆိုဒ်အစား အခြားဝဘ်ဆိုဒ်ကို အတုယူရန် ၎င်းကို အသုံးပြုသည်။ ထို့ကြောင့်၊ GFW သည် သင့် ဒိုမိန်းကို စစ်ထုတ်၍မရပါ။\n<a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Guide-for-domain-fronting/'>လမ်းညွှန်</a> ။ ⚠️CloudFlare သည် Domain Fronting ကို မပံ့ပိုးပါ။",
       "label": "🔒 TLS ဒိုမိန်း Fronting"
     },
     "domain_fronting_domain": {
@@ -3784,6 +3155,13 @@
     "domain_fronting_tls_enable": {
       "description": "CloudFlare တွင် TLS Domain Fronting ကို ပံ့ပိုးမထားပါ။ CDN သို့ ချိတ်ဆက်ရန် Port 443 ကို အသုံးပြုပါမည်။",
       "label": "🔒 TLS ဒိုမိန်း Fronting"
+    },
+    "domain_label_mode": {
+      "description": "How a domain without an alias is named in the users' configs, profile title and subscription name.<br>🔒 Private: its kind and a code that does not reveal it (CDN K7Q)<br>🫥 Masked: most letters hidden (h*y.com)<br>🌐 Full Domain Name",
+      "full": "🌐 Full Domain Name",
+      "label": "🏷️ Config Names",
+      "masked": "🫥 Masked (h*y.com)",
+      "private": "🔒 Private: Kind and Code (CDN K7Q)"
     },
     "firewall": {
       "description": "Firewall ကိုဖွင့်ခြင်းဖြင့် အသုံးပြုထားသော Ports (အနည်းဆုံး 22,443,80 နှင့် SSH) ကိုဖွင့်ပြီး အခြား Port အားလုံးကို ပိတ်ပါမည်။",
@@ -3859,6 +3237,8 @@
     },
     "invalid-pattern-for-warp-sites": "⚠️ Warp အတွက် ထည့်သွင်းထားသော ဆိုဒ်သည် သတ်မှတ်ထားသောပုံစံနှင့် မကိုက်ညီပါ။",
     "invalid_uuid": "မမှန်ကန်သော UUID လျှို့ဝှက်ချက်။ ဥပမာ- 6098ea35-8cb2-4a08-ba15-2be25bc49cb6",
+    "invalid_vless_decryption": "Xray သည် ဤ decryption ကို မဖတ်နိုင်သဖြင့် စတင်မည်မဟုတ်ပါ။ အလွတ်ထားပါ၊ သို့မဟုတ် xray vlessenc output ၏ decryption လိုင်းကို ထည့်ပါ။",
+    "invalid_vless_encryption": "VLESS encryption မမှန်ကန်ပါ။ အလွတ်ထားပါ၊ သို့မဟုတ် တူညီသော xray vlessenc output ၏ encryption လိုင်းကို ထည့်ပါ။",
     "is_parent": {
       "description": "ဤပန်နယ်သည် မိဘပန်နယ်အဖြစ် လုပ်ဆောင်မလား",
       "label": "ပင်မ ပန်နယ်"
@@ -4015,6 +3395,18 @@
       "description": "IPv6 ကို Disable လုပ်ပါလိမ့်မည်",
       "label": "ℹ️ IPv4 သာလျှင်"
     },
+    "openvpn_certificate": {
+      "description": "ကိုယ်တိုင်လက်မှတ်ထိုးထားသော OpenVPN ဆာဗာလက်မှတ်၊ client များ၏ config ထဲသို့ ထည့်ပေးသည်",
+      "label": "OpenVPN လက်မှတ်"
+    },
+    "openvpn_enable": {
+      "description": "Enable OpenVPN (served by hiddify-core). The OpenVPN apps import the profile from the user page; the Hiddify app 5+ gets it in the subscription",
+      "label": "OpenVPN"
+    },
+    "openvpn_private_key": {
+      "description": "OpenVPN ဆာဗာလက်မှတ်၏ ကိုယ်ပိုင်သော့",
+      "label": "OpenVPN ကိုယ်ပိုင်သော့"
+    },
     "package_mode": {
       "description": "ဖြန့်ချိထားသော ပက်ကေ့ခ်ျ သို့မဟုတ် စမ်းသပ်ဆော့ဖ်ဝဲတစ်ခုကို သင်အလိုရှိမရှိ သတ်မှတ်ပါ။",
       "label": "🔄 Package မွမ်းမံ မုဒ်"
@@ -4037,6 +3429,10 @@
     "parent_panel": {
       "description": "သုံးစွဲသူတစ်ဦးတည်းကိုသာ သတ်မှတ်ရန် Central Panel သို့ ချိတ်ဆက်နိုင်ပြီး ဆာဗာများအားလုံး၏ အသုံးပြုမှုကို စုစည်းထည့်သွင်းမည်ဖြစ်သည်။",
       "label": "ပင်မပန်နယ် (များစွာသော ဆာဗာ)"
+    },
+    "parent_sync_cursor": {
+      "description": "မိခင်ပန်နယ်၏ ပြောင်းလဲမှုစာရင်းကို ဤ node မည်မျှအထိ ဖတ်ပြီးပြီဖြစ်ကြောင်း",
+      "label": "မိခင်ပန်နယ်နှင့် ချိန်ကိုက်မှု အနေအထား"
     },
     "path_grpc": {
       "description": "configs တွင် gRPC လမ်းကြောင်း",
@@ -4141,6 +3537,14 @@
     "reality_short_ids": {
       "description": "ယင်းအား မပြောင်းလဲရ",
       "label": "🆔 ID အတို"
+    },
+    "reality_sni_auto": {
+      "description": "စစ်ထုတ်ခံရသော REALITY SNI ကို အရန် SNI ဖြင့် အလိုအလျောက် အစားထိုးသည် (မဟုတ်ပါက admin က Clean IP စာမျက်နှာတွင် ပြုလုပ်သည်)",
+      "label": "စစ်ထုတ်ခံရသော REALITY SNI များကို အလိုအလျောက်ပြောင်းရန်"
+    },
+    "reality_sni_spares": {
+      "description": "တစ်ခု စစ်ထုတ်ခံရသောအခါ ပြောင်းသုံးရန် REALITY SNI များ၊ တစ်ကြောင်းလျှင် တစ်ခု",
+      "label": "အရန် REALITY SNI များ"
     },
     "restls": {
       "description": "RestLS protocol ဆက်တင်များ",
@@ -4326,6 +3730,10 @@
       "description": "ကလိုင်းယင့်၏ချတ်စာရင်းတွင် ပံ့ပိုးကူညီထားသည့်ချန်နယ်ကို ပြသရန် ၎င်းကိုအသုံးပြုသည်။ ချန်နယ်တစ်ခုကြော်ငြာရန် @MTProxybot မှ တဂ်ရယူပါ။\nကုဒ် 0123456789ABCDEF0123456789ABCDEF ကို ထိုဘော့တွင် ရိုက်ထည့်ပါ။",
       "label": "📍 တယ်လီဂရမ် AD Tag"
     },
+    "telegram_base_path": {
+      "description": "HTTPS ဒိုမိန်းများပေါ်ရှိ Telegram web proxy ၏ လျှို့ဝှက်လမ်းကြောင်း",
+      "label": "ℹ️ Telegram Web Proxy လမ်းကြောင်း"
+    },
     "telegram_bot_token": {
       "description": "တယ်လီဂရမ်ဘော့ အင်္ဂါရပ်ကို ထည့်သွင်းရန်။ <a href=\"https://t.me/BotFather\" target=\"_blank\">@BotFather</a> ဖြင့် ဘော့တစ်ခုကို ဖန်တီးပြီး ဤအကွက်တွင် API ကုဒ်ကို ရိုက်ထည့်ရန် လိုအပ်သည်။",
       "label": "🔐 တယ်လီဂရမ် ဘော့တိုကင်"
@@ -4342,13 +3750,13 @@
       "description": "မတူညီသော တယ်လီဂရမ် စာကြည့်တိုက်များအကြား သင်ပြောင်းနိုင်သည်။ ဆာဗာအားလုံးတွင် Python သာအလုပ်လုပ်သည်၊ အခြားပြဿနာများရှိနိုင်သည်ကို ကျေးဇူးပြု၍ သတိပြုပါ။ ၎င်းကိုပြောင်းပြီးနောက် ပရောက်စီကိုစမ်းသပ်ပါ။",
       "label": "🔢 တယ်လီဂရမ် ပရောက်စီ စာကြည့်တိုက်"
     },
+    "telegram_webproxy_enable": {
+      "description": "အစစ်အမှန်လက်မှတ်ရှိသော ဒိုမိန်းတိုင်း (CDN အပါအဝင်) ပေါ်တွင် HTTPS ဖြင့် Telegram proxy (tg://webproxy လင့်ခ်များ၊ telemt မှ ဆောင်ရွက်သည်)",
+      "label": "✔️ Telegram Web Proxy ဖွင့်ရန်"
+    },
     "tls": {
       "description": "TLS Configurations ကို ဤကဏ္ဍတွင် သတ်မှတ်နိုင်ပါသည်။",
       "label": "TLS အပြင်အဆင်များ"
-    },
-    "acme_email": {
-      "description": "Contact email of the Let's Encrypt and ZeroSSL accounts the panel gets certificates with. Changing it registers new accounts.",
-      "label": "📧 Certificate (ACME) Email"
     },
     "tls_ech": {
       "description": "ECH တန်ဖိုး ဖော်မက်: cloudflare-ech.com+https://8.8.8.8/dns-query",
@@ -4399,8 +3807,8 @@
       "label": "အလွန်အဆင့်မြင့်သော ဆက်တင်များ"
     },
     "torrent_block": {
-      "description": "တောရန့် ပိတ်ပင်မှု အပြင်အဆင်များကို ဤကဏ္ဍတွင် သတ်မှတ်နိုင်သည်။",
-      "label": "တောရန့် ပိတ်ပင်မှု အပြင်အဆင်များ"
+      "description": "ဖွင့်: အသုံးပြုသူများ၏ BitTorrent (torrent) traffic ကို protocol အားလုံးတွင် (Xray နှင့် Hiddify Core) ပိတ်သည်။ ပိတ်: ခွင့်ပြုသည်။ Torrent ကို port မရွေး handshake ဖြင့် သိရှိသည်; စာဝှက်ထားသော torrent ချိတ်ဆက်မှုများကို မသိနိုင်ပါ။",
+      "label": "🚫 BitTorrent ပိတ်ရန်"
     },
     "trojan_enable": {
       "description": "Trojan ပရိုတိုကောလ်ကို ဖွင့်ရန်",
@@ -4426,6 +3834,10 @@
       "description": "ဆာဗာ IP ဖြေရှင်းရာတွင် ဖြစ်နိုင်သော ပြဿနာများကို လျှော့ချရန် ကူညီသည်။ ရွေးထားသောဒိုမိန်း၏ ကျပန်း IP တစ်ခုကို သုံးမည်။",
       "label": "ကွန်ဖစ်များတွင် IP သုံးရန်"
     },
+    "user_page_url": {
+      "description": "အသုံးပြုသူ စာမျက်နှာအဖြစ် ပြသမည့် static site လိပ်စာ (ဥပမာ GitHub Pages ပေါ်ရှိ hiddify-user-front build)။ Panel က ဒေါင်းလုဒ်လုပ်ပြီး မိမိ domain မှ ပြသပေးသည်။ မူလ စာမျက်နှာအတွက် ဗလာထားပါ။",
+      "label": "🎨 စိတ်ကြိုက် အသုံးပြုသူ စာမျက်နှာ"
+    },
     "utls": {
       "description": "ဤရွေးချယ်မှုသည် မတူညီသောဘရောက်ဆာများကို အတုယူမည်ဖြစ်သောကြောင့်၊ GFW သည် သင်၏ရှာဖွေမှုကို မတွေ့နိုင်ပါ။",
       "label": "❇️ uTLS"
@@ -4438,7 +3850,7 @@
     "validation-success": "Configs ကို အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ။ configs ကိုအသုံးပြုရန် %(link)s ကိုနှိပ်ပါ။ လျှောက်ထားရန် ၂ မိနစ် ကြာနိုင်သည်။",
     "validation-success-no-reset": " ✅ Configs ကို အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ။",
     "vless_decryption": {
-      "description": "မျှဝေလင့်ခ်များအတွက် VLess decryption parameter",
+      "description": "VLESS encryption ၏ server key။ encryption ပိတ်ရန် အလွတ်ထားပါ၊ သို့မဟုတ် <code>xray vlessenc</code> ၏ decryption လိုင်းကို ဤနေရာတွင်၊ ထို output ၏ encryption လိုင်းကို VLESS encryption တွင် ထည့်ပါ။",
       "label": "VLess decryption"
     },
     "vless_enable": {
@@ -4446,9 +3858,10 @@
       "label": "⚫️ VLess"
     },
     "vless_encryption": {
-      "description": "မျှဝေလင့်ခ်များအတွက် VLess encryption နည်းလမ်း",
+      "description": "VLESS encryption ၏ client key ဖြစ်ပြီး share link များတွင် ပါဝင်သည်။ encryption ပိတ်ရန် အလွတ်ထားပါ၊ သို့မဟုတ် decryption ယူခဲ့သော <code>xray vlessenc</code> output တစ်ခုတည်းမှ encryption လိုင်းကို ထည့်ပါ။",
       "label": "VLess encryption"
     },
+    "vless_encryption_pair_mismatch": "VLESS encryption နှင့် decryption သည် xray vlessenc output တစ်ခုတည်းမှ ဖြစ်ရမည်၊ သို့မဟုတ် နှစ်ခုလုံး အလွတ်ဖြစ်ရမည်။",
     "vless_flow": {
       "description": "VLess flow control (ဥပမာ xtls-rprx-vision)",
       "label": "VLess flow"
@@ -4457,11 +3870,11 @@
       "description": "အသက်ဝင်သော VMess ပရိုတိုကောလ်",
       "label": "🟣 VMess"
     },
+    "warp-https-domain-for-warp-site": "WARP site routing အတွက်သုံးသော HTTPS ဒိုမိန်း",
     "warp": {
       "description": "Warp သည် အထွက်လမ်းကြောင်းတွင် သင့်ဆာဗာ အိုင်ပီကို ဖုံးကွယ်ထားသည့် ကိရိယာတစ်ခုဖြစ်သည်။ အသုံးပြုသူများသည် ဝဘ်ဆိုက်တစ်ခုသို့ လည်ပတ်နေပါက ကျွန်ုပ်တို့၏ဆာဗာအိုင်ပီအစား Warp အိုင်ပီကို ထင်ရှားစေသည်။\n<br>\nဥပမာအားဖြင့်၊ သင်သည် Google တွင် captcha နှင့် ပြဿနာရှိပါက၊ ၎င်းကို ဤနည်းဖြင့် ဖြေရှင်းနိုင်သည်။",
-      "label": "WARP➕"
+      "label": "WARP"
     },
-    "warp-https-domain-for-warp-site": "WARP site routing အတွက်သုံးသော HTTPS ဒိုမိန်း",
     "warp_enable": {
       "description": "WARP သည် သင့်အား ဆာဗာ အိုင်ပီကိုဝှက်ထားခြင်းဖြင့် Google၊ Spotify နှင့် Netflix ကန့်သတ်ချက်များကို ကျော်လွှားရန် ကူညီပေးသည်။ ",
       "label": "WARP+ ကို ဖွင့်ရန်"
@@ -4477,6 +3890,10 @@
     "warp_sites": {
       "description": "WARP ကို ဖြတ်ကျော်ရန် နောက်ထပ်ဆိုဒ်များထည့်ပါ (warp မုဒ်မရှိသည့်အခါမှသာ)",
       "label": "🆚 ထပ်ဆောင်း WARP ဆိုဒ်များ"
+    },
+    "warp_tos_accepted": {
+      "description": "စီမံသူက Cloudflare စည်းကမ်းများကို လက်ခံမှသာ WARP သည် လမ်းကြောင်းကို Cloudflare မှတစ်ဆင့် ပို့သည်။ ဤတန်ဖိုးကို ထိုမေးခွန်းမှ မှတ်ထားပြီး ဤနေရာတွင် မပြင်ပါ။",
+      "label": "Cloudflare WARP စည်းကမ်းများကို လက်ခံပြီး"
     },
     "wireguard": {
       "description": "WireGuard သည် ၎င်း၏ရိုးရှင်းမှု၊ ထိရောက်မှုနှင့် လုံခြုံရေးအတွက် လူသိများသော ပေါ့ပါးသော UDP အခြေခံ ပရိုတိုကောလ်ဖြစ်သည်။ ၎င်းသည် အမြန်တပ်ဆင်မှု၊ ဖောက်ထွင်းမြင်ရသည့်ကုဒ်ကို ပေးဆောင်ပြီး လည်ပတ်မှုစနစ်အမျိုးမျိုးတွင် ၎င်း၏အသုံးပြုရလွယ်ကူမှုအတွက် ရေပန်းစားခဲ့သည်။",
@@ -4520,7 +3937,7 @@
     },
     "xhttp_different_up_down_enable": {
       "description": "Allow XHTTP configs whose upload and download use different domains or settings. ⚠️ Many clients do not support this, so it is disabled by default.",
-      "label": "🈁 XHTTP with different upload/download"
+      "label": "🈁 XHTTP with Different Upload/Download"
     },
     "xhttp_enable": {
       "description": "ဤပရိုတိုကောသည် ချန်နယ်တစ်ခုချင်းစီတွင် အချက်အလက်များကို ပေးပို့လက်ခံသည်",
@@ -4529,34 +3946,6 @@
     "xtls_enable": {
       "description": "XTLS ပရိုတိုကောလ်ကို ဖွင့်ရန်",
       "label": "🟢 XTLS"
-    },
-    "user_page_url": {
-      "description": "အသုံးပြုသူ စာမျက်နှာအဖြစ် ပြသမည့် static site လိပ်စာ (ဥပမာ GitHub Pages ပေါ်ရှိ hiddify-user-front build)။ Panel က ဒေါင်းလုဒ်လုပ်ပြီး မိမိ domain မှ ပြသပေးသည်။ မူလ စာမျက်နှာအတွက် ဗလာထားပါ။",
-      "label": "🎨 စိတ်ကြိုက် အသုံးပြုသူ စာမျက်နှာ"
-    },
-    "acme_accounts": {
-      "description": "config.acme_accounts.description",
-      "label": "config.acme_accounts.label"
-    },
-    "parent_sync_cursor": {
-      "description": "config.parent_sync_cursor.description",
-      "label": "config.parent_sync_cursor.label"
-    },
-    "reality_sni_auto": {
-      "description": "config.reality_sni_auto.description",
-      "label": "config.reality_sni_auto.label"
-    },
-    "reality_sni_spares": {
-      "description": "config.reality_sni_spares.description",
-      "label": "config.reality_sni_spares.label"
-    },
-    "telegram_base_path": {
-      "description": "Secret path of the Telegram web proxy on HTTPS domains",
-      "label": "ℹ️ Telegram Web Proxy Path"
-    },
-    "telegram_webproxy_enable": {
-      "description": "Telegram proxy over HTTPS on every domain with a real certificate, CDN included (tg://webproxy links, served by telemt)",
-      "label": "✔️ Telegram Web Proxy Enable"
     }
   },
   "copy": "ကူးယူ",
@@ -4584,10 +3973,10 @@
       "sni_l7_mutex": "ဒိုမိန်းတစ်ခုအတွက် SNI gateway နှင့် L7 gateway ကို အတူရွေး၍ မရပါ",
       "sni_single_only": "ဒိုမိန်းတစ်ခုအတွက် SNI gateway တစ်ခုသာ ရွေးနိုင်သည်"
     },
-    "description": "ကျေးဇူးပြု၍ ဤအကွက်ကို သေသေချာချာ မှန်မှန်ကန်ကန်ဖြည့်ပါ။ မဟုတ်ပါက ပရောက်စီများသည် ပြဿနာများ ကြုံတွေ့ရလိမ့်မည်။ ဒိုမိန်းခွဲတစ်ခုကို ဖန်တီးနည်းကို လေ့လာရန် <a href='https://github.com/hiddify/hiddify-config/wiki/راهنمای-تنظیم-دامنه-و-نهایی-کردن-نصب#آموزش-ساخت-زیردامنه'>အကူအညီ</a> သို့ သွားရောက်ပါ။",
+    "description": "ကျေးဇူးပြု၍ ဤအကွက်ကို သေသေချာချာ မှန်မှန်ကန်ကန်ဖြည့်ပါ။ မဟုတ်ပါက ပရောက်စီများသည် ပြဿနာများ ကြုံတွေ့ရလိမ့်မည်။ ဒိုမိန်းခွဲတစ်ခုကို ဖန်တီးနည်းကို လေ့လာရန် <a href='https://hiddify.com/manager/installation-and-setup/Guide-for-setting-up-the-domain-and-finalizing-the-installation/'>အကူအညီ</a> သို့ သွားရောက်ပါ။",
     "domain": "ဒိုမိန်း",
     "domain_fronting": {
-      "description": "SNI တွင် သင့်ဝဘ်ဆိုဒ်အစား အခြားဝဘ်ဆိုဒ်ကို အတုယူရန် ၎င်းကို အသုံးပြုသည်။ ထို့ကြောင့်၊ GFW သည် သင့် ဒိုမိန်းကို စစ်ထုတ်၍မရပါ။\n<a href='https://github.com/hiddify/hiddify-config/wiki/Guide-for-domain-fronting'>လမ်းညွှန်</a> ။ ⚠️CloudFlare သည် Domain Fronting ကို မပံ့ပိုးပါ။",
+      "description": "SNI တွင် သင့်ဝဘ်ဆိုဒ်အစား အခြားဝဘ်ဆိုဒ်ကို အတုယူရန် ၎င်းကို အသုံးပြုသည်။ ထို့ကြောင့်၊ GFW သည် သင့် ဒိုမိန်းကို စစ်ထုတ်၍မရပါ။\n<a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Guide-for-domain-fronting/'>လမ်းညွှန်</a> ။ ⚠️CloudFlare သည် Domain Fronting ကို မပံ့ပိုးပါ။",
       "label": "🔒 TLS Domain Fronting"
     },
     "ech": {
@@ -4605,7 +3994,8 @@
     "ip": "အိုင်ပီ",
     "mode": "မုဒ်",
     "reality": {
-      "asn_issue": "REALITY အတွက် ရွေးချယ်ထားသော ဒိုမိန်းသည် ASN တစ်ခုတည်းတွင် မရှိပါ။ ပရိုတိုကောလ်ကို ပိုမိုကောင်းမွန်စွာအသုံးပြုရန်၊ တူညီသော ASN တွင် ဒိုမိန်းတစ်ခုကို ရှာဖွေခြင်းသည် ပိုကောင်းပါသည်။"
+      "asn_issue": "REALITY အတွက် ရွေးချယ်ထားသော ဒိုမိန်းသည် ASN တစ်ခုတည်းတွင် မရှိပါ။ ပရိုတိုကောလ်ကို ပိုမိုကောင်းမွန်စွာအသုံးပြုရန်၊ တူညီသော ASN တွင် ဒိုမိန်းတစ်ခုကို ရှာဖွေခြင်းသည် ပိုကောင်းပါသည်။",
+      "no_x25519": "ဤဒိုမိန်းသည် REALITY လိုအပ်သော X25519 key exchange ကို မပံ့ပိုးသဖြင့် REALITY နှင့် မကိုက်ညီပါ- client များသည် ဆိုက်အစစ်၏ လက်မှတ်ကို ရရှိပြီး ချိတ်ဆက်မှု မအောင်မြင်ပါ။ အခြားဒိုမိန်းကို အသုံးပြုပါ။"
     },
     "resolveip": {
       "description": "proxy များတွင် ဒိုမိန်းအမည်အစား IP ကို သုံးသည်။ DNS တွင် noise များစွာရှိသည့်အခါ အသုံးဝင်သည်။",

@@ -3,8 +3,6 @@ import os
 import re
 import shlex
 import subprocess
-import threading
-from datetime import datetime, timedelta
 
 from loguru import logger
 
@@ -13,7 +11,6 @@ from hiddifypanel.cache import cache
 from hiddifypanel.database import db
 from hiddifypanel.hutils.utils import *
 from hiddifypanel.models import *
-from hiddifypanel.panel.run_commander import Command, commander
 
 to_gig_d = 1000 * 1000 * 1000
 
@@ -46,49 +43,6 @@ def exec_command(cmd, cwd=None) -> bool:
         return False
 
 
-_apply_users_lock = threading.Lock()
-_apply_users_state = {"running": False, "pending": False, "domain": False, "users_only": True}
-
-
-def _apply_users_worker():
-    while True:
-        with _apply_users_lock:
-            domain, users_only = _apply_users_state["domain"], _apply_users_state["users_only"]
-            _apply_users_state["domain"], _apply_users_state["users_only"] = False, True
-        try:
-            commander(Command.apply_users, run_in_background=False, domain=int(domain), users_only=int(users_only))
-        except Exception as e:
-            logger.exception(f"apply users failed: {e}")
-        with _apply_users_lock:
-            if not _apply_users_state["pending"]:
-                _apply_users_state["running"] = False
-                return
-            _apply_users_state["pending"] = False  # changes came in meanwhile: apply again
-
-
-def quick_apply_users(domain: bool = False, users_only: bool = False):
-    """Run install.sh apply_users. Asked again while it runs: it runs once more afterwards, so the last change is always applied.
-    domain: domains changed, so services that cannot hot-reload them (telemt) restart.
-    users_only: only users changed and user_driver already gave them to the cores' APIs: xray is not reloaded."""
-    with _apply_users_lock:
-        _apply_users_state["domain"] |= domain
-        _apply_users_state["users_only"] &= users_only
-        if _apply_users_state["running"]:
-            _apply_users_state["pending"] = True
-            logger.info("apply users: already running, queued to run once more")
-            return {"status": "queued"}
-        _apply_users_state["running"] = True
-    try:
-        threading.Thread(target=_apply_users_worker, daemon=True).start()
-    except Exception:
-        # A failed start would leave running=True forever, so every later call only
-        # returns "queued" and no config is ever applied until the panel restarts.
-        with _apply_users_lock:
-            _apply_users_state["running"] = False
-        logger.exception("apply users: worker thread could not be started")
-        raise
-    return {"status": "success"}
-
 
 # Importing socket library
 
@@ -120,37 +74,6 @@ def get_html_user_link(model: BaseAccount, domain: Domain):
     return res
 
 
-def reinstall_action(complete_install=False, domain_changed=False, do_update=False):
-    from hiddifypanel.panel.admin.Actions import Actions
-
-    action = Actions()
-    if do_update:
-        return action.update()
-    return action.reinstall(complete_install=complete_install, domain_changed=domain_changed)
-
-
-def check_need_reset(old_configs, do=False):
-    restart_mode = ApplyMode.nothing
-    for c in old_configs:
-        if c.apply_mode == ApplyMode.nothing:
-            continue
-        # c=ConfigEnum(c)
-        if restart_mode == ApplyMode.reinstall:
-            break
-        if old_configs[c] != hconfig(c):
-            restart_mode = c.apply_mode
-    if old_configs[ConfigEnum.proxy_path_admin] != hconfig(ConfigEnum.proxy_path_admin):
-        g.new_proxy_path = hconfig(ConfigEnum.proxy_path_admin)
-        g.force_proxy_path = g.proxy_path
-    # do_full_install=old_config[ConfigEnum.telegram_lib]!=hconfig(ConfigEnum.telegram_lib)
-    if old_configs[ConfigEnum.package_mode] != hconfig(ConfigEnum.package_mode):
-        return reinstall_action(do_update=True)
-    if not (do and restart_mode == ApplyMode.reinstall):
-        return hutils.flask.flash_config_success(restart_mode=restart_mode, domain_changed=False)
-
-    return reinstall_action(complete_install=True, domain_changed=False)
-
-
 def get_child(unique_id):
     child_id = Child.current().id
     if unique_id is None or unique_id in ["self", "default", str(hconfig(ConfigEnum.unique_id))]:
@@ -179,6 +102,15 @@ def child_id_from_row(row: dict, force_child_unique_id: str | None = None) -> in
     if uid in (None, ""):
         return get_child(unique_id=None)
     return get_child(unique_id=uid)
+
+
+def _restorable_server_ips(rows: list[dict]) -> list[dict]:
+    """The backup's server IPs without this server's auto-detected ones. Those are the addresses of the machine the
+    backup was made on: restored on another server, they were offered as this server's IPs (e.g. for a new domain's
+    DNS record) next to its real ones. This server finds its own again (sync_server_ips). IPs added by hand and the
+    other nodes' IPs are kept."""
+    current = Child.current().id
+    return [row for row in rows if not (isinstance(row, dict) and row.get("is_auto") and child_id_from_row(row) == current)]
 
 
 def _custom_proxies_for_backup(CustomProxy) -> list[dict]:
@@ -335,7 +267,7 @@ def set_db_from_json(
         if "custom_proxies" in json_data:
             CustomProxy.bulk_register(json_data["custom_proxies"], commit=False)
         if "server_ips" in json_data:
-            ServerIp.bulk_register(json_data["server_ips"], commit=False)
+            ServerIp.bulk_register(_restorable_server_ips(json_data["server_ips"]), commit=False)
         if set_domains and "domains" in json_data:
             # Second pass: show_domains / download / server_domain / custom_proxy_slugs
             Domain.bulk_apply_links(json_data["domains"], commit=False)

@@ -72,7 +72,20 @@
         :style="{ '--node-delay': `${Math.min(index, 10) * 50}ms` }"
       >
         <header class="node-card__head">
-          <span class="node-card__icon"><i class="pi pi-server" /></span>
+          <!-- The server's OS logo (moving gently); a tap shows the OS, its version, kernel and architecture -->
+          <button
+            type="button"
+            class="node-card__icon"
+            :class="{ 'node-card__icon--os': osLogoOf(node) }"
+            :style="osLogoOf(node) ? { '--os-c': osLogoOf(node)!.color, '--os-dark': osLogoOf(node)!.dark } : undefined"
+            :aria-label="t('nodes.os.title')"
+            aria-haspopup="dialog"
+            v-tooltip.top="osById[node.id]?.os_pretty || t('nodes.os.title')"
+            @click="openOs($event, node)"
+          >
+            <svg v-if="osLogoOf(node)" viewBox="0 0 24 24" class="node-os-logo" aria-hidden="true"><path :d="osLogoOf(node)!.path" /></svg>
+            <i v-else class="pi pi-server" />
+          </button>
           <div class="min-w-0 flex-1">
             <form v-if="editing === node.id" class="node-card__rename" @submit.prevent="saveName(node)">
               <InputText
@@ -88,8 +101,8 @@
               <Button type="submit" icon="pi pi-check" size="small" text rounded :loading="renaming" :disabled="!editName.trim()" :aria-label="t('common.save')" />
               <Button type="button" icon="pi pi-times" size="small" text rounded severity="secondary" :disabled="renaming" :aria-label="t('common.cancel')" @click="cancelRename" />
             </form>
-            <button v-else type="button" class="node-card__name" :title="t('nodes.rename')" @click="startRename(node)">
-              <span v-if="flag(node.country)" class="node-card__flag" :title="countryName(node.country)" :aria-label="countryName(node.country)">{{ flag(node.country) }}</span>
+            <button v-else type="button" class="node-card__name" :title="t('nodes.rename')" @click="startRename(node, $event)">
+              <FlagIcon v-if="node.country" class="node-card__flag" :code="node.country" :label="countryName(node.country)" waving />
               <span class="node-card__name-text">{{ node.name }}</span>
               <i class="pi pi-pencil node-card__name-edit" />
             </button>
@@ -116,8 +129,20 @@
                   v{{ pings[node.id]?.version }}
                 </span>
               </span>
-              <span v-else-if="pings[node.id]?.state === 'fail'" class="node-check node-check--fail" :title="pings[node.id]?.error">
-                <i class="pi pi-times-circle" />{{ t('nodes.unreachable') }}
+              <!-- Not reachable: why and what to do on hover (mouse) or a click; the button next to it checks again -->
+              <span v-else-if="pings[node.id]?.state === 'fail'" class="node-check node-check--fail">
+                <button
+                  type="button"
+                  class="node-check__why"
+                  aria-haspopup="dialog"
+                  :aria-label="`${t('nodes.unreachable')}: ${t('nodes.contact.hint')}`"
+                  @pointerenter="(e: PointerEvent) => e.pointerType === 'mouse' && showWhy(e, node.id)"
+                  @pointerleave="(e: PointerEvent) => e.pointerType === 'mouse' && hideWhySoon()"
+                  @click="(e: MouseEvent) => toggleWhy(e, node.id)"
+                >
+                  <i class="pi pi-times-circle" />{{ t('nodes.unreachable') }}<i class="pi pi-info-circle node-check__info" aria-hidden="true" />
+                </button>
+                <Button icon="pi pi-refresh" text rounded size="small" class="node-check__again" :aria-label="t('nodes.checkAgain')" v-tooltip.top="t('nodes.checkAgain')" @click="pingNode(node)" />
               </span>
               <span v-else class="text-muted-color">—</span>
             </dd>
@@ -233,7 +258,7 @@
         <!-- Slides open and closed; kept once opened so it can slide closed (the feed stops when no card is open) -->
         <div class="node-card__live-wrap" :class="{ 'node-card__live-wrap--open': liveOpen.has(node.id) }">
           <div class="node-card__live" :class="{ 'node-card__live--settled': liveSettled.has(node.id) }">
-            <NodeLiveCharts v-if="liveSeen.has(node.id)" :samples="liveHistory.nodeSamples.value[node.id] ?? []" :error="liveErrors[node.id]" />
+            <NodeLiveCharts v-if="liveSeen.has(node.id)" :samples="liveHistory.nodeSamples.value[node.id] ?? []" :color="nodeColor(node.id)" :error="liveErrors[node.id]" @retry="retryLive(node)" />
           </div>
         </div>
         <!-- Ping: over this card, under its name (each card its own: several nodes at once) -->
@@ -248,6 +273,15 @@
     </TransitionGroup>
 
     <AddNodeDialog v-model:visible="addVisible" @added="onAdded" />
+    <Popover ref="whyPop" class="node-why-pop" @show="whyOpen = true" @hide="whyOpen = false">
+      <div @pointerenter="(e: PointerEvent) => e.pointerType === 'mouse' && showWhy(e, whyNodeId!)" @pointerleave="(e: PointerEvent) => e.pointerType === 'mouse' && hideWhySoon()">
+        <NodeContactError v-if="whyNodeId !== null && pings[whyNodeId]" :code="pings[whyNodeId]?.code" :detail="pings[whyNodeId]?.error">
+          <template #actions>
+            <Button :label="t('nodes.checkAgain')" icon="pi pi-refresh" size="small" outlined @click="checkAgainFromSheet" />
+          </template>
+        </NodeContactError>
+      </div>
+    </Popover>
     <Dialog
       :visible="syncInfoNode !== null"
       modal
@@ -261,10 +295,45 @@
       <NodeSyncPanel v-if="syncInfoNode" :key="syncInfoNode.id" :loader="syncReportLoader(syncInfoNode.id)" embedded />
     </Dialog>
   </div>
+  <!-- The pencil of a node this panel can't reach: why it can't be renamed now (as on the dashboard) -->
+  <Popover ref="renameBlockedPop" class="card-popover" @show="onBlockedShow" @hide="onBlockedHidden">
+    <div v-if="renameBlocked" class="card-popover__notice" role="status">
+      <strong v-if="renameBlocked.block === 'checking'"><i class="pi pi-spin pi-spinner" />{{ t('dashboard.renameCheckingTitle') }}</strong>
+      <strong v-else><i class="pi pi-info-circle" />{{ t('dashboard.renameOfflineTitle') }}</strong>
+      <p v-if="renameBlocked.block === 'checking'">{{ t('dashboard.renameChecking', { name: renameBlocked.node.name }) }}</p>
+      <p v-else-if="renameBlocked.block === 'tooOld'">
+        {{ t('dashboard.renameTooOld', { name: renameBlocked.node.name, version: renameBlocked.version, min: `${RENAME_MIN_MAJOR}.0` }) }}
+      </p>
+      <p v-else>{{ t('dashboard.renameOffline', { name: renameBlocked.node.name }) }}</p>
+    </div>
+  </Popover>
+  <Popover ref="osPop" class="node-os-pop">
+    <div v-if="osNode" class="node-os" :style="osLogoOf(osNode) ? { '--os-c': osLogoOf(osNode)!.color, '--os-dark': osLogoOf(osNode)!.dark } : undefined">
+      <header class="node-os__head">
+        <span class="node-os__logo" :class="{ 'node-os__logo--app': osLogoOf(osNode) }">
+          <svg v-if="osLogoOf(osNode)" viewBox="0 0 24 24" aria-hidden="true"><path :d="osLogoOf(osNode)!.path" /></svg>
+          <i v-else class="pi pi-server" />
+        </span>
+        <div class="min-w-0">
+          <div class="node-os__name">{{ osById[osNode.id]?.os_pretty || osById[osNode.id]?.os_name || t('nodes.os.title') }}</div>
+          <div class="node-os__node">{{ osNode.name }}</div>
+        </div>
+      </header>
+      <div v-if="osById[osNode.id] === undefined || osById[osNode.id] === null" class="node-os__wait"><i class="pi pi-spin pi-spinner" /></div>
+      <p v-else-if="!osById[osNode.id]!.os_id" class="node-os__none">{{ t('nodes.os.unknown') }}</p>
+      <dl v-else class="node-os__rows">
+        <div><dt>{{ t('nodes.os.system') }}</dt><dd>{{ osById[osNode.id]!.os_name }}</dd></div>
+        <div v-if="osById[osNode.id]!.os_version"><dt>{{ t('nodes.os.version') }}</dt><dd dir="ltr">{{ osById[osNode.id]!.os_version }}</dd></div>
+        <div v-if="osById[osNode.id]!.kernel"><dt>{{ t('nodes.os.kernel') }}</dt><dd dir="ltr"><code>{{ osById[osNode.id]!.kernel }}</code></dd></div>
+        <div v-if="osById[osNode.id]!.arch"><dt>{{ t('nodes.os.arch') }}</dt><dd dir="ltr">{{ osById[osNode.id]!.arch }}</dd></div>
+      </dl>
+    </div>
+  </Popover>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, onUpdated, reactive, ref } from 'vue'
+import { countryFlag, countryName as countryNameIn } from '@/shared/utils/country'
+import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
@@ -274,22 +343,32 @@ import Skeleton from 'primevue/skeleton'
 import PageHeader from '@/shared/components/PageHeader.vue'
 import { useDangerConfirm } from '@/shared/composables/useDangerConfirm'
 import { apiErrorMessage } from '@/core/api/client'
+import { useCardPopover } from '@/shared/composables/useCardPopover'
+import { RENAME_MIN_MAJOR, nodeRenameBlock, type RenameBlock } from '@/shared/utils/node-rename'
 import { liveWatch, type Subscription } from '@/core/live/live'
 import { formatBytes, formatCount } from '@/shared/utils/format-metrics'
 import AddNodeDialog from '@/features/nodes/components/AddNodeDialog.vue'
 import NodeLiveCharts from '@/features/nodes/components/NodeLiveCharts.vue'
+import { nodeColor } from '@/features/dashboard/composables/useChartTheme'
 import { useMetricHistory } from '@/features/dashboard/composables/useMetricHistory'
 import { SYSTEM_REFRESH_MS } from '@/features/dashboard/composables/useDashboard'
 import type { DashboardSnapshot } from '@/core/api/generated'
 import NodePingPanel from '@/features/nodes/components/NodePingPanel.vue'
 import Dialog from 'primevue/dialog'
+import Popover from 'primevue/popover'
+import NodeContactError from '@/features/nodes/components/NodeContactError.vue'
+import { nodeProblems } from '@/shared/composables/useNodeNotices'
 import NodeSyncPanel from '@/features/node-home/components/NodeSyncPanel.vue'
-import type { NodeSyncLoader } from '@/features/node-home/composables/useNodeSyncStatus'
-import { nodesApi, type NodeStatus, type PanelNode } from '@/features/nodes/api'
+import { NodeContactFailure, type NodeSyncLoader } from '@/features/node-home/composables/useNodeSyncStatus'
+import FlagIcon from '@/shared/components/FlagIcon.vue'
+import { nodesApi, type NodeOs, type NodeStatus, type PanelNode } from '@/features/nodes/api'
+import { osLogo } from '@/features/nodes/os-logos'
 
 interface PingState {
   state: 'checking' | 'ok' | 'fail'
   version?: string
+  /** Why it failed (hutils.node.contact_error) and the technical text */
+  code?: string
   error?: string
 }
 
@@ -301,7 +380,7 @@ const FEW_NODES = 3
 /** `embedded`: shown inside another page (quick setup), without the page header. */
 defineProps<{ embedded?: boolean }>()
 
-const { t, locale } = useI18n()
+const { t, te, locale } = useI18n()
 const toast = useToast()
 const dangerConfirm = useDangerConfirm()
 
@@ -325,7 +404,7 @@ const syncInfoNode = ref<PanelNode | null>(null)
 function syncReportLoader(id: number): NodeSyncLoader {
   return async () => {
     const res = await nodesApi.syncReport(id)
-    if (!res.report) throw new Error(res.error || t('nodes.syncInfoUnavailable'))
+    if (!res.report) throw res.error_code ? new NodeContactFailure(res.error_code, res.error) : new Error(res.error || t('nodes.syncInfoUnavailable'))
     return res.report
   }
 }
@@ -387,10 +466,59 @@ function toggleDomains(id: number) {
   expandedDomains.value = next
 }
 
-function startRename(node: PanelNode) {
+/**
+ * A new name goes to the node too, so a node that can't take it now (not reachable, or a panel older than 14.0; see
+ * nodeRenameBlock) is not renamed: its pencil says why instead, in the same small popover as on the dashboard.
+ */
+/** The node whose pencil was pressed while it can't be renamed; why follows its connection check as it changes */
+const renameBlockedNode = ref<PanelNode | null>(null)
+function renameBlockOf(node: PanelNode): { block: RenameBlock | null; version: string | null } {
+  const ping = pings[node.id]
+  const reachable = ping?.state === 'ok' ? true : ping?.state === 'fail' ? false : null
+  const version = ping?.version ?? null
+  return { block: nodeRenameBlock(reachable, version), version }
+}
+const renameBlocked = computed(() => {
+  const node = renameBlockedNode.value
+  if (!node) return null
+  const { block, version } = renameBlockOf(node)
+  return block ? { node, block, version } : null
+})
+const {
+  pop: renameBlockedPop,
+  open: openBlocked,
+  hide: hideBlocked,
+  onShow: onBlockedShow,
+  onHide: onBlockedHide,
+} = useCardPopover({ card: '.node-card' })
+
+function startRename(node: PanelNode, event?: Event) {
+  const { block } = renameBlockOf(node)
+  if (block && event) {
+    renameBlockedNode.value = node
+    // the arrow points at the pencil, not the middle of the name
+    openBlocked(event, (event.currentTarget as HTMLElement).querySelector<HTMLElement>('.node-card__name-edit'))
+    return
+  }
+  hideBlocked()
+  renameBlockedNode.value = null
   editing.value = node.id
   editName.value = node.name
 }
+
+/** Closed: forget the node (after the popover's fade), so a check that ends later does not open its rename */
+function onBlockedHidden() {
+  onBlockedHide()
+  const node = renameBlockedNode.value
+  window.setTimeout(() => {
+    if (renameBlockedNode.value === node) renameBlockedNode.value = null
+  }, 200)
+}
+// Checked while its popover was open and it turns out it can be renamed: go on to the rename itself
+watch(renameBlocked, (now, before) => {
+  const node = renameBlockedNode.value
+  if (before?.block === 'checking' && !now && node) startRename(node)
+})
 
 function cancelRename() {
   editing.value = null
@@ -429,19 +557,8 @@ async function saveName(node: PanelNode) {
   }
 }
 
-/** The flag emoji of a country code (two regional indicator letters); '' when there is none. */
-function flag(code: string | undefined): string {
-  const c = (code ?? '').toUpperCase()
-  if (!/^[A-Z]{2}$/.test(c)) return ''
-  return String.fromCodePoint(...[...c].map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65))
-}
-function countryName(code: string): string {
-  try {
-    return new Intl.DisplayNames([locale.value], { type: 'region' }).of(code.toUpperCase()) ?? code
-  } catch {
-    return code
-  }
-}
+const flag = countryFlag
+const countryName = (code: string) => countryNameIn(code, locale.value)
 
 function versionTitle(version?: string): string {
   if (!version) return ''
@@ -452,10 +569,47 @@ async function pingNode(node: PanelNode) {
   pings[node.id] = { state: 'checking' }
   try {
     const res = await nodesApi.ping(node.id)
-    pings[node.id] = res.online ? { state: 'ok', version: res.version } : { state: 'fail', error: res.error }
+    pings[node.id] = res.online ? { state: 'ok', version: res.version } : { state: 'fail', code: res.error_code, error: res.error }
+    // the top bar's notifications follow what was just found
+    const others = nodeProblems.value.filter((p) => p.id !== node.id)
+    nodeProblems.value = res.online ? others : [...others, { id: node.id, name: node.name, code: res.error_code || 'unknown', detail: res.error }]
   } catch (err) {
-    pings[node.id] = { state: 'fail', error: apiErrorMessage(err) }
+    pings[node.id] = { state: 'fail', code: 'unknown', error: apiErrorMessage(err) }
   }
+}
+
+// "Not reachable": one sheet for the page, for the node the mouse is over (or that was clicked)
+const whyPop = ref<InstanceType<typeof Popover> | null>(null)
+const whyNodeId = ref<number | null>(null)
+const whyOpen = ref(false)
+let whyHideTimer: number | undefined
+function showWhy(e: Event, id: number) {
+  window.clearTimeout(whyHideTimer)
+  if (whyOpen.value && whyNodeId.value === id) return
+  if (whyOpen.value) whyPop.value?.hide()
+  whyNodeId.value = id
+  // the sheet changes node after the old one closed, so it opens next to this one (currentTarget is gone by then)
+  const target = e.currentTarget as HTMLElement
+  void nextTick(() => whyPop.value?.show(e, target))
+}
+function hideWhySoon() {
+  window.clearTimeout(whyHideTimer)
+  whyHideTimer = window.setTimeout(() => whyPop.value?.hide(), 220)
+}
+function toggleWhy(e: MouseEvent, id: number) {
+  // With a mouse the hover already opened it: a click keeps it open. A tap opens and closes it.
+  if ((e as PointerEvent).pointerType !== 'mouse' && whyOpen.value && whyNodeId.value === id) whyPop.value?.hide()
+  else showWhy(e, id)
+}
+/** "Check again" under the live charts: the connection check, and the charts asked again now */
+function retryLive(node: PanelNode) {
+  void pingNode(node)
+  liveFeed?.restart()
+}
+function checkAgainFromSheet() {
+  const node = nodes.value.find((n) => n.id === whyNodeId.value)
+  whyPop.value?.hide()
+  if (node) void pingNode(node)
 }
 
 /**
@@ -495,7 +649,7 @@ const liveSeen = ref<Set<number>>(new Set())
 /** Fully open: the section stops clipping, so a chart's tooltip can go over its neighbours (clipped while sliding) */
 const liveSettled = ref<Set<number>>(new Set())
 const liveHistory = useMetricHistory(60)
-const liveErrors = reactive<Record<number, string>>({})
+const liveErrors = reactive<Record<number, { code: string; detail: string } | null>>({})
 let liveFeed: Subscription | null = null
 
 function toggleLive(id: number) {
@@ -514,7 +668,7 @@ function toggleLive(id: number) {
       onData: (snapshot) => {
         const stats = snapshot.node_stats ?? []
         liveHistory.pushNodes(stats)
-        for (const node of stats) liveErrors[node.id] = node.ok ? '' : node.error || t('nodes.live.unavailable')
+        for (const node of stats) liveErrors[node.id] = node.ok ? null : { code: node.error_code || 'unknown', detail: node.error || '' }
       },
       onError: () => {},
     })
@@ -528,6 +682,28 @@ function stopLive() {
   liveFeed = null
 }
 
+/** Each node server's OS (asked once per node per page; the panel keeps it an hour): null while it is being asked */
+const osById = reactive<Record<number, NodeOs | null>>({})
+const osPop = ref<InstanceType<typeof Popover> | null>(null)
+const osNode = ref<PanelNode | null>(null)
+function osLogoOf(node: PanelNode) {
+  return osLogo(osById[node.id]?.os_id ?? '')
+}
+function loadOs(list: PanelNode[]) {
+  for (const node of list) {
+    if (node.id in osById) continue
+    osById[node.id] = null
+    nodesApi
+      .os(node.id)
+      .then((os) => (osById[node.id] = os))
+      .catch(() => (osById[node.id] = { os_id: '', os_name: '', os_version: '', os_pretty: '', kernel: '', arch: '' }))
+  }
+}
+function openOs(event: Event, node: PanelNode) {
+  osNode.value = node
+  osPop.value?.toggle(event)
+}
+
 async function load(silent = false) {
   if (!silent) loading.value = true
   loadError.value = null
@@ -535,6 +711,7 @@ async function load(silent = false) {
     const res = await nodesApi.list()
     nodes.value = res.nodes
     panelVersion.value = res.panel_version
+    loadOs(res.nodes)
     now.value = Date.now()
   } catch (err) {
     if (!silent) loadError.value = apiErrorMessage(err) || t('common.loadFailed')
@@ -557,7 +734,13 @@ async function syncNode(node: PanelNode) {
     toast.add({ severity: 'success', summary: t('nodes.synced', { name: node.name }), life: 3000 })
     await load(true)
   } catch (err) {
-    toast.add({ severity: 'error', summary: t('nodes.syncFailed', { name: node.name }), detail: apiErrorMessage(err), life: 6000 })
+    // The node could not be asked: say why and what to do (the "Not reachable" sheet has the rest)
+    const why = (err as { response?: { data?: { error_code?: string; error?: string } } })?.response?.data
+    if (why?.error_code) {
+      pings[node.id] = { state: 'fail', code: why.error_code, error: why.error ?? '' }
+      const code = te(`nodes.contact.${why.error_code}.title`) ? why.error_code : 'unknown'
+      toast.add({ severity: 'error', summary: t('nodes.syncFailed', { name: node.name }), detail: `${t(`nodes.contact.${code}.title`)}. ${t(`nodes.contact.${code}.fix`)}`, life: 10000 })
+    } else toast.add({ severity: 'error', summary: t('nodes.syncFailed', { name: node.name }), detail: apiErrorMessage(err), life: 6000 })
   } finally {
     syncing.value = null
   }
@@ -752,12 +935,134 @@ onBeforeUnmount(() => {
   width: 2.6rem;
   height: 2.6rem;
   flex-shrink: 0;
+  padding: 0;
+  border: 0;
   border-radius: 12px;
   display: grid;
   place-items: center;
+  font: inherit;
   font-size: 1.15rem;
   color: var(--node-accent);
   background: color-mix(in srgb, var(--node-accent) 14%, transparent);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.node-card__icon:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px -10px color-mix(in srgb, var(--os-color, var(--node-accent)) 70%, transparent);
+}
+.node-card__icon:focus-visible {
+  outline: 2px solid var(--p-primary-color);
+  outline-offset: 2px;
+}
+/* --os-c: the brand colour (set on the element); the dark theme takes the lighter one where there is one */
+.node-card__icon,
+.node-os {
+  --os-color: var(--os-c, var(--node-accent, var(--p-primary-color)));
+}
+html.app-dark .node-card__icon,
+html.app-dark .node-os {
+  --os-color: var(--os-dark, var(--os-c, var(--node-accent, var(--p-primary-color))));
+}
+/* The server's OS as an app icon, in the panel's soft style (as its other icons): a tile tinted with the brand colour
+   (lighter at the top), a gloss on its upper half and a fine border, the logo in the brand colour */
+.node-card__icon--os {
+  --os-tile: var(--p-surface-0, #fff);
+  position: relative;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--os-color) 88%, #000);
+  background: linear-gradient(165deg, color-mix(in srgb, var(--os-color) 10%, var(--os-tile)) 0%, color-mix(in srgb, var(--os-color) 22%, var(--os-tile)) 100%);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--os-color) 26%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 55%),
+    0 4px 12px -8px color-mix(in srgb, var(--os-color) 55%, transparent);
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease;
+}
+/* The gloss */
+.node-card__icon--os::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 50%;
+  background: linear-gradient(180deg, rgb(255 255 255 / 45%), rgb(255 255 255 / 0%));
+  border-radius: inherit;
+  pointer-events: none;
+}
+html.app-dark .node-card__icon--os {
+  --os-tile: var(--p-surface-900, #18181b);
+  color: color-mix(in srgb, var(--os-color) 80%, #fff);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--os-color) 35%, transparent),
+    0 4px 12px -8px color-mix(in srgb, var(--os-color) 55%, transparent);
+}
+html.app-dark .node-card__icon--os::before {
+  background: linear-gradient(180deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 0%));
+}
+/* A band of light, swept across on hover */
+.node-card__icon--os::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 70%) 50%, transparent 65%) 140% 0 / 250% 100% no-repeat;
+  opacity: 0;
+  pointer-events: none;
+}
+.node-os-logo {
+  position: relative;
+  z-index: 1;
+  width: 1.6rem;
+  height: 1.6rem;
+  fill: currentColor;
+  shape-rendering: geometricPrecision;
+  filter: drop-shadow(0 1px 1px color-mix(in srgb, var(--os-color) 30%, transparent));
+}
+.node-card__icon--os:hover {
+  transform: translateY(-2px) scale(1.06);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--os-color) 35%, transparent),
+    0 10px 20px -10px color-mix(in srgb, var(--os-color) 70%, transparent);
+}
+/* With the mouse on it the logo comes alive: it turns a full circle with a bounce, then breathes, again and again while
+   the mouse stays; a band of light sweeps the tile (still otherwise, and with reduced motion) */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .node-card__icon--os:hover .node-os-logo {
+    animation: node-os-alive 1.8s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  }
+  .node-card__icon--os:hover::after {
+    animation: node-os-shine 1.8s ease infinite;
+  }
+}
+@keyframes node-os-alive {
+  0% {
+    transform: rotate(0) scale(1);
+  }
+  35% {
+    transform: rotate(360deg) scale(1.18);
+  }
+  50% {
+    transform: rotate(360deg) scale(0.94);
+  }
+  62% {
+    transform: rotate(360deg) scale(1.06);
+  }
+  75%,
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+@keyframes node-os-shine {
+  0% {
+    opacity: 1;
+    background-position: 140% 0;
+  }
+  45%,
+  100% {
+    opacity: 1;
+    background-position: -40% 0;
+  }
 }
 .node-card__name {
   display: flex;
@@ -778,9 +1083,6 @@ onBeforeUnmount(() => {
 .node-card__flag {
   flex: none;
   font-size: 1.15em;
-  line-height: 1;
-  /* colour emoji fonts first: the flag, not its two letters, where the system has one */
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
 }
 .node-card__name-text {
   overflow: hidden;
@@ -852,6 +1154,28 @@ onBeforeUnmount(() => {
 }
 .node-check--fail {
   color: var(--p-red-500, #ef4444);
+}
+.node-check__why {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: help;
+  text-decoration: underline dotted color-mix(in srgb, currentColor 55%, transparent);
+  text-underline-offset: 3px;
+}
+.node-check__info {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+.node-check__again {
+  width: 1.75rem !important;
+  height: 1.75rem !important;
+  margin-inline-start: -0.15rem;
 }
 .node-check--checking {
   color: var(--p-text-muted-color);
@@ -1282,5 +1606,137 @@ onBeforeUnmount(() => {
   .node-card:hover {
     transform: none;
   }
+}
+</style>
+
+<style>
+/* "Not reachable" sheet (teleported to the body, so not scoped) */
+.node-why-pop {
+  max-width: min(26rem, calc(100vw - 2rem));
+}
+.node-why-pop .p-popover-content {
+  padding: 0.35rem;
+}
+/* A node's OS card (the logo's popover; in <body>, so not scoped) */
+.node-os-pop.p-popover {
+  --p-popover-content-padding: 0;
+}
+.node-os-pop .p-popover-content {
+  padding: 0;
+}
+html.theme-glass .node-os-pop.p-popover {
+  background: var(--p-surface-0);
+}
+html.theme-glass.app-dark .node-os-pop.p-popover {
+  background: var(--p-surface-900);
+}
+.node-os {
+  min-width: 15rem;
+  border-top: 3px solid var(--os-color);
+  border-radius: inherit;
+  font-size: 0.85rem;
+}
+.node-os__head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.8rem 0.9rem 0.6rem;
+}
+.node-os__logo {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  border-radius: 13px;
+  color: var(--os-color);
+  background: linear-gradient(145deg, var(--p-surface-0, #fff), color-mix(in srgb, var(--os-color) 9%, var(--p-surface-0, #fff)));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--os-color) 28%, transparent);
+  font-size: 1.2rem;
+}
+.node-os__logo svg {
+  position: relative;
+  width: 1.8rem;
+  height: 1.8rem;
+  fill: currentColor;
+  shape-rendering: geometricPrecision;
+}
+.node-os__logo--app {
+  --os-tile: var(--p-surface-0, #fff);
+  position: relative;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--os-color) 88%, #000);
+  background: linear-gradient(165deg, color-mix(in srgb, var(--os-color) 10%, var(--os-tile)) 0%, color-mix(in srgb, var(--os-color) 22%, var(--os-tile)) 100%);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--os-color) 26%, transparent),
+    0 4px 12px -8px color-mix(in srgb, var(--os-color) 55%, transparent);
+}
+html.app-dark .node-os__logo--app {
+  --os-tile: var(--p-surface-900, #18181b);
+  color: color-mix(in srgb, var(--os-color) 80%, #fff);
+}
+.node-os__logo--app::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 50%;
+  background: linear-gradient(180deg, rgb(255 255 255 / 45%), rgb(255 255 255 / 0%));
+}
+html.app-dark .node-os__logo--app::before {
+  background: linear-gradient(180deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 0%));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .node-os__logo svg {
+    animation: node-os-spin-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+@keyframes node-os-spin-in {
+  from {
+    transform: rotate(-90deg) scale(0.6);
+    opacity: 0;
+  }
+}
+.node-os__name {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.node-os__node {
+  margin-top: 0.1rem;
+  font-size: 0.75rem;
+  color: var(--p-text-muted-color);
+}
+.node-os__rows {
+  margin: 0;
+  padding: 0 0.9rem 0.65rem;
+}
+.node-os__rows > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 0.38rem 0;
+  border-top: 1px solid var(--p-content-border-color);
+}
+.node-os__rows dt {
+  color: var(--p-text-muted-color);
+}
+.node-os__rows dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: end;
+}
+.node-os__rows code {
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+.node-os__wait {
+  display: grid;
+  place-items: center;
+  padding: 0.5rem 0 0.9rem;
+  color: var(--p-text-muted-color);
+}
+.node-os__none {
+  margin: 0;
+  padding: 0 0.9rem 0.8rem;
+  line-height: 1.5;
+  color: var(--p-text-muted-color);
 }
 </style>

@@ -170,3 +170,6 @@ node_modules
 .cursor/
 .vscode/
 .codebuddy/
+
+# the commit a development install came from (written by the manager installer)
+hiddifypanel/COMMIT

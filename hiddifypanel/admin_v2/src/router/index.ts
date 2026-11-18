@@ -52,10 +52,16 @@ const routes = [
         beforeEnter: () => (isChildPanel.value && !isSuperAdmin.value ? { name: 'node-home' } : true),
       },
       {
-        // A message to users over the Telegram bot (?ids=1,2,3: the users selected on the users page)
+        // Sending a message is part of the inbox now: old links (?ids=1,2,3) open its send window.
         path: 'message',
-        name: 'broadcast',
-        component: () => import('@/features/broadcast/views/BroadcastView.vue'),
+        redirect: (to: RouteLocation) => ({ name: 'inbox', query: { compose: '1', ...(to.query.ids ? { ids: to.query.ids } : {}) } }),
+      },
+      {
+        // The people who wrote to the Telegram bot, their free test requests, this admin's free test package, and
+        // sending a message to users
+        path: 'inbox',
+        name: 'inbox',
+        component: () => import('@/features/inbox/views/InboxView.vue'),
         beforeEnter: () => (isChildPanel.value ? { name: 'node-home' } : true),
       },
       {
@@ -154,6 +160,11 @@ const routes = [
         component: () => import('@/features/utils/views/UtilsView.vue'),
       },
       {
+        path: 'qr',
+        name: 'qr',
+        component: () => import('@/features/qr-tool/views/QrToolView.vue'),
+      },
+      {
         path: 'scanner',
         name: 'scanner',
         component: () => import('@/features/clean-ip/views/ScannerView.vue'),
@@ -225,7 +236,35 @@ export function createAppRouter(base: string): Router {
     }
     return true
   })
+  // A tab left open across an update still asks for the old build's page files, which are gone: the click
+  // did nothing. Load the page it was going to from the server instead (the new build), once.
+  router.onError((error, to) => {
+    if (!isStaleBuildError(error)) return
+    const href = router.resolve(to.fullPath).href
+    if (reloadedJustNow(href)) return
+    window.location.assign(href)
+  })
   return router
+}
+
+const STALE_RELOAD_KEY = 'hiddify.staleBuildReload'
+
+function isStaleBuildError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error)
+  // Chrome/Edge, Firefox, Safari, and Vite's preload of the page's CSS
+  return /Failed to fetch dynamically imported module|error loading dynamically imported module|Importing a module script failed|Unable to preload CSS/i.test(message)
+}
+
+/** True when this address was already reloaded in the last 10 s (a file really missing on the server: no reload loop). */
+function reloadedJustNow(href: string): boolean {
+  try {
+    const last = JSON.parse(sessionStorage.getItem(STALE_RELOAD_KEY) || 'null') as { href: string; at: number } | null
+    if (last && last.href === href && Date.now() - last.at < 10_000) return true
+    sessionStorage.setItem(STALE_RELOAD_KEY, JSON.stringify({ href, at: Date.now() }))
+  } catch {
+    // No session storage (blocked): reload anyway; a file missing from the new build is the rare case
+  }
+  return false
 }
 
 export default createAppRouter(import.meta.env.BASE_URL)

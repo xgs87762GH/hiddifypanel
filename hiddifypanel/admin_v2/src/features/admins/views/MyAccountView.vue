@@ -55,7 +55,7 @@
             </div>
             <span class="account-chip" v-tooltip.top="t('account.subAdmins')"><i class="pi pi-sitemap" />{{ formatCount(me.sub_admins) }}</span>
           </header>
-          <UsageMeters :stats="me.stats" :limits="me.limits" />
+          <UsageMeters :stats="me.stats" :limits="me.limits" :days-to-reset="me.days_to_reset" />
           <Message v-if="nearLimit" severity="warn" :closable="false" size="small">{{ t('account.nearLimit') }}</Message>
         </section>
 
@@ -77,7 +77,7 @@
                 <small>{{ t('account.languageHint') }}</small>
               </div>
               <Select
-                :model-value="me.lang"
+                :model-value="me.lang || PANEL_DEFAULT_LANG"
                 :options="languageOptions"
                 option-label="label"
                 option-value="value"
@@ -88,13 +88,22 @@
                 @update:model-value="saveLanguage"
               >
                 <template #value="{ value }">
-                  <span class="account-lang__opt"><span class="account-lang__flag"><template v-if="flagOf(value)">{{ flagOf(value) }}</template><i v-else class="pi pi-globe" /></span>{{ labelOf(value) }}</span>
+                  <span class="account-lang__opt"><span class="account-lang__flag"><FlagIcon v-if="flagOf(value)" :code="flagOf(value)" /><i v-else class="pi pi-globe" /></span>{{ labelOf(value) }}</span>
                 </template>
                 <template #option="{ option }">
-                  <span class="account-lang__opt"><span class="account-lang__flag"><template v-if="option.flag">{{ option.flag }}</template><i v-else class="pi pi-globe" /></span>{{ option.label }}</span>
+                  <span class="account-lang__opt"><span class="account-lang__flag"><FlagIcon v-if="option.flag" :code="option.flag" /><i v-else class="pi pi-globe" /></span>{{ option.label }}</span>
                 </template>
                 <template #dropdownicon><i class="pi pi-language" /></template>
               </Select>
+            </div>
+            <!-- The color of the app icon (the admin panel installed as an app) -->
+            <div v-if="appIcon.enabled.value" class="account-row">
+              <img :src="appIcon.iconUrl('tile-256')" alt="" class="account-row__app" />
+              <div class="account-row__text">
+                <b>{{ t('pwa.colorTitle') }}</b>
+                <small>{{ t('pwa.colorHint') }}</small>
+              </div>
+              <PwaColorButton />
             </div>
             <div class="account-row">
               <span class="account-row__icon"><i class="pi pi-key" /></span>
@@ -103,6 +112,9 @@
                 <small>{{ me.has_password ? t('account.passwordSet') : t('account.passwordNone') }}</small>
               </div>
               <Button :label="me.has_password ? t('account.changePassword') : t('account.setPassword')" icon="pi pi-pencil" size="small" outlined @click="openPassword" />
+            </div>
+            <div class="account-row account-row--col">
+              <PasskeysRow />
             </div>
             <div class="account-row account-row--col">
               <div class="account-row__line">
@@ -244,7 +256,9 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
+import PwaColorButton from '@/shared/components/PwaColorButton.vue'
 import PwaInstallDialog from '@/shared/components/PwaInstallDialog.vue'
+import { useAppIcon } from '@/shared/composables/useAppIcon'
 import { usePwaInstall } from '@/shared/composables/usePwaInstall'
 import Message from 'primevue/message'
 import Password from 'primevue/password'
@@ -257,6 +271,7 @@ import { formatCount } from '@/shared/utils/format-metrics'
 import UsageMeters from '@/features/admins/components/UsageMeters.vue'
 import AdditionalConfigsEditor from '@/shared/components/AdditionalConfigsEditor.vue'
 import PasswordRules from '@/shared/components/PasswordRules.vue'
+import PasskeysRow from '@/features/admins/components/PasskeysRow.vue'
 import DefaultOutboundSelect from '@/features/admins/components/DefaultOutboundSelect.vue'
 import TelegramConnect from '@/shared/components/TelegramConnect.vue'
 import { telegramInfo } from '@/core/panelShell'
@@ -265,10 +280,13 @@ import { ALIAS_MIN, aliasProblem, generatePassword, isStrongPassword } from '@/s
 import { cleanConfigRows, configRowProblem, type AdditionalConfig } from '@/shared/utils/additional-configs'
 import { adminsApi, meterTone, type MyAccount, type OverrideInfo } from '@/features/admins/api'
 import UserPageForm from '@/features/admins/components/UserPageForm.vue'
+import FlagIcon from '@/shared/components/FlagIcon.vue'
 
 
 const { t } = useI18n()
 const pwa = usePwaInstall()
+/** The admin app icon in the color chosen with "PWA Color" (a row of Settings) */
+const appIcon = useAppIcon()
 const pwaVisible = ref(false)
 const pwaBusy = ref(false)
 /** The browser's own install dialog when it allows one (Chrome, Edge, Android); else our dialog with the steps. */
@@ -384,14 +402,18 @@ const aliasError = computed(() => {
 watch(aliasInput, () => (aliasServerError.value = null))
 
 const savingLang = ref(false)
+// The Select treats an empty value as "nothing chosen" (no label, no tick), so the panel's default
+// ("" in the API) gets a value of its own here
+const PANEL_DEFAULT_LANG = '_default'
 const languageOptions = computed(() => [
-  // '' = no flag of its own (the panel's default, an unknown language): a globe icon
-  { value: '', flag: '', label: t('account.languageDefault', { name: LANGUAGE_LOOK[me.value?.default_lang ?? 'en']?.name ?? me.value?.default_lang }) },
+  // flag '' = no flag of its own (the panel's default, an unknown language): a globe icon
+  { value: PANEL_DEFAULT_LANG, flag: '', label: t('account.languageDefault', { name: LANGUAGE_LOOK[me.value?.default_lang ?? 'en']?.name ?? me.value?.default_lang }) },
   ...(me.value?.languages ?? []).map((value) => ({ value, flag: LANGUAGE_LOOK[value]?.flag ?? '', label: LANGUAGE_LOOK[value]?.name ?? value })),
 ])
 const flagOf = (value: string) => languageOptions.value.find((o) => o.value === value)?.flag ?? ''
 const labelOf = (value: string) => languageOptions.value.find((o) => o.value === value)?.label ?? value
-async function saveLanguage(lang: string) {
+async function saveLanguage(choice: string) {
+  const lang = choice === PANEL_DEFAULT_LANG ? '' : choice
   if (!me.value || savingLang.value || lang === me.value.lang) return
   savingLang.value = true
   try {
@@ -639,6 +661,12 @@ onMounted(load)
   place-items: center;
   color: var(--p-amber-600, #d97706);
   background: color-mix(in srgb, var(--p-amber-500, #f59e0b) 14%, transparent);
+}
+/* The app icon itself, in place of a row's icon */
+.account-row__app {
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
 }
 .account-row__icon--sky {
   color: var(--p-sky-500, #0ea5e9);

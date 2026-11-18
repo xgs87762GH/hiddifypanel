@@ -18,6 +18,32 @@ class Lang(HEnum):
     pt = auto()
     zh = auto()
     my = auto()
+    ko = auto()
+    tk = auto()
+    be = auto()
+    es = auto()
+    am = auto()
+    ar = auto()
+    ur = auto()
+    ps = auto()
+    bn = auto()
+    tr = auto()
+    uz = auto()
+    az = auto()
+    kk = auto()
+    ky = auto()
+    tg = auto()
+    hy = auto()
+    uk = auto()
+    hi = auto()
+    de = auto()
+    fr = auto()
+    nl = auto()
+    it = auto()
+
+
+#: Languages written right to left
+RTL_LANGS = frozenset({"fa", "ar", "ur", "ps"})
 
 
 class PanelMode(HEnum):
@@ -37,6 +63,14 @@ class MieruHandshake(HEnum):
     HANDSHAKE_DEFAULT = auto()
     HANDSHAKE_NO_WAIT = auto()
     HANDSHAKE_STANDARD = auto()
+
+
+class DomainLabelMode(HEnum):
+    """How a domain without an alias is named in the users' configs (hutils/domain_label.py)."""
+
+    private = auto()
+    masked = auto()
+    full = auto()
 
 
 class LogLevel(HEnum):
@@ -148,6 +182,8 @@ class ConfigEnum(metaclass=FastEnum):
     warp_mode = _StrConfigDscr(ConfigCategory.warp, ApplyMode.apply_config, hide_in_virtual_child=True)
     warp_plus_code = _StrConfigDscr(ConfigCategory.warp, ApplyMode.apply_config, hide_in_virtual_child=True)
     warp_sites = _StrConfigDscr(ConfigCategory.warp, ApplyMode.apply_config, hide_in_virtual_child=True)
+    # Recorded from the terms dialog. Hidden so it is not a switch that skips the question.
+    warp_tos_accepted = _BoolConfigDscr(ConfigCategory.hidden, ApplyMode.apply_config, hide_in_virtual_child=True)
     dns_server = _StrConfigDscr(ConfigCategory.general, ApplyMode.apply_config, hide_in_virtual_child=True)
     reality_fallback_domain = _StrConfigDscr(ConfigCategory.hidden, ApplyMode.apply_config)  # removed
     reality_server_names = _StrConfigDscr(ConfigCategory.hidden, ApplyMode.apply_config)  # removed
@@ -164,6 +200,8 @@ class ConfigEnum(metaclass=FastEnum):
     restls1_2_domain = _StrConfigDscr(ConfigCategory.hidden)
     restls1_3_domain = _StrConfigDscr(ConfigCategory.hidden)
     show_usage_in_sublink = _BoolConfigDscr(ConfigCategory.general)
+    # automatic config health checks (proxy_v3/config_health): off unless turned on, they can look like a flood
+    config_health_enable = _BoolConfigDscr(ConfigCategory.general, hide_in_virtual_child=True)
     cloudflare = _StrConfigDscr(ConfigCategory.too_advanced)
     license = _StrConfigDscr(ConfigCategory.hidden)
     country = _StrConfigDscr(ConfigCategory.general, ApplyMode.reinstall, hide_in_virtual_child=True)
@@ -267,6 +305,8 @@ class ConfigEnum(metaclass=FastEnum):
     telegram_fakedomain = _StrConfigDscr(ConfigCategory.hidden, ApplyMode.reinstall, hide_in_virtual_child=True)
     telegram_webproxy_enable = _BoolConfigDscr(ConfigCategory.telegram, ApplyMode.apply_config)
     telegram_base_path = _StrConfigDscr(ConfigCategory.hidden, ApplyMode.apply_config, hide_in_virtual_child=True)
+    #: Custom proxies the config tester turned off, for Restore: JSON ``[[proxy id, unix time], …]`` (proxy_v3/config_tester_proxies)
+    config_tester_disabled = _StrConfigDscr(ConfigCategory.hidden, ApplyMode.nothing, hide_in_virtual_child=True)
 
     v2ray_enable = _BoolConfigDscr(ConfigCategory.hidden, ApplyMode.reinstall)
     torrent_block = _BoolConfigDscr(ConfigCategory.general, ApplyMode.apply_config)
@@ -333,6 +373,16 @@ class ConfigEnum(metaclass=FastEnum):
     branding_title = _StrConfigDscr(ConfigCategory.branding, admin_overridable=True)
     branding_site = _StrConfigDscr(ConfigCategory.branding, admin_overridable=True)
     branding_freetext = _StrConfigDscr(ConfigCategory.branding, admin_overridable=True)
+    #: how domains without an alias are named in config names, profile titles and subscription names
+    domain_label_mode = _TypedConfigDscr(DomainLabelMode, ConfigCategory.general)
+    # the support box's title and "View More" button (edited in branding_freetext's HTML editor): empty text: the default
+    branding_support_title = _StrConfigDscr(ConfigCategory.branding)
+    branding_support_title_show = _BoolConfigDscr(ConfigCategory.branding)
+    branding_support_more = _StrConfigDscr(ConfigCategory.branding)
+    branding_support_more_show = _BoolConfigDscr(ConfigCategory.branding)
+    # the support box's Full text, shown by "Read More" on the user page (branding_freetext is the Lite text shown in the
+    # box); empty: Read More shows the Lite text when it does not fit. Edited in branding_freetext's HTML editor.
+    branding_freetext_full = _StrConfigDscr(ConfigCategory.branding, admin_overridable=True)
     # the user page: a static site (e.g. a hiddify-user-front build on GitHub Pages) the panel serves; empty: built-in
     user_page_url = _StrConfigDscr(ConfigCategory.branding, admin_overridable=True)
     not_found = _StrConfigDscr(ConfigCategory.hidden)
@@ -371,6 +421,11 @@ class ConfigEnum(metaclass=FastEnum):
 
     anytls_enable = _BoolConfigDscr(ConfigCategory.proxies, ApplyMode.apply_config)
     snell_enable = _BoolConfigDscr(ConfigCategory.proxies, ApplyMode.apply_config)
+    # OpenVPN, served by hiddify-core (an "openvpn-server" endpoint). The server certificate is self-signed: the clients
+    # get it in their config (no CA, no domain needed). Users log in with their uuid.
+    openvpn_enable = _BoolConfigDscr(ConfigCategory.proxies, ApplyMode.apply_config)
+    openvpn_certificate = _StrConfigDscr(ConfigCategory.hidden, ApplyMode.apply_config, hide_in_virtual_child=True)
+    openvpn_private_key = _StrConfigDscr(ConfigCategory.hidden, ApplyMode.apply_config, hide_in_virtual_child=True)
     socks_enable = _BoolConfigDscr(ConfigCategory.proxies, ApplyMode.apply_config)
 
     hiddifycli_enable = _BoolConfigDscr(ConfigCategory.hidden, ApplyMode.reinstall)

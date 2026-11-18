@@ -54,8 +54,15 @@ export function nodeColor(id: number): string {
   return hslToHex(hue, 0.65, index % 2 ? 0.5 : 0.42)
 }
 
+interface TipChart {
+  canvas: HTMLCanvasElement | null
+  width: number
+  tooltip?: { setActiveElements: (active: [], at: { x: number; y: number }) => void }
+  update: (mode?: string) => void
+}
+
 interface ExternalTooltipContext {
-  chart: { canvas: HTMLCanvasElement; width: number }
+  chart: TipChart
   tooltip: {
     opacity: number
     caretX: number
@@ -68,47 +75,83 @@ interface ExternalTooltipContext {
 }
 
 /**
- * Tooltip as real page text. Canvas text mixes Persian and Latin (server names, units) in the wrong order;
- * the browser's own layout of a right-to-left element gets it right.
+ * Tooltip as real page text, drawn as a small card (_chart-tip.scss): the hovered point's label on top, then one row per
+ * series (its colour, its name at the start, its value at the end) and the totals under a line. Canvas text mixes
+ * Persian and Latin (server names, units) in the wrong order; the browser's own layout of a right-to-left element gets
+ * it right, so it is used in every language.
  */
-function domTooltip(theme: { text: string; muted: string; surface: string; border: string }, above = false) {
+/** The chart whose card is open. Touch never sends a "pointer left", so Chart.js keeps a tapped chart's card up; a
+ *  finger put on another chart to scroll then opened a second one. One card at a time, and a scroll closes it. */
+let openTipChart: TipChart | null = null
+let scrollWatched = false
+
+function closeTip(chart: TipChart) {
+  if (openTipChart === chart) openTipChart = null
+  const tip = chart.canvas?.parentElement?.querySelector<HTMLDivElement>(':scope > .chart-tip')
+  if (tip) tip.style.opacity = '0'
+  if (!chart.canvas) return // destroyed
+  chart.tooltip?.setActiveElements([], { x: 0, y: 0 })
+  chart.update('none')
+}
+
+function watchScroll() {
+  if (scrollWatched) return
+  scrollWatched = true
+  // Capture: the page may scroll inside a layout element, not the window
+  document.addEventListener('scroll', () => openTipChart && closeTip(openTipChart), { capture: true, passive: true })
+  // A tap anywhere but on the chart closes its card too (the menu button takes no focus and does not scroll)
+  document.addEventListener(
+    'pointerdown',
+    (event) => {
+      const holder = openTipChart?.canvas?.parentElement
+      if (openTipChart && !holder?.contains(event.target as Node)) closeTip(openTipChart)
+    },
+    { capture: true, passive: true },
+  )
+}
+
+function domTooltip(above = false) {
   return ({ chart, tooltip }: ExternalTooltipContext) => {
-    const holder = chart.canvas.parentElement
+    const holder = chart.canvas?.parentElement
     if (!holder) return
     let el = holder.querySelector<HTMLDivElement>(':scope > .chart-tip')
     if (!el) {
       el = document.createElement('div')
       el.className = 'chart-tip'
-      el.style.cssText =
-        'position:absolute;z-index:5;pointer-events:none;padding:10px 12px;border-radius:8px;font-size:12px;line-height:1.7;max-width:90%;white-space:nowrap;transition:opacity .1s;box-shadow:0 4px 14px rgba(0,0,0,.25)'
       holder.appendChild(el)
     }
     if (tooltip.opacity === 0) {
       el.style.opacity = '0'
+      if (openTipChart === chart) openTipChart = null
       return
     }
-    // The page's direction (it is also used in English now: the short charts of the Nodes page)
+    if (openTipChart && openTipChart !== chart) closeTip(openTipChart)
+    openTipChart = chart
+    watchScroll()
     el.dir = document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr'
-    el.style.background = theme.surface
-    el.style.border = `1px solid ${theme.border}`
-    el.style.color = theme.text
     el.replaceChildren()
-    const add = (text: string, style: string, swatch?: string) => {
-      const row = document.createElement('div')
-      row.style.cssText = `display:flex;align-items:center;gap:6px;${style}`
-      if (swatch) {
-        const dot = document.createElement('span')
-        dot.style.cssText = `width:9px;height:9px;border-radius:50%;flex:none;background:${swatch}`
-        row.appendChild(dot)
-      }
-      const label = document.createElement('bdi')
-      label.textContent = text
-      row.appendChild(label)
-      el!.appendChild(row)
+    const part = (tag: string, cls: string, text?: string) => {
+      const node = document.createElement(tag)
+      node.className = cls
+      if (text !== undefined) node.textContent = text
+      return node
     }
-    ;(tooltip.title ?? []).forEach((line) => add(line, 'font-weight:700;margin-bottom:4px'))
-    ;(tooltip.body ?? []).forEach((body, i) => body.lines.forEach((line) => add(line, '', tooltip.labelColors?.[i]?.backgroundColor ?? tooltip.labelColors?.[i]?.borderColor)))
-    ;(tooltip.footer ?? []).forEach((line) => add(line, `color:${theme.muted};margin-top:4px`))
+    /** "name: value" as two parts (the last ": " splits them); a line without one stays whole */
+    const row = (line: string, cls: string, swatch?: string) => {
+      const r = part('div', `chart-tip__row ${cls}`)
+      const cut = line.lastIndexOf(': ')
+      const name = r.appendChild(part('span', 'chart-tip__name'))
+      if (swatch) {
+        const dot = name.appendChild(part('span', 'chart-tip__dot'))
+        dot.style.background = swatch
+      }
+      name.appendChild(part('bdi', '', cut > 0 ? line.slice(0, cut) : line))
+      if (cut > 0) r.appendChild(part('bdi', 'chart-tip__value', line.slice(cut + 2)))
+      el!.appendChild(r)
+    }
+    ;(tooltip.title ?? []).forEach((line) => el!.appendChild(part('div', 'chart-tip__title', line)))
+    ;(tooltip.body ?? []).forEach((body, i) => body.lines.forEach((line) => row(line, '', tooltip.labelColors?.[i]?.backgroundColor ?? tooltip.labelColors?.[i]?.borderColor)))
+    ;(tooltip.footer ?? []).forEach((line) => row(line, 'chart-tip__row--foot'))
     el.style.opacity = '1'
     const x = Math.max(0, Math.min(chart.width - el.offsetWidth, tooltip.caretX - el.offsetWidth / 2))
     const y = tooltip.caretY - el.offsetHeight - 14
@@ -150,6 +193,12 @@ export interface BaseOptions {
   stackTotalLabel?: string
   /** Lets the y-axis range below zero (e.g. upload above / download below a mirrored stacked area). */
   mirror?: boolean
+  /** No grid lines (the style sheet's switch) */
+  noGrid?: boolean
+  /** The y axis follows the data's range instead of starting at zero (candles, baselines) */
+  freeY?: boolean
+  /** Names of a candle's four values in its tooltip */
+  ohlcNames?: { open: string; high: string; low: string; close: string }
 }
 
 function cssVar(name: string, fallback: string): string {
@@ -216,6 +265,8 @@ export function useChartTheme() {
           align: 'end',
           rtl,
           labels: {
+            // a candle's wick and a lollipop's stem have no entry of their own
+            filter: (item: { datasetIndex: number }, data: { datasets: { noTip?: boolean }[] }) => !data.datasets[item.datasetIndex]?.noTip,
             color: muted,
             usePointStyle: true,
             pointStyle: 'circle',
@@ -226,9 +277,9 @@ export function useChartTheme() {
           },
         },
         tooltip: {
-          // Right-to-left: the page-text tooltip below (canvas text scrambles Persian next to Latin)
-          enabled: !rtl && !options.pageTooltip,
-          external: rtl || options.pageTooltip ? domTooltip({ text, muted, surface, border }, !!options.pageTooltip) : undefined,
+          // The page-text card (domTooltip), in every language
+          enabled: false,
+          external: domTooltip(!!options.pageTooltip),
           rtl,
           textDirection: rtl ? 'rtl' : 'ltr',
           backgroundColor: surface,
@@ -243,9 +294,20 @@ export function useChartTheme() {
           usePointStyle: true,
           titleMarginBottom: 8,
           footerMarginTop: 8,
+          // a candle's wick and a lollipop's stem repeat their body's value
+          filter: (item: TooltipItem) => !(item.dataset as { noTip?: boolean }).noTip,
           callbacks: {
             title: (items: TooltipItem[]) => items[0]?.label ?? '',
             label: (item: TooltipItem) => {
+              const candle = (item.dataset as { ohlc?: { o: number; h: number; l: number; c: number }[] }).ohlc?.[item.dataIndex]
+              const names = options.ohlcNames
+              if (candle && names)
+                return [
+                  `${names.open}: ${format(candle.o)}`,
+                  `${names.high}: ${format(candle.h)}`,
+                  `${names.low}: ${format(candle.l)}`,
+                  `${names.close}: ${format(candle.c)}`,
+                ]
               const formatted = format(item.parsed.y)
               const custom = options.tooltipLabel?.(item.datasetIndex, item.dataIndex, formatted)
               if (custom) return custom
@@ -271,22 +333,24 @@ export function useChartTheme() {
       scales: {
         x: {
           stacked: options.stacked ?? false,
-          grid: { display: !options.hideXGrid, color: grid, drawBorder: false },
+          grid: { display: !options.hideXGrid && !options.noGrid, color: grid, drawBorder: false },
           border: { display: false },
           ticks: {
             color: muted,
             font: { size: 11 },
             maxRotation: 0,
             autoSkip: true,
+            // at least this much space between two labels: they are skipped rather than run into each other
+            autoSkipPadding: 18,
             maxTicksLimit: options.maxXTicks ?? 8,
           },
         },
         y: {
           stacked: options.stacked ?? false,
-          beginAtZero: !options.mirror,
+          beginAtZero: !options.mirror && !options.freeY,
           max: options.yMax,
           min: options.yMin,
-          grid: { color: grid, drawBorder: false },
+          grid: { display: !options.noGrid, color: grid, drawBorder: false },
           border: { display: false },
           title: options.yTitle ? { display: true, text: options.yTitle, color: muted } : undefined,
           ticks: {
@@ -297,7 +361,8 @@ export function useChartTheme() {
             callback: (value: number | string, index: number, ticks: { value: number }[]) => {
               const label = format(Number(value))
               const before = index > 0 ? format(Number(ticks[index - 1]?.value)) : undefined
-              return label === before ? '' : label
+              // Isolated left-to-right: in a right-to-left page the canvas would turn "5.00 Mb/s" into "Mb/s 5.00"
+              return label === before ? '' : `\u2066${label}\u2069`
             },
           },
         },

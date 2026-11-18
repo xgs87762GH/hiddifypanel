@@ -37,9 +37,10 @@ def _donation_item() -> dict:
 
 
 def _wiki_support_url() -> str:
+    """The tutorials and videos of Hiddify Manager on hiddify.com (the old GitHub wiki is no longer kept up to date)."""
     if get_locale() == "fa":
-        return "https://github.com/hiddify/hiddify-manager/wiki/%D9%87%D9%85%D9%87-%D8%A2%D9%85%D9%88%D8%B2%D8%B4%E2%80%8C%D9%87%D8%A7-%D9%88-%D9%88%DB%8C%D8%AF%D8%A6%D9%88%D9%87%D8%A7"
-    return "https://github.com/hiddify/hiddify-manager/wiki/All-tutorials-and-videos"
+        return "https://hiddify.com/fa/manager/"
+    return "https://hiddify.com/manager/"
 
 
 # The shell shows exactly three groups, in this order. The frontend adds its own
@@ -120,7 +121,7 @@ def _manager_items() -> list[dict]:
         items = [
             {"label": _("admin.menu.user"), "to": "/users", "icon": "pi pi-fw pi-users"},
             {"label": _("Admins"), "to": "/admins", "icon": "pi pi-fw pi-sitemap"},
-            {"label": _("admin.menu.broadcast"), "to": "/message", "icon": "pi pi-fw pi-send"},
+            {"label": _("admin.menu.inbox"), "to": "/inbox", "icon": "pi pi-fw pi-inbox"},
         ]
     if g.account.mode == "super_admin":
         items.append({"label": _("Nodes"), "to": "/nodes", "icon": "pi pi-fw pi-server"})
@@ -152,6 +153,7 @@ def build_admin_v2_notices() -> list[dict]:
             }
         )
 
+    # count() 而不是 .all()：用户可能有几千个；软删除的用户不参与判断。
     def_user = None if User.query.filter(User.deleted.is_(False)).count() > 1 else User.query.filter(User.name == "default", User.deleted.is_(False)).first()
     domains = Domain.get_domains()
     sslip_domains = [d.domain for d in domains if "sslip.io" in d.domain]
@@ -187,6 +189,10 @@ def build_admin_v2_notices() -> list[dict]:
                 }
             )
 
+    core_load = _core_load_notice()
+    if core_load:
+        notices.append(core_load)
+
     if hutils.network.is_ssh_password_authentication_enabled():
         notices.append(
             {
@@ -196,3 +202,29 @@ def build_admin_v2_notices() -> list[dict]:
         )
 
     return notices
+
+
+def _core_load_notice() -> dict | None:
+    """xray and hiddify-core keep every user in every inbound: warn before they need more RAM than the server has."""
+    try:
+        load = hutils.core_load.estimate()
+    except Exception:  # never break the shell for an estimate
+        return None
+    if not load or not load.level:
+        return None
+    gb = 1024**3
+    key = "admin.core_load.error" if load.level == "error" else "admin.core_load.warning"
+    return {
+        # the level in the id: a warning that becomes an error is news again
+        "id": f"core-load:{load.level}",
+        "severity": load.level,
+        "summary": _(
+            key,
+            estimate=f"{load.estimate_bytes / gb:.1f} GB",
+            ram=f"{load.ram_bytes / gb:.1f} GB",
+            percent=round(load.ratio * 100),
+            users=f"{load.users:,}",
+            inbounds=load.inbounds,
+        ),
+        "toast": load.level == "error",
+    }

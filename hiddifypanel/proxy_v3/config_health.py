@@ -5,8 +5,12 @@ It runs the config tester (``config_tester.run``) on the subscription of one act
 the server never works for anyone (a wrong template, a core that rejects it, an inbound that is missing), so these
 are the ones worth an admin's attention; filtering in Iran is another matter and is not tested here.
 
-The last result is kept in redis; when configs break that worked in the previous check, the super admins hear about
-it from the Telegram bot (when there is one).
+It is off unless an admin turns it on (``config_health_enable``): each check starts a core for every config and
+connects through it to the server (hundreds of connections in a few minutes on a big subscription), which some hosting
+providers take for a flood and suspend the server for (hiddify/Hiddify-Manager#5672). "Check now" always works.
+
+The last result is kept in redis. A config that fails is tested again in a quarter of an hour; when it fails in two checks
+in a row (a moment's hiccup does not), the super admins hear about it from the Telegram bot (when there is one).
 """
 
 from __future__ import annotations
@@ -23,18 +27,29 @@ from hiddifypanel.cache import redis_client
 
 _LAST = "hiddify:config-health:last"
 _RUNNING = "hiddify:config-health:running"
-#: (app name, path after the user's page, user agent): what each kind of app downloads
+#: (app name, path after the user's page): what each kind of app downloads; the user agent is the installed core's
 APPS = (
-    ("xray", "xray/", "v2rayN/7.0"),
-    ("hiddify", "", "HiddifyNext/5.0.2 (linux) like ClashMeta v2ray sing-box"),
+    ("xray", "xray/"),
+    ("hiddify", ""),
 )
 MAX_FAILED_LISTED = 60
 #: Cloudflare's, not Google's: panels often send Google through WARP, and a WARP hiccup is not a broken config
 TEST_URL = "https://cp.cloudflare.com/generate_204"
-#: two requests per config: one dropped request is not an alarm
-REPEATS = 2
+#: one request per config: a config that fails is tested once more (``RETRY_AFTER``), so a dropped request is no alarm
+REPEATS = 1
+#: configs tested at the same time: few, so the server is not a burst of connections to itself
+WORKERS = 4
 #: seconds before the failed configs are tested once more (a reload of the cores takes a few seconds)
 RETRY_AFTER = 30
+#: seconds before a check that found new failures is run again: the alert waits for two failed checks in a row
+CONFIRM_AFTER = 15 * 60
+
+
+def enabled() -> bool:
+    """The automatic checks (after a start, every 6 hours): only when an admin turned them on."""
+    from hiddifypanel.models import ConfigEnum, hconfig
+
+    return bool(hconfig(ConfigEnum.config_health_enable))
 
 
 def last() -> dict | None:
@@ -102,43 +117,100 @@ def _is_status_line(event: dict) -> bool:
     return name.startswith("⏳") or "📅" in name
 
 
+def _is_group(event: dict) -> bool:
+    """Xray's "Auto": the subscription's entry that balances over all the configs (each one is tested on its own)."""
+    return _balances(event.get("original"))
+
+
+def _balances(original: object) -> bool:
+    routing = original.get("routing") if isinstance(original, dict) else None
+    return isinstance(routing, dict) and bool(routing.get("balancers"))
+
+
 def _test_app(url: str, agent: str, app: str, verify: bool = True) -> dict:
     """Every config of the subscription as one kind of app gets it: {total, ok, failed, error, error_kind}."""
     from hiddifypanel.proxy_v3 import config_tester
     from hiddifypanel.proxy_v3.config_tester_types import TesterError
 
     summary: dict = {"total": 0, "ok": 0, "failed": [], "error": ""}
+    #: every tested config's name → it works (the failed list is cut short; the proxies' health needs all of them)
+    tested: dict[str, bool] = {}
+    # Xray's "Auto" is not even started: its observatory probes every config at once, and its result is not used
     try:
-        for event in config_tester.run(url, agent, test_url=TEST_URL, workers=8, timeout=10, repeats=REPEATS, verify=verify):
+        for event in config_tester.run(url, agent, test_url=TEST_URL, workers=WORKERS, timeout=10, repeats=REPEATS, verify=verify, select=lambda item: not _balances(item.original)):
             if event.get("event") == "start":
                 summary["total"] = int(event.get("total") or 0)
-            elif event.get("event") == "result" and _is_status_line(event):
+            elif event.get("event") == "result" and (_is_status_line(event) or _is_group(event)):
                 summary["total"] -= 1
             elif event.get("event") == "result":
+                tested[str(event.get("name") or "")] = bool(event.get("ok"))
                 if event.get("ok"):
                     summary["ok"] += 1
                 else:
                     summary["failed"].append({"name": str(event.get("name") or ""), "error": str(event.get("error") or "")[:200]})
         if summary["failed"]:
             # The failed configs get a second chance a little later: the cores reload when an admin saves a domain
-            # or applies, and the configs tested at that moment fail although nothing is wrong with them. The whole
-            # subscription is fetched and run again (its configs can not be re-run from the results alone).
+            # or applies, and the configs tested at that moment fail although nothing is wrong with them. The
+            # subscription is fetched again and only the failed configs run.
             time.sleep(RETRY_AFTER)
             failed = {f["name"] for f in summary["failed"]}
             passed = set()
-            for event in config_tester.run(url, agent, test_url=TEST_URL, workers=8, timeout=10, repeats=REPEATS, verify=verify):
+            for event in config_tester.run(url, agent, test_url=TEST_URL, workers=WORKERS, timeout=10, repeats=REPEATS, verify=verify, select=lambda item: item.name in failed):
                 name = str(event.get("name") or "")
                 if event.get("event") == "result" and name in failed and event.get("ok"):
                     passed.add(name)
             summary["failed"] = [f for f in summary["failed"] if f["name"] not in passed]
             summary["ok"] += len(passed)
+            tested.update(dict.fromkeys(passed, True))
     except TesterError as e:
         summary["error"], summary["error_kind"] = _clean(str(e)), _error_kind(str(e))
     except Exception as e:  # one app failing must not lose the other's result
         logger.exception("config health: {} failed", app)
         summary["error"], summary["error_kind"] = type(e).__name__, "other"
     summary["failed"] = summary["failed"][:MAX_FAILED_LISTED]
+    if not summary["error"]:
+        summary["proxies"] = _proxy_status(tested)
     return summary
+
+
+def _proxy_status(tested: dict[str, bool]) -> dict[str, str]:
+    """Each custom proxy with tested configs → down (every config of it failed) / partial / up."""
+    from hiddifypanel.proxy_v3 import config_tester_proxies
+
+    try:
+        results = [config_tester_proxies.TestedConfig(name=name, ok=ok) for name, ok in tested.items() if name]
+        return {str(h["id"]): h["status"] for h in config_tester_proxies.health(results)}
+    except Exception:  # the counts above stay useful without it
+        logger.exception("config health: proxy status failed")
+        return {}
+
+
+def proxies_known(result: dict | None = None) -> bool:
+    """The last check can tell which proxies are down: every app was tested, with this version's per-proxy record."""
+    apps = ((last() if result is None else result) or {}).get("apps") or {}
+    return all(not (apps.get(app) or {}).get("error") and "proxies" in (apps.get(app) or {}) for app, _path in APPS)
+
+
+def dead_proxies(result: dict | None = None) -> list[dict]:
+    """The custom proxies that work for nobody: every config of theirs failed as the Xray apps AND as the Hiddify app
+    get it, in the last check. A proxy with one working config in either app stays out (it works somewhere), and so
+    does everything when an app could not be tested at all. Only the ones still on: [{id, name}]."""
+    from hiddifypanel.models import Child
+    from hiddifypanel.models.custom_proxy import CustomProxy
+
+    result = last() if result is None else result
+    apps = (result or {}).get("apps") or {}
+    statuses = []
+    for app, _path in APPS:
+        summary = apps.get(app) or {}
+        if summary.get("error") or "proxies" not in summary:
+            return []
+        statuses.append(summary["proxies"])
+    down = set.intersection(*({int(i) for i, status in s.items() if status == "down"} for s in statuses))
+    if not down:
+        return []
+    proxies = CustomProxy.query.filter(CustomProxy.child_id == Child.current().id, CustomProxy.id.in_(down)).all()
+    return [{"id": p.id, "name": p.name} for p in sorted(proxies, key=lambda p: p.name or "") if p.enable]
 
 
 def check() -> dict | None:
@@ -152,7 +224,10 @@ def check() -> dict | None:
     # Only a bare IP to use: the server asks itself, and no certificate names an IP
     verify = not _is_ip(host)
     result: dict = {"at": int(time.time()), "user": user.name, "host": host, "apps": {}}
-    for app, path, agent in APPS:
+    from hiddifypanel.proxy_v3.config_tester import default_user_agent
+
+    for app, path in APPS:
+        agent = default_user_agent(app)
         summary = _test_app(page + path, agent, app, verify)
         if summary["error"]:
             # The subscription could not be fetched (e.g. a reload of the cores right then): once more, later
@@ -160,8 +235,11 @@ def check() -> dict | None:
             summary = _test_app(page + path, agent, app, verify)
         result["apps"][app] = summary
     previous = last()
+    send, suspects = _confirmed(previous, result)
     redis_client.set(_LAST, json.dumps(result))
-    _notify(previous, result)
+    _notify(send)
+    if suspects:
+        _confirm_later()
     return result
 
 
@@ -173,6 +251,11 @@ def run_locked() -> dict | None:
         return check()
     finally:
         redis_client.delete(_RUNNING)
+
+
+def run_scheduled() -> dict | None:
+    """The automatic check: nothing unless an admin turned it on."""
+    return run_locked() if enabled() else None
 
 
 def start_in_background(app) -> bool:
@@ -192,14 +275,46 @@ def start_in_background(app) -> bool:
     return True
 
 
-def _notify(previous: dict | None, current: dict) -> None:
-    """The super admins hear when configs break that worked before (not every time the same ones are still broken)."""
-    if previous is None:
+def _failed(result: dict | None) -> set[str]:
+    return {f"{f['name']} ({app})" for app, summary in ((result or {}).get("apps") or {}).items() for f in summary.get("failed") or []}
+
+
+def _confirmed(previous: dict | None, current: dict) -> tuple[list[str], set[str]]:
+    """(configs to tell the admins about, configs that failed for the first time).
+
+    A config is told about once it failed in this check and the one before, and only once: ``current["confirmed"]``
+    keeps the ones told about while they still fail. A check from before ``confirmed`` existed: its failures count as
+    told about (they were, then)."""
+    now = _failed(current)
+    before = _failed(previous)
+    told = set((previous or {}).get("confirmed", before)) & now
+    confirmed = now & before
+    current["confirmed"] = sorted(confirmed | told)
+    send = sorted(confirmed - told) if previous is not None else []
+    return send, now - before
+
+
+def _confirm_later() -> None:
+    """The check once more in a quarter of an hour, not at the next scheduled one in 6 hours. A restart of the panel
+    loses it, and the scheduled check confirms then."""
+    from flask import current_app
+
+    try:
+        app = current_app._get_current_object()
+    except RuntimeError:
         return
-    newly: list[str] = []
-    for app, summary in current["apps"].items():
-        before = {f["name"] for f in (previous.get("apps", {}).get(app, {}).get("failed") or [])}
-        newly += [f"{f['name']} ({app})" for f in summary["failed"] if f["name"] not in before]
+
+    def work():
+        with app.app_context():
+            run_scheduled()
+
+    timer = threading.Timer(CONFIRM_AFTER, work)
+    timer.name, timer.daemon = "config-health-confirm", True
+    timer.start()
+
+
+def _notify(newly: list[str]) -> None:
+    """The super admins hear when configs break that worked before (not every time the same ones are still broken)."""
     if not newly:
         return
     try:

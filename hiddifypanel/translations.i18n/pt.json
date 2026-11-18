@@ -270,7 +270,6 @@
   "Your hiddify instance information \nDomain: {} \nUsage limit: {} GB\nCurrent usage: {} GB\nExpires at: {} \nRemaining days: {} \n\n\n Happy using 🎉 🎉 🎉 \n": "Suas informações de instância do Hiddify\nDomínio: {}\nLimite de uso: {} GB\nUso atual: {} GB\nExpira em: {}\nDias restantes: {}\n\n\nBoa sorte! 🎉 🎉 🎉",
   "[Admin only visible message:] You can change this message from settings": "[Mensagem visível apenas pelo administrador]: Você pode alterar esta mensagem nas configurações.",
   "actions": "Ações",
-  "admin link": "Link do administrador",
   "admin": {
     "Actions:apply_configs": "Aplicar configurações",
     "action_done_sucess": "✅ A Ação Feita com Sucesso. Agora você pode sair desta página",
@@ -287,6 +286,10 @@
       "apply_configs": "Aplicar configurações",
       "title": "Configurações"
     },
+    "core_load": {
+      "error": "<b>RAM insuficiente para os núcleos de proxy</b><br>O painel, xray e hiddify-core precisam de cerca de %(estimate)s dos %(ram)s de RAM do servidor (%(percent)s%%): %(users)s usuários ativos × %(inbounds)s inbounds, pois cada usuário é mantido em cada inbound. O servidor pode ficar sem memória e o xray / hiddify-core ser encerrado repetidamente. Reduza o número de protocolos ativos, desative usuários ou aumente a RAM do servidor.",
+      "warning": "<b>A RAM está ficando baixa para os núcleos de proxy</b><br>O painel, xray e hiddify-core podem precisar de cerca de %(estimate)s dos %(ram)s de RAM do servidor (%(percent)s%%): %(users)s usuários ativos × %(inbounds)s inbounds, pois cada usuário é mantido em cada inbound. Com mais usuários a memória pode acabar. Reduza o número de protocolos ativos, desative usuários desnecessários ou aumente a RAM do servidor."
+    },
     "define_mode": "Definir o Modo Admin",
     "incomplete_setup_warning": "Parece que você não configurou o sistema completamente. <a class='btn btn-success' href='%(quick_setup)s'>Clique aqui</a> para concluir a configuração.",
     "menu": {
@@ -296,6 +299,7 @@
       "dashboard_v2": "Próximo",
       "domain": "domínios",
       "home": "Painel",
+      "inbox": "Caixa de entrada",
       "proxy": "Proxies",
       "proxy_stats": "Status dos procuradores",
       "support": "Ajuda",
@@ -314,6 +318,7 @@
     "save_panel_link": "Por favor, note que seu painel pode ser acessado apenas através do link a seguir. por favor, salve este link.\n<p><a href='%(adminlink)s' class='btn btn-secondary copy-link'><i class='fa-solid fa-copy'></i></a>\n<a href='%(adminlink)s' class='copy-link' style='word-break: break-all;'>%(adminlink)s</a></p>",
     "waiting_for_update": "Aguarde cerca de 5 minutos para garantir que tudo esteja atualizado. durante esse período, copie e salve seus links de proxy, que são:"
   },
+  "admin link": "Link do administrador",
   "adminV2": {
     "account": {
       "aliasActive": "Deixe vazio e salve para removê-lo.",
@@ -509,6 +514,7 @@
         "placement": "Posicionar na equipe",
         "superNoLimits": "Super administradores não têm limites.",
         "upTo": "Até {max} (seu limite)",
+        "used": "Tráfego usado",
         "uuidHint": "Gerado automaticamente. Altere somente para reutilizar um ID conhecido.",
         "uuidInvalid": "Este não é um UUID válido"
       },
@@ -527,6 +533,7 @@
         "usernameHint": "Este link abre a página de login; entram com este nome de usuário e sua senha."
       },
       "meLocked": "Este é você: aqui só é possível alterar as configs dos seus usuários. Altere sua senha em Minha conta.",
+      "messageTitle": "Mensagem para {name}",
       "meter": {
         "active": "Ativos",
         "activeHint": "Usuários ativados e com dias e tráfego restantes, do número permitido",
@@ -535,12 +542,18 @@
         "total": "Total",
         "totalHint": "Todos os usuários, do número permitido",
         "traffic": "Tráfego",
-        "trafficHint": "Tráfego usado por todos esses usuários, do total permitido"
+        "trafficHint": "Tráfego usado por todos esses usuários desde o último reinício, do total permitido"
       },
       "mode": {
         "admin": "Administrador",
         "agent": "Agente",
         "super_admin": "Super administrador"
+      },
+      "modeHint": {
+        "daily": "O tráfego é zerado todos os dias.",
+        "monthly": "O tráfego é zerado a cada 30 dias desde o primeiro uso.",
+        "no_reset": "O tráfego nunca é zerado: o limite vale para sempre.",
+        "weekly": "O tráfego é zerado a cada 7 dias desde o primeiro uso."
       },
       "more": "Mais ações",
       "myConfigs": "Configs para meus usuários",
@@ -564,6 +577,7 @@
         "online": "online",
         "users": "usuário | usuários"
       },
+      "telegramMessage": "Enviar uma mensagem do Telegram a este admin",
       "title": "Administradores",
       "you": "Você"
     },
@@ -760,15 +774,18 @@
       "confirmDelete": "Tem certeza de que deseja excluir este item?",
       "copied": "Copiado",
       "copy": "Copiar",
+      "decrease": "Diminuir",
       "delete": "Excluir",
       "deleted": "Excluído com sucesso",
       "disabled": "Desativado",
+      "done": "Concluído",
       "duplicate": "Duplicar",
       "edit": "Editar",
       "enabled": "Ativado",
       "filter": "Filtrar",
       "filteredOf": "Filtrado: mostrando {n} de {total}",
       "format": "Formatar",
+      "increase": "Aumentar",
       "loadFailed": "Falha ao carregar os dados",
       "no": "Não",
       "noMatch": "Nada corresponde a estes filtros",
@@ -859,6 +876,13 @@
       "subtitle": "Tráfego, usuários e saúde do servidor num relance",
       "swap": "Swap",
       "thisServer": "Este servidor",
+      "tip": {
+        "dailyAverage": "Média diária",
+        "last30Days": "Últimos 30 dias",
+        "last7Days": "Últimos 7 dias",
+        "previous30Days": "30 dias anteriores",
+        "previous7Days": "7 dias anteriores"
+      },
       "title": "Painel",
       "today": "Hoje",
       "todayOnline": "Online hoje",
@@ -928,6 +952,50 @@
           "port80": "A porta 80 deve estar acessível pela internet."
         },
         "waiting": "Obtendo um certificado…"
+      },
+      "certError": {
+        "badName": {
+          "lead": "“{domain}” não é um nome para o qual se possa emitir um certificado (por exemplo, não tem ponto), por isso a Let's Encrypt e a ZeroSSL recusam-no.",
+          "step1": "Edite este domínio e escreva o nome completo, por ex. sub.example.com.",
+          "step2": "Se não for usado, apague-o no menu ⋮.",
+          "title": "Não é um nome de domínio real"
+        },
+        "caDown": {
+          "lead": "A Let's Encrypt ou a ZeroSSL estava ocupada ou inacessível agora; “{domain}” não tem nenhum problema.",
+          "step1": "Aguarde alguns minutos e clique em Tentar novamente; o painel também tenta de novo sozinho.",
+          "step2": "Se continuar a falhar, verifique se este servidor consegue abrir ligações HTTPS para a internet.",
+          "title": "A autoridade de certificação não respondeu"
+        },
+        "caa": {
+          "lead": "O DNS de “{domain}” tem um registo CAA que não permite a Let's Encrypt nem a ZeroSSL.",
+          "step1": "No seu fornecedor de DNS, adicione um registo CAA que permita letsencrypt.org, ou remova os registos CAA.",
+          "step2": "Aguarde alguns minutos e clique em Tentar novamente.",
+          "title": "Um registo CAA bloqueia o certificado"
+        },
+        "details": "Detalhes técnicos",
+        "dns": {
+          "lead": "A autoridade de certificação procurou “{domain}” e não encontrou endereço, ou encontrou um que não é este servidor.",
+          "step1": "No seu fornecedor de DNS, adicione um registo A (IPv4) ou AAAA (IPv6) para este nome com o IP deste servidor.",
+          "step2": "Aguarde alguns minutos para a alteração se propagar e clique em Tentar novamente.",
+          "step3": "Se houver uma CDN como a Cloudflare à frente, defina o tipo deste domínio como CDN.",
+          "title": "O domínio não aponta para este servidor"
+        },
+        "howToFix": "Como corrigir",
+        "other": {
+          "lead": "A autoridade de certificação recusou o pedido para “{domain}”; os detalhes técnicos abaixo dizem porquê.",
+          "step1": "Verifique se o domínio aponta para o IP deste servidor.",
+          "step2": "Verifique se a porta 80 está aberta para a internet.",
+          "step3": "Depois clique em Tentar novamente; se ainda falhar, envie os detalhes técnicos ao suporte Hiddify.",
+          "title": "Não foi possível emitir o certificado"
+        },
+        "port80": {
+          "lead": "A autoridade de certificação não conseguiu chegar a este servidor pela porta 80 para verificar “{domain}”.",
+          "step1": "Abra a porta 80 (TCP) na firewall do servidor e na do seu fornecedor de cloud.",
+          "step2": "Depois clique em Tentar novamente.",
+          "title": "A porta 80 não está acessível"
+        },
+        "showLess": "Mostrar menos",
+        "showMore": "Mostrar mais"
       },
       "copyDomain": "Copiar domínio",
       "deleteMessage": "As configs dele deixam de funcionar para todos os usuários. Pelo menos um domínio deve permanecer.",
@@ -1072,6 +1140,33 @@
       "renewCert": "Renovar certificado",
       "saved": "{name} salvo",
       "search": "Pesquisar domínio ou nome",
+      "show": {
+        "all": "Todos os domínios",
+        "allHint": "Os usuários veem as configs de todos os domínios, inclusive os adicionados depois.",
+        "clear": "Limpar",
+        "clearSearch": "Limpar busca",
+        "empty": "Ainda não há outros domínios.",
+        "filter": {
+          "all": "Todos",
+          "cdn": "CDN",
+          "direct": "Certificado real",
+          "fake": "Fake e Reality",
+          "selected": "Selecionados"
+        },
+        "group": {
+          "cdn": "CDN",
+          "direct": "Certificado real",
+          "fake": "Fake TLS e Reality"
+        },
+        "noMatch": "Nenhum domínio encontrado",
+        "node": "Nó",
+        "noneTicked": "Nada marcado: os usuários ainda veem todos os domínios.",
+        "pickHint": "Os usuários veem apenas os domínios marcados.",
+        "search": "Buscar domínio, nome ou nó",
+        "selected": "{n} de {total} selecionados",
+        "thisServer": "Este servidor",
+        "tickServer": "Marcar todos os domínios deste servidor"
+      },
       "stats": {
         "all": "domínios",
         "attention": "precisam de certificado",
@@ -1079,6 +1174,18 @@
         "valid": "certificados OK"
       },
       "subtitle": "Os endereços aos quais os usuários se conectam, como cada um chega a este servidor e seus certificados",
+      "tip": {
+        "autoRenew": "Renovação automática",
+        "certificate": "Certificado",
+        "covers": "Abrange",
+        "fingerprint": "Impressão digital",
+        "issuedBy": "Emitido por",
+        "key": "Chave",
+        "noCertNeeded": "Não é preciso: o TLS é emprestado ou falso",
+        "off": "Desligado",
+        "on": "Ligado",
+        "sni": "Nome mostrado (SNI)"
+      },
       "title": "Domínios",
       "tls": {
         "decoy": "TLS isca",
@@ -1209,7 +1316,9 @@
       "previewTitle": "Pré-visualização do template"
     },
     "footer": {
-      "text": "HiddifyManager"
+      "links": "Hiddify na web",
+      "text": "HiddifyManager",
+      "website": "Site"
     },
     "legacy": {
       "loading": "Carregando…",
@@ -1251,6 +1360,7 @@
     },
     "menu": {
       "baseConfigs": "Configs base",
+      "close": "Fechar menu",
       "customProxies": "Proxies",
       "dashboard": "Painel",
       "group": {
@@ -1260,9 +1370,11 @@
       },
       "myAccount": "Minha conta",
       "nodeHome": "Nó",
+      "open": "Abrir menu",
       "outbounds": "Outbounds",
       "protocols": "Protocolos",
       "proxyEditor": "Editor de proxy",
+      "qrCode": "Código QR",
       "signOut": "Sair",
       "templateVariables": "Variáveis de template",
       "templates": "Templates",
@@ -1296,9 +1408,70 @@
       },
       "addNode": "Adicionar nó",
       "addTileText": "Conecte outro servidor Hiddify e gerencie-o daqui.",
+      "checkAgain": "Verificar de novo",
       "checkConnection": "Verificar conexão",
       "checking": "Verificando…",
       "connection": "Conexão",
+      "contact": {
+        "auth": {
+          "fix": "Remova este nó aqui (botão da lixeira) e adicione-o de novo com \"Adicionar nó\" e o link de administrador do nó.",
+          "title": "O nó não reconhece este painel",
+          "why": "O nó respondeu, mas recusou a chave deste painel. Este painel não é mais o painel principal dele: o nó foi reinstalado, restaurado de um backup ou ligado a outro painel principal. Ele ainda pode enviar seus próprios relatórios para cá, por isso pode aparecer Online."
+        },
+        "dns": {
+          "fix": "Verifique se o registro DNS do domínio aponta para o servidor do nó. Se o endereço do nó mudou, remova o nó aqui e adicione-o de novo com o novo link.",
+          "title": "O domínio do nó não foi encontrado",
+          "why": "O domínio no endereço do nó não aponta para nenhum IP: expirou, o registro DNS foi removido ou alterado, ou o DNS deste servidor falha."
+        },
+        "gateway": {
+          "fix": "Aguarde um minuto e verifique de novo. Se continuar, reinicie os serviços no servidor do nó e garanta que a CDN aponte para o IP atual do nó.",
+          "title": "A CDN não alcançou o nó",
+          "why": "O endereço do nó passa por uma CDN ou proxy (por exemplo Cloudflare), e ela não alcançou o painel do nó: ele está reiniciando ou parado."
+        },
+        "hint": "por quê e como resolver",
+        "liveTitle": "Gráficos ao vivo indisponíveis",
+        "no_url": {
+          "fix": "Remova o nó aqui e adicione-o de novo com \"Adicionar nó\" e o link de administrador do nó.",
+          "title": "Este painel não tem o endereço do nó",
+          "why": "O nó nunca informou a este painel como alcançá-lo, então este painel não consegue consultá-lo."
+        },
+        "not_found": {
+          "fix": "Atualize o nó para a mesma versão deste painel. Se o link de administrador mudou, remova o nó aqui e adicione-o de novo com o novo link.",
+          "title": "O painel do nó não está mais neste endereço",
+          "why": "O nó respondeu, mas não há um painel Hiddify neste endereço: o caminho de administração ou o domínio mudou, ou ele usa uma versão muito antiga."
+        },
+        "not_panel": {
+          "fix": "Abra o nó com \"Abrir\" e veja se o painel abre. Se o endereço do nó mudou, remova o nó aqui e adicione-o de novo com o link certo.",
+          "title": "Outra coisa respondeu no endereço do nó",
+          "why": "A resposta não veio de um painel Hiddify: outro site, uma página de erro da CDN ou um filtro de rede respondeu no lugar."
+        },
+        "refused": {
+          "fix": "No servidor do nó, reinicie os serviços (página Ações do painel do nó ou reinicie o servidor) e garanta que a porta 443 esteja aberta; depois verifique de novo.",
+          "title": "O nó recusou a conexão",
+          "why": "Este servidor chegou ao endereço do nó, mas nada aceitou a conexão: os serviços web do nó estão parados ou um firewall a rejeita."
+        },
+        "server_error": {
+          "fix": "Abra o painel do nó e veja o log na página Ações, ou reinicie os serviços por lá, e verifique de novo.",
+          "title": "O painel do nó teve um erro",
+          "why": "O painel do nó respondeu, mas com um erro interno: algo no nó falhou ao responder."
+        },
+        "syncTitle": "Detalhes de sincronização indisponíveis",
+        "timeout": {
+          "fix": "Verifique se o servidor do nó está ligado e se o painel abre com \"Abrir\". Se abrir, garanta que o firewall do nó libere este servidor na porta 443 e verifique de novo.",
+          "title": "O nó não respondeu a tempo",
+          "why": "O servidor do nó não respondeu em alguns segundos: pode estar desligado, sobrecarregado ou reiniciando, ou um firewall descarta o tráfego entre os dois servidores."
+        },
+        "tls": {
+          "fix": "No painel do nó, verifique o certificado do domínio na página Domínios (um domínio novo recebe um em poucos minutos) e verifique de novo.",
+          "title": "Falha na conexão segura com o nó",
+          "why": "O nó respondeu, mas o certificado HTTPS não é válido para este endereço: expirou, ainda não foi emitido ou é de outro nome."
+        },
+        "unknown": {
+          "fix": "Verifique de novo em um minuto. Se continuar, copie os detalhes técnicos e envie ao suporte.",
+          "title": "Não foi possível verificar o nó",
+          "why": "Algo inesperado deu errado ao consultar o nó."
+        }
+      },
       "differentVersion": "O nó executa {node}, este painel executa {panel}. Mantenha-os na mesma versão.",
       "empty": {
         "cta": "Adicione seu primeiro nó",
@@ -1345,7 +1518,19 @@
       },
       "moreInfo": "Mais informações",
       "neverSeen": "Nunca",
+      "notice": {
+        "title": "O nó \"{name}\" está inacessível",
+        "where": "Mais na página Nós: passe o mouse sobre \"Inacessível\"."
+      },
       "openAdmin": "Abrir",
+      "os": {
+        "arch": "Arquitetura",
+        "kernel": "Kernel",
+        "system": "Sistema",
+        "title": "Sistema operativo",
+        "unknown": "O nó não indicou que sistema operativo usa (não está acessível agora, ou o painel é de uma versão mais antiga).",
+        "version": "Versão"
+      },
       "pingDialog": {
         "avg": "média",
         "button": "Ping",
@@ -1501,7 +1686,35 @@
       "resetTitle": "Restaurar {name} para as listas integradas?",
       "saved": "{name} salvo",
       "subtitle": "Escolha, em ordem, por onde o tráfego sai deste servidor: pelo WARP, direto, bloqueado ou por uma saída Socks, Tor ou Psiphon.",
+      "terms": {
+        "accept": "Aceitar",
+        "accepted": "Os termos da Cloudflare foram aceitos. Aplique as configurações para o WARP começar.",
+        "acceptedSave": "Os termos da Cloudflare foram aceitos. Salve as configurações e depois aplique para o WARP começar.",
+        "badge": "Precisa da sua aceitação",
+        "banner": "O WARP está ligado, mas os termos da Cloudflare não foram aceitos, então o tráfego não sai pelo WARP.",
+        "bannerParent": "O WARP está ligado, mas os termos da Cloudflare não foram aceitos no painel principal, então o tráfego não sai pelo WARP.",
+        "body": "O tráfego que sai pela saída WARP é tratado pela Cloudflare segundo os Termos de Serviço e a Política de Privacidade dela. O Hiddify não aceita esses termos por você. Leia-os no site da Cloudflare e aceite aqui se quiser que o WARP funcione.",
+        "cancel": "Cancelar",
+        "check": "Li e aceito os Termos de Serviço e a Política de Privacidade da Cloudflare para o WARP.",
+        "lead": "O WARP envia o tráfego de saída deste servidor pela Cloudflare. Ele não funciona até você aceitar os termos da Cloudflare.",
+        "privacyLink": "Política de Privacidade",
+        "review": "Ler os termos",
+        "termsLink": "Termos de Serviço",
+        "title": "Termos do Cloudflare WARP"
+      },
       "title": "Outbounds"
+    },
+    "pager": {
+      "first": "Primeira página",
+      "jump": "Ir para a página",
+      "label": "Páginas",
+      "last": "Última página",
+      "next": "Próxima",
+      "of": "de {pages}",
+      "pageOf": "Página {page} de {pages}",
+      "prev": "Anterior",
+      "report": "Mostrando {first}–{last} de {total}",
+      "slider": "Arraste para mudar de página"
     },
     "passwordRules": {
       "common": "não ser uma senha comum",
@@ -1947,8 +2160,219 @@
       "advancedBadge": "Avançado",
       "categories": "Categorias de configurações",
       "changed": "Alterado",
+      "dns": {
+        "custom": "Personalizado",
+        "customHelp": "Até quatro endereços IP (IPv4 ou IPv6), separados por vírgulas. O servidor também os usa para o seu próprio DNS.",
+        "customHint": "Os seus próprios endereços DNS",
+        "customPlaceholder": "ex.: 1.1.1.1, 1.0.0.1",
+        "group": {
+          "adblock": "DNS bloqueador de anúncios",
+          "custom": "DNS personalizado",
+          "family": "Bloqueio de anúncios + filtro adulto",
+          "normal": "DNS normal"
+        },
+        "invalid": "Introduza de um a quatro endereços IP separados por vírgulas, ex.: 1.1.1.1, 1.0.0.1",
+        "placeholder": "Escolha um servidor DNS"
+      },
       "fixErrors": "Corrija os campos destacados.",
       "hiddenCount": "{count} configuração avançada oculta | {count} configurações avançadas ocultas",
+      "htmlEditor": {
+        "alt": "Texto alternativo",
+        "apply": "Aplicar",
+        "blockFormat": "Formato do parágrafo",
+        "blocks": {
+          "h": "Título {n}",
+          "p": "Parágrafo",
+          "pre": "Bloco de código",
+          "quote": "Citação"
+        },
+        "boxMore": "Ver mais",
+        "boxParts": "Título e botão",
+        "boxTitle": "Suporte",
+        "buttonText": "Texto do botão",
+        "cancel": "Cancelar",
+        "cleaned": "Limpeza concluída: {n} removido(s)",
+        "close": "Fechar",
+        "copied": "HTML copiado",
+        "copyFailed": "Copiar não é permitido aqui",
+        "customColor": "Cor personalizada",
+        "defaultText": "Padrão: {text}",
+        "editButton": "Editor HTML",
+        "find": {
+          "find": "Localizar",
+          "matchCase": "Diferenciar maiúsculas",
+          "matches": "{n} encontrado(s)",
+          "next": "Próximo",
+          "replace": "Substituir por",
+          "replaceAll": "Substituir tudo",
+          "replaced": "{n} substituído(s)"
+        },
+        "font": "Fonte",
+        "fonts": {
+          "default": "Fonte padrão"
+        },
+        "formatCode": "Formatar código",
+        "full": "Todas as ferramentas",
+        "imageUrl": "Endereço da imagem (URL)",
+        "insert": "Inserir",
+        "linkText": "Texto",
+        "linkTextHint": "Vazio: o texto selecionado ou o link",
+        "lite": "Ferramentas básicas",
+        "loadingSource": "Carregando o editor de código…",
+        "moreLink": "Abre o link da configuração \"Site de suporte\"",
+        "moreText": "Texto do botão",
+        "newTab": "Abrir em nova aba",
+        "ok": "OK",
+        "opened": "{name} aberto",
+        "path": "Caminho do elemento",
+        "placeholder": "Escreva o texto que os usuários veem na caixa de suporte…",
+        "preview": "Pré-visualização",
+        "previewNote": "Como aparece na página dos usuários. As alterações são publicadas ao salvar as configurações.",
+        "previewTitle": "Pré-visualização da caixa de suporte",
+        "sampleAnswer": "A resposta.",
+        "sampleButton": "Fale conosco",
+        "sampleQuestion": "Sua pergunta?",
+        "sampleText": "Seu texto",
+        "saveHint": "O texto aplicado é publicado ao salvar as configurações",
+        "showMore": "Mostrar o botão",
+        "showTitle": "Mostrar o título",
+        "size": "Tamanho",
+        "source": "Código",
+        "sourceFailed": "Não foi possível carregar o editor de código",
+        "sourceHint": "As ferramentas de formatação estão na pré-visualização",
+        "style": {
+          "angle": "Ângulo",
+          "background": "Fundo",
+          "border": "Borda",
+          "color": "Cor",
+          "dashed": "Tracejada",
+          "dotted": "Pontilhada",
+          "fullWidth": "Largura total",
+          "gradient": "Gradiente",
+          "margin": "Espaço abaixo",
+          "noTarget": "Coloque o cursor em um bloco primeiro",
+          "none": "Nenhum",
+          "padding": "Espaçamento interno",
+          "parent": "Pai",
+          "radius": "Cantos",
+          "reset": "Remover estilos",
+          "shadow": "Sombra",
+          "shadow_glow": "Brilho",
+          "shadow_none": "Nenhuma",
+          "shadow_soft": "Suave",
+          "shadow_strong": "Forte",
+          "solid": "Sólida",
+          "textColor": "Cor do texto"
+        },
+        "templates": {
+          "groups": {
+            "contact": "Contato e suporte",
+            "guide": "Guias",
+            "news": "Novidades e status",
+            "sales": "Planos e ofertas"
+          },
+          "insert": "Inserir",
+          "names": {
+            "alerts": "Mensagens de status",
+            "announcement": "Aviso",
+            "apps": "Baixe o app",
+            "changelog": "Novidades",
+            "columns": "Duas colunas",
+            "contacts": "Lista de contatos",
+            "darkCard": "Cartão de contato escuro",
+            "faq": "Perguntas frequentes",
+            "hero": "Banner de suporte",
+            "hours": "Horário de suporte",
+            "minimal": "Assinatura minimalista",
+            "offer": "Oferta de desconto",
+            "persian": "Banner de suporte em persa",
+            "plan": "Cartão de plano",
+            "plans": "Dois planos",
+            "referral": "Convide um amigo",
+            "renew": "Lembrete de renovação",
+            "rules": "Regras",
+            "serverStatus": "Status dos servidores",
+            "social": "Botões sociais",
+            "stats": "Números",
+            "steps": "Primeiros passos",
+            "testimonial": "Avaliação de cliente",
+            "tips": "Dica de solução"
+          },
+          "note": "Designs prontos: escolha um e depois edite o texto.",
+          "replace": "Substituir tudo",
+          "title": "Modelos"
+        },
+        "title": "Editor HTML",
+        "titleText": "Título",
+        "tooLong": "Longo demais para esta configuração",
+        "toolbar": "Ferramentas de formatação",
+        "tools": {
+          "alignCenter": "Centralizar",
+          "alignJustify": "Justificar",
+          "alignLeft": "Alinhar à esquerda",
+          "alignRight": "Alinhar à direita",
+          "blockStyle": "Estilo do bloco",
+          "bold": "Negrito",
+          "box": "Caixa",
+          "bulletList": "Lista com marcadores",
+          "button": "Botão",
+          "clean": "Limpar código",
+          "clear": "Limpar formatação",
+          "colAfter": "Inserir coluna depois",
+          "colBefore": "Inserir coluna antes",
+          "colDelete": "Excluir coluna",
+          "copy": "Copiar HTML",
+          "download": "Baixar .html",
+          "emoji": "Emoji",
+          "faq": "Pergunta e resposta",
+          "find": "Localizar e substituir",
+          "highlight": "Destacar",
+          "hr": "Divisor",
+          "image": "Imagem",
+          "indent": "Aumentar recuo",
+          "italic": "Itálico",
+          "lineHeight": "Altura da linha",
+          "link": "Link",
+          "ltr": "Da esquerda para a direita",
+          "numberList": "Lista numerada",
+          "open": "Abrir arquivo HTML",
+          "outdent": "Diminuir recuo",
+          "quote": "Citação",
+          "redo": "Refazer",
+          "rowAbove": "Inserir linha acima",
+          "rowBelow": "Inserir linha abaixo",
+          "rowDelete": "Excluir linha",
+          "rtl": "Da direita para a esquerda",
+          "strike": "Tachado",
+          "subscript": "Subscrito",
+          "superscript": "Sobrescrito",
+          "symbol": "Caractere especial",
+          "table": "Tabela",
+          "tableDelete": "Excluir tabela",
+          "tableTools": "Ferramentas de tabela",
+          "templates": "Modelos",
+          "textColor": "Cor do texto",
+          "underline": "Sublinhado",
+          "undo": "Desfazer",
+          "unlink": "Remover link"
+        },
+        "toolset": "Conjunto de ferramentas",
+        "unapplied": "Ainda não aplicado",
+        "url": "Link (URL)",
+        "variant": {
+          "copyLite": "Copiar o texto Lite",
+          "full": "Full",
+          "fullEmpty": "Sem texto Full: “Ler mais” mostra o texto Lite quando ele não cabe no quadro.",
+          "fullHint": "em “Ler mais”",
+          "label": "Qual texto",
+          "lite": "Lite",
+          "liteHint": "no quadro"
+        },
+        "view": "Modo do editor",
+        "viewButton": "Ver",
+        "width": "Largura (px)",
+        "wrap": "Quebrar linhas"
+      },
       "invalid": "Este valor não é válido.",
       "leaveUnsaved": "Você tem alterações não salvas. Sair mesmo assim?",
       "noMatch": "Nenhuma configuração corresponde à sua pesquisa.",
@@ -2083,6 +2507,7 @@
     },
     "theme": {
       "caddy": "Tema Smart Caddy",
+      "caddyShort": "Smart Caddy",
       "color": "Tema",
       "colors": {
         "blue": "Azul",
@@ -2098,8 +2523,14 @@
       },
       "dark": "Modo escuro",
       "default": "Tema Hiddify (padrão)",
+      "glass": "Vidro",
       "glassHint": "Cada cor funciona no claro e no escuro: vidro fosco sobre o seu brilho no claro, o vidro escuro Smart Caddy no escuro.",
+      "glassLess": "Mais sólido",
+      "glassMore": "Mais vidro",
+      "hiddify": "Hiddify",
       "light": "Modo claro",
+      "liquid": "Liquid Glass",
+      "liquidHint": "Um visual como o do iOS: controles arredondados, vidro sobre cores que fluem devagar. Claro ou escuro, na cor escolhida acima.",
       "menu": "Aparência e idioma",
       "mode": "Claro ou escuro",
       "retry": "Tentar de novo"
@@ -2217,6 +2648,7 @@
       "filtersLabel": "Filtrar usuários",
       "form": {
         "add": "Adicionar usuário",
+        "addAtEnd": "Adicionar usuário no final",
         "addSubtitle": "Depois de salvar, o link e o QR code do usuário abrem, prontos para enviar.",
         "addTitle": "Novo usuário",
         "advanced": "Avançado",
@@ -2311,6 +2743,7 @@
         "crossGroups": "Usuários fixados ficam acima dos outros: fixe ou desafixe para mover entre os grupos.",
         "crossOwners": "Agrupado por admin: um usuário só se move entre os usuários desse admin.",
         "drag": "Arraste para mover este usuário",
+        "dragHandle": "Arraste para mover este usuário",
         "dragOff": "Remova a ordenação da coluna para mover usuários",
         "pin": "Fixar no topo",
         "unpin": "Desafixar"
@@ -2337,7 +2770,6 @@
       "none": "Ainda não há usuários",
       "of": "de",
       "online": "Online",
-      "pageReport": "{first}–{last} de {totalRecords}",
       "perPage": "Usuários por página",
       "refresh": "Atualizar",
       "resetTag": {
@@ -2451,7 +2883,7 @@
     "hiddify": {
       "next": {
         "description": "HiddifyApp Descrição",
-        "title": "HiddifyApp"
+        "title": "Hiddify"
       }
     },
     "hiddifyn": {
@@ -2476,7 +2908,7 @@
     },
     "singbox": {
       "description": "O aplicativo Sing-box é o aplicativo oficial do protocolo Sing-box.",
-      "title": "Aplicativo Sing-box"
+      "title": "Sing-box"
     },
     "stash": {
       "description": "Descrição do Stash ",
@@ -2506,12 +2938,12 @@
   "cf-delete": {
     "failed": "cf-delete.falhou"
   },
-  "child has been removed!": "Child removido",
   "child": {
     "register-failed": "child.register-falhou",
     "register-success": "child.register-sucesso",
     "sync-failed": "child.sync-falhou"
   },
+  "child has been removed!": "Child removido",
   "clickable copy": "Link para mídias sociais",
   "close": "Fechar",
   "cloudflare": {
@@ -2527,8 +2959,8 @@
     "Invalid_proxy_path": "Caminho de proxy inválido. Deve ser uma string ASCI (a-z A-Z 0-9)",
     "Invalid_telegram_bot_token": "Token do bot telegram inválido",
     "acme_accounts": {
-      "description": "",
-      "label": ""
+      "description": "Chaves das contas ACME do painel (Let's Encrypt, ZeroSSL), uma por autoridade certificadora",
+      "label": "Contas ACME"
     },
     "acme_email": {
       "description": "Contact email of the Let's Encrypt and ZeroSSL accounts the panel gets certificates with. Changing it registers new accounts.",
@@ -2600,9 +3032,29 @@
       "description": "Texto de marca. o texto desta caixa será mostrado na seção de suporte da página do usuário. você pode usar tags HTML",
       "label": "📢 Texto da seção de suporte"
     },
+    "branding_freetext_full": {
+      "description": "Mostrado por “Ler mais” na página do usuário. Vazio: “Ler mais” mostra o texto de suporte quando ele não cabe.",
+      "label": "Texto de suporte, completo"
+    },
     "branding_site": {
       "description": "O link a ser mostrado na seção de suporte da página do usuário.\nVocê também pode colocar seu Canal Telegram ou Telegram PV aqui.",
       "label": "🆔 Link de suporte (vai tanto no título da marca quanto na seção de suporte da página do usuário)"
+    },
+    "branding_support_more": {
+      "description": "Abre o link do site de suporte. Vazio: \"View More\".",
+      "label": "Texto do botão \"View More\""
+    },
+    "branding_support_more_show": {
+      "description": "",
+      "label": "Mostrar o botão \"View More\""
+    },
+    "branding_support_title": {
+      "description": "O título acima do texto de suporte. Vazio: \"Support\".",
+      "label": "Título da caixa de suporte"
+    },
+    "branding_support_title_show": {
+      "description": "",
+      "label": "Mostrar o título da caixa de suporte"
     },
     "branding_title": {
       "description": "Insira um título personalizado para ser exibido na página do usuário. (antes do texto de boas-vindas de yser)",
@@ -2613,15 +3065,23 @@
       "label": "Forçar a configuração do CDN para usar os seguintes IPs"
     },
     "cloudflare": {
-      "description": "Por favor, siga <a href='https://github.com/hiddify/hiddify-config/wiki/Get-Cloudflare-API' target='_blank'>a instrução</a> e cole a chave de API Cloudflare",
+      "description": "Por favor, siga <a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>a instrução</a> e cole a chave de API Cloudflare",
       "label": "🔑 API Cloudflare"
     },
     "common_proxy_core": {
       "both": "Ambos",
-      "description": "Quando um protocolo existe tanto no Xray quanto no Hiddify Core, apenas o core selecionado permanece ativado. Escolha Ambos para manter os dois.",
-      "hiddify_core": "Hiddify Core (singbox)",
+      "description": "Quando um protocolo existe tanto no XRay quanto no Hiddify Core, apenas o core selecionado permanece ativado. Escolha Ambos para manter os dois.",
+      "hiddify_core": "Hiddify Core (Sing-Box)",
       "label": "🎛️ Core de proxy comum",
-      "xray": "Xray"
+      "xray": "XRay"
+    },
+    "config_health_enable": {
+      "description": "Testa todas as configs da assinatura a partir do próprio servidor após cada início e a cada 6 horas, e avisa os admins (Telegram) quando configs param de funcionar. Cada verificação conecta ao servidor por todas as configs: alguns provedores consideram isso um flood. “Verificar agora” no painel sempre funciona.",
+      "label": "🩺 Verificação automática das configs"
+    },
+    "config_tester_disabled": {
+      "description": "Proxies personalizados que o testador de configurações desativou, guardados para poderem ser restaurados",
+      "label": "Proxies desativados pelo testador de configurações"
     },
     "core_type": {
       "description": "☢️ XRay: é um núcleo completo\n<br>\n📦 Singbox: Desenvolvido por SagerNet. Também é um bom núcleo",
@@ -2652,7 +3112,7 @@
       "label": "🪪 User-Agent padrão"
     },
     "dns_server": {
-      "description": "✳️ Padrão 1.1.1.1 <br>\n🚧 Bloquear Malware 1.1.1.2 <br>\n🔞 Bloquear pornografia 1.1.1.3",
+      "description": "O DNS usado pelo servidor e seus proxies. Escolha um DNS público da lista ou o seu com “Personalizado”. O DNS do sistema do servidor também muda.",
       "label": "🖥 Servidor DNS"
     },
     "dnstt": {
@@ -2676,7 +3136,7 @@
       "label": "Resolvedores do DNSTT"
     },
     "domain_fronting": {
-      "description": "Ele é usado para simular outro site em vez do seu site no SNI. portanto, GTW não pode filtrar seu domínio\n<a href='https://github.com/hiddify/hiddify-config/wiki/%D8%A7%D8%B3%D8%AA%D9%81%D8%A7%D8%AF%D9%87- %D8%A7%D8%B2-%D8%AF%D8%A7%D9%85%DB%8C%D9%86-%D9%81%D8%B1%D8%A7%D9%86%D8%AA %DB%8C%D9%86%DA%AF'>Guia</a>.",
+      "description": "Ele é usado para simular outro site em vez do seu site no SNI. portanto, GTW não pode filtrar seu domínio\n<a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Guide-for-domain-fronting/ %D8%A7%D8%B2-%D8%AF%D8%A7%D9%85%DB%8C%D9%86-%D9%81%D8%B1%D8%A7%D9%86%D8%AA %DB%8C%D9%86%DA%AF'>Guia</a>.",
       "label": "Frente de domínio"
     },
     "domain_fronting_domain": {
@@ -2690,6 +3150,13 @@
     "domain_fronting_tls_enable": {
       "description": "No CloudFlare, TLS Domain Fronting não é suportado. ele usará a porta 443 para se conectar ao CDN",
       "label": "🔒 Habilitar fronting de domínio TLS"
+    },
+    "domain_label_mode": {
+      "description": "Como um domínio sem apelido é nomeado nas configurações, no título do perfil e no nome da assinatura dos usuários.<br>🔒 Privado: o tipo e um código que não o revela (CDN K7Q)<br>🫥 Mascarado: a maioria das letras oculta (h*y.com)<br>🌐 Nome de domínio completo",
+      "full": "🌐 Nome de domínio completo",
+      "label": "🏷️ Nomes das configurações",
+      "masked": "🫥 Mascarado (h*y.com)",
+      "private": "🔒 Privado: tipo e código (CDN K7Q)"
     },
     "firewall": {
       "description": "A ativação do Firewall abrirá as portas usadas (pelo menos 22.443.80 e SSH) e fechará todas as outras portas",
@@ -2765,6 +3232,8 @@
     },
     "invalid-pattern-for-warp-sites": "⚠️ O Site inserido para o Warp não corresponde ao modelo especificado",
     "invalid_uuid": "Secret UUID inválido. exemplo: 6098ea35-8cb2-4a08-ba15-2be25bc49cb6",
+    "invalid_vless_decryption": "O Xray não consegue ler este decryption e não iniciaria com ele. Deixe vazio, ou cole a linha decryption de uma saída do xray vlessenc.",
+    "invalid_vless_encryption": "VLESS encryption inválido. Deixe vazio, ou cole a linha encryption da mesma saída do xray vlessenc.",
     "is_parent": {
       "description": "Se este painel atua como painel pai",
       "label": "Painel pai"
@@ -2921,6 +3390,18 @@
       "description": "Ele desabilitará o IPv6",
       "label": "4⃣ Somente IPv4"
     },
+    "openvpn_certificate": {
+      "description": "Certificado autoassinado do servidor OpenVPN, enviado aos clientes na configuração",
+      "label": "Certificado OpenVPN"
+    },
+    "openvpn_enable": {
+      "description": "Enable OpenVPN (served by hiddify-core). The OpenVPN apps import the profile from the user page; the Hiddify app 5+ gets it in the subscription",
+      "label": "OpenVPN"
+    },
+    "openvpn_private_key": {
+      "description": "Chave privada do certificado do servidor OpenVPN",
+      "label": "Chave privada OpenVPN"
+    },
     "package_mode": {
       "description": "Especifique se você deseja um pacote lançado ou desenvolvido",
       "label": "🔄 Modo de atualização de pacotes"
@@ -2945,8 +3426,8 @@
       "label": "Painel Pai (Multi-servidor)"
     },
     "parent_sync_cursor": {
-      "description": "",
-      "label": ""
+      "description": "Até onde este nó leu o feed de alterações do painel pai",
+      "label": "Posição de sincronização com o painel pai"
     },
     "path_grpc": {
       "description": "Caminho gRPC nas configurações",
@@ -3053,12 +3534,12 @@
       "label": "🆔 IDs curtos"
     },
     "reality_sni_auto": {
-      "description": "",
-      "label": ""
+      "description": "Substitui automaticamente um SNI REALITY filtrado por um reserva (senão o administrador faz isso na página de IP limpo)",
+      "label": "Trocar automaticamente SNIs REALITY filtrados"
     },
     "reality_sni_spares": {
-      "description": "",
-      "label": ""
+      "description": "SNIs REALITY para usar quando um for filtrado, um por linha",
+      "label": "SNIs REALITY de reserva"
     },
     "restls": {
       "description": "Configurações do protocolo RestLS",
@@ -3245,8 +3726,8 @@
       "label": "📍Telegram AD Tag"
     },
     "telegram_base_path": {
-      "description": "",
-      "label": ""
+      "description": "Caminho secreto do proxy web do Telegram nos domínios HTTPS",
+      "label": "ℹ️ Caminho do proxy web do Telegram"
     },
     "telegram_bot_token": {
       "description": "Para adicionar o recurso de bot do Telegram. você precisa criar um bot com @BotFather e inserir o código da API neste campo",
@@ -3265,7 +3746,7 @@
       "label": "🔢 Biblioteca de proxy do Telegram"
     },
     "telegram_webproxy_enable": {
-      "description": "Proxy do Telegram via HTTPS em todos os domínios com certificado válido, incluindo CDN (links tg://webproxy, servido pelo telemt)",
+      "description": "Proxy do Telegram via HTTPS em todos os domínios com certificado real, incluindo CDN (links tg://webproxy, servidos pelo telemt)",
       "label": "✔️ Ativar proxy web do Telegram"
     },
     "tls": {
@@ -3321,8 +3802,8 @@
       "label": "Configurações muito avançadas"
     },
     "torrent_block": {
-      "description": "As configurações do bloco de Torrent podem ser definidas nesta seção.",
-      "label": "Configuração do Bloco de Torrent"
+      "description": "Ligado: o tráfego BitTorrent (torrent) dos usuários é bloqueado em todos os protocolos, no Xray e no Hiddify Core. Desligado: é permitido. Torrents são reconhecidos pelo handshake, em qualquer porta; conexões torrent criptografadas podem não ser reconhecidas.",
+      "label": "🚫 Bloquear BitTorrent"
     },
     "trojan_enable": {
       "description": "Ativa o protocolo Trojan",
@@ -3364,7 +3845,7 @@
     "validation-success": "As configurações foram alteradas com sucesso. Clique em %(link)s para aplicar as configurações. Pode levar 2 minutos para aplicar",
     "validation-success-no-reset": "✅ As configurações foram alteradas com sucesso",
     "vless_decryption": {
-      "description": "Parâmetro de descriptografia VLess para links de compartilhamento",
+      "description": "Chave do servidor da criptografia VLESS. Deixe vazio para desativar a criptografia, ou cole aqui a linha decryption do <code>xray vlessenc</code> e a linha encryption da mesma saída em VLESS encryption.",
       "label": "Descriptografia VLess"
     },
     "vless_enable": {
@@ -3372,9 +3853,10 @@
       "label": "⚫️ VLess"
     },
     "vless_encryption": {
-      "description": "Método de criptografia VLess para links de compartilhamento",
+      "description": "Chave do cliente da criptografia VLESS, enviada nos links de compartilhamento. Deixe vazio para desativar a criptografia, ou cole a linha encryption da mesma saída <code>xray vlessenc</code> do decryption.",
       "label": "Criptografia VLess"
     },
+    "vless_encryption_pair_mismatch": "VLESS encryption e decryption devem vir da mesma saída do xray vlessenc, ou ficar ambos vazios.",
     "vless_flow": {
       "description": "Controle de fluxo VLess (ex.: xtls-rprx-vision)",
       "label": "Fluxo VLess"
@@ -3386,7 +3868,7 @@
     "warp-https-domain-for-warp-site": "config.warp-https-domínio-para-site-warp",
     "warp": {
       "description": "Warp é uma ferramenta que esconde o IP do seu servidor dos sites onde os usuários navegam \n<br>\nPor exemplo, se você tiver um problema com o Google, ele pode ser corrigido.",
-      "label": "WARP➕"
+      "label": "WARP"
     },
     "warp_enable": {
       "description": "O WARP ajuda você a contornar o bloqueio do Google, Spotify e Netflix .",
@@ -3403,6 +3885,10 @@
     "warp_sites": {
       "description": "Adicione sites adicionais para passar pelo WARP (somente quando o modo warp não for Nenhum)",
       "label": "🆚 Sites WARP adicionais"
+    },
+    "warp_tos_accepted": {
+      "description": "O WARP só envia tráfego pela Cloudflare depois que um administrador aceita os termos da Cloudflare. Isso fica registrado a partir dessa pergunta e não é editado aqui.",
+      "label": "Termos do Cloudflare WARP aceitos"
     },
     "wireguard": {
       "description": "WireGuard é um protocolo leve baseado em UDP conhecido por sua simplicidade, eficiência e forte segurança. Oferece configuração rápida, código transparente e ganhou popularidade por sua facilidade de uso em vários sistemas operacionais.",
@@ -3482,10 +3968,10 @@
       "sni_l7_mutex": "Gateway SNI e gateway L7 não podem ser selecionados juntos para um mesmo domínio",
       "sni_single_only": "Somente um gateway SNI pode ser selecionado para um domínio"
     },
-    "description": "Por favor, preencha este campo com cuidado e corretamente. Caso contrário, os proxies terão problemas. Visite <a href='https://github.com/hiddify/hiddify-config/wiki/راهنمای-تنظیم-دامنه-و-نهایی-کردن-نصب#آموزش-ساخت-زیردامنه'> Ajuda</a> para aprenda como criar um subdomínio.",
+    "description": "Por favor, preencha este campo com cuidado e corretamente. Caso contrário, os proxies terão problemas. Visite <a href='https://hiddify.com/manager/installation-and-setup/Guide-for-setting-up-the-domain-and-finalizing-the-installation/'> Ajuda</a> para aprenda como criar um subdomínio.",
     "domain": "Domínio",
     "domain_fronting": {
-      "description": "É usado para simular outro site em vez do seu site no SNI. portanto, o GFW não pode filtrar seu domínio\n<a href='https://github.com/hiddify/hiddify-config/wiki/Guide-for-domain-fronting'>Guia</a>. ⚠️CloudFlare não suporta fronting de domínio.",
+      "description": "É usado para simular outro site em vez do seu site no SNI. portanto, o GFW não pode filtrar seu domínio\n<a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Guide-for-domain-fronting/'>Guia</a>. ⚠️CloudFlare não suporta fronting de domínio.",
       "label": "🔒 Fronting de domínio de TLS"
     },
     "ech": {
@@ -3504,7 +3990,7 @@
     "mode": "Modo",
     "reality": {
       "asn_issue": "O domínio selecionado para REALITY não está no mesmo ASN.\nPara melhor aproveitamento do Protocolo, é melhor encontrar um Domínio com o mesmo ASN",
-      "no_x25519": ""
+      "no_x25519": "Este domínio não suporta a troca de chaves X25519 de que o REALITY precisa, então não é compatível com REALITY: os clientes receberiam o certificado do site real e falhariam. Use outro domínio."
     },
     "resolveip": {
       "description": "Usa o IP em vez do nome de domínio nos proxies. Útil quando há muito ruído no DNS.",

@@ -9,7 +9,6 @@
       striped-rows
       paginator
       :rows="15"
-      :rows-per-page-options="[10, 25, 50]"
       data-key="id"
     >
       <template #empty>
@@ -109,6 +108,7 @@
             />
           </div>
         </template>
+        <template #body="{ data }">{{ sideName(data.side) }}</template>
       </Column>
       <Column field="core" sortable>
         <template #header>
@@ -148,6 +148,10 @@
           <span v-if="data.version">≥ {{ data.version }}</span>
         </template>
       </Column>
+      <!-- the Users page's pager: the bar, the page numbers, Previous / Next and the rows per page -->
+      <template #paginatorcontainer="p">
+        <TablePager :first="p.page * p.rows" :rows="p.rows" :total-records="p.totalRecords ?? 0" :options="[15, 25, 50]" @page="p.changePageCallback" @rows="p.rowChangeCallback" />
+      </template>
     </DataTable>
   </Panel>
 
@@ -172,13 +176,21 @@
   <Popover ref="sidePopover" @show="focusFirstInput(sidePopover)">
     <div class="flex flex-col gap-2 min-w-44">
       <label class="text-sm font-medium">{{ t('baseConfig.side') }}</label>
-      <Listbox v-model="filterSide" :options="sideOptions" filter :filter-placeholder="t('common.search')" list-style="max-height: 16rem" class="w-full" @change="sidePopover.hide()" />
+      <Listbox v-model="filterSide" :options="sideOptions" :option-label="sideName" filter :filter-placeholder="t('common.search')" list-style="max-height: 16rem" class="w-full" @change="sidePopover.hide()">
+        <template #option="{ option }">
+          <span class="core-option"><span class="core-dot" :style="{ background: sideColor(option) }" />{{ sideName(option) }}</span>
+        </template>
+      </Listbox>
     </div>
   </Popover>
   <Popover ref="corePopover" @show="focusFirstInput(corePopover)">
     <div class="flex flex-col gap-2 min-w-44">
       <label class="text-sm font-medium">{{ t('baseConfig.core') }}</label>
-      <Listbox v-model="filterCore" :options="coreFilterOptions" filter :filter-placeholder="t('common.search')" list-style="max-height: 16rem" class="w-full" @change="corePopover.hide()" />
+      <Listbox v-model="filterCore" :options="coreFilterOptions" :option-label="coreName" filter :filter-placeholder="t('common.search')" list-style="max-height: 16rem" class="w-full" @change="corePopover.hide()">
+        <template #option="{ option }">
+          <span class="core-option"><span class="core-dot" :style="{ background: protoColor(option) }" />{{ coreName(option) }}</span>
+        </template>
+      </Listbox>
     </div>
   </Popover>
   <Popover ref="versionPopover" @show="focusFirstInput(versionPopover)">
@@ -193,7 +205,11 @@
   <Popover ref="enabledPopover" @show="focusFirstInput(enabledPopover)">
     <div class="flex flex-col gap-2 min-w-44">
       <label class="text-sm font-medium">{{ t('common.enabled') }}</label>
-      <Listbox v-model="filterEnabled" :options="enabledOptions" option-label="label" option-value="value" class="w-full" @change="enabledPopover.hide()" />
+      <Listbox v-model="filterEnabled" :options="enabledOptions" option-label="label" option-value="value" class="w-full" @change="enabledPopover.hide()">
+        <template #option="{ option }">
+          <span class="core-option"><span class="core-dot" :style="{ background: option.color }" />{{ option.label }}</span>
+        </template>
+      </Listbox>
     </div>
   </Popover>
 </template>
@@ -205,12 +221,13 @@ import ListEmpty from '@/shared/components/ListEmpty.vue'
 import Message from 'primevue/message'
 import { triStateCodec, useHashState } from '@/shared/composables/useHashState'
 import { computed, onMounted, ref } from 'vue'
-import { coreName } from '@/shared/utils/protocols'
+import { coreName, sideName } from '@/shared/utils/protocols'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDangerConfirm } from '@/shared/composables/useDangerConfirm'
 import { useToast } from 'primevue/usetoast'
 import DataTable from 'primevue/datatable'
+import TablePager from '@/shared/components/TablePager.vue'
 import Column from 'primevue/column'
 import Panel from 'primevue/panel'
 import Button from 'primevue/button'
@@ -222,7 +239,7 @@ import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import Popover from 'primevue/popover'
 import { focusFirstInput } from '@/shared/utils/popover-focus'
-import { protoColor } from '@/shared/utils/proto-color'
+import { protoColor, templateCategoryColor } from '@/shared/utils/proto-color'
 import PageHeader from '@/shared/components/PageHeader.vue'
 import SysBadge from '@/shared/components/SysBadge.vue'
 import { proxyBaseConfigsApi, type ProxyBaseConfig, type ProxyBaseConfigMeta } from '@/core/api/generated'
@@ -279,13 +296,19 @@ const coreFilterOptions = computed(() => {
     if (filterSide.value && row.side !== filterSide.value) continue
     if (row.core) set.add(row.core)
   }
-  return [...set].sort()
+  return [...set].sort((a, b) => coreName(a).localeCompare(coreName(b)))
 })
 
+/** Their dots say what they are: on (green), off (red), as on the Proxies page */
 const enabledOptions = [
-  { label: t('common.enabled'), value: true },
-  { label: t('common.disabled'), value: false },
+  { label: t('common.enabled'), value: true, color: 'var(--p-green-500)' },
+  { label: t('common.disabled'), value: false, color: 'var(--p-red-500)' },
 ]
+
+/** A side's dot: the color the Templates page gives its side (Server Inbound: sky, Client Outbound: orange) */
+function sideColor(side: string): string {
+  return side === 'server' ? templateCategoryColor('server_inbound') : side === 'client' ? templateCategoryColor('client_outbound') : protoColor(side)
+}
 
 const filtersActive = computed(
   () => Boolean(filterName.value.trim() || filterDescription.value.trim() || filterSide.value || filterCore.value || filterVersion.value.trim() || filterEnabled.value !== null),
@@ -369,5 +392,17 @@ onMounted(load)
 }
 .list-name-link:hover {
   text-decoration: underline;
+}
+/* The core filter: each core's color before its name, as on its tag */
+.core-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.core-dot {
+  flex: none;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
 }
 </style>

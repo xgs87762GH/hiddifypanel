@@ -2,6 +2,8 @@ import { getHttp } from '@/core/api/client'
 
 export type Audience = 'all' | 'active' | 'expired' | 'offline_1h' | 'offline_1d' | 'offline_1w' | 'selected'
 export type MessageFormat = 'plain' | 'markdown' | 'html'
+/** Who the selected ids are: users, or sub-admins (admins page; "selected" only, never with usage). */
+export type RecipientKind = 'users' | 'admins'
 
 export interface BroadcastState {
   /** The Telegram bot is set up (a token, running). */
@@ -39,15 +41,29 @@ export interface SendInput {
   ids: number[]
   addUsage: boolean
   image: File | null
+  kind?: RecipientKind
 }
 
+/** More selected users than this go in a POST body: thousands of ids do not fit in a URL (the proxy refuses it). */
+const IDS_IN_URL_MAX = 200
+
 export const broadcastApi = {
-  async state(ids: number[]): Promise<BroadcastState> {
-    const { data } = await getHttp().get<BroadcastState>('broadcast/', { params: ids.length ? { ids: ids.join(',') } : {} })
+  async state(ids: number[], kind: RecipientKind = 'users'): Promise<BroadcastState> {
+    if (ids.length > IDS_IN_URL_MAX) {
+      const { data } = await getHttp().post<BroadcastState>('broadcast/selection/', { what: 'state', ids, kind })
+      return data
+    }
+    const params: Record<string, string> = { kind }
+    if (ids.length) params.ids = ids.join(',')
+    const { data } = await getHttp().get<BroadcastState>('broadcast/', { params })
     return data
   },
-  async recipients(audience: Audience, ids: number[]): Promise<Recipient[]> {
-    const params: Record<string, string> = { audience }
+  async recipients(audience: Audience, ids: number[], kind: RecipientKind = 'users'): Promise<Recipient[]> {
+    if (ids.length > IDS_IN_URL_MAX) {
+      const { data } = await getHttp().post<{ users: Recipient[] }>('broadcast/selection/', { what: 'recipients', audience, ids, kind })
+      return data.users
+    }
+    const params: Record<string, string> = { audience, kind }
     if (ids.length) params.ids = ids.join(',')
     const { data } = await getHttp().get<{ users: Recipient[] }>('broadcast/recipients/', { params })
     return data.users
@@ -64,6 +80,7 @@ export const broadcastApi = {
     form.append('audience', input.audience)
     form.append('ids', input.ids.join(','))
     form.append('add_usage', String(input.addUsage))
+    form.append('kind', input.kind ?? 'users')
     if (input.image) form.append('image', input.image)
     const { data } = await getHttp().post<BroadcastJob>('broadcast/', form, { headers: { 'Content-Type': undefined } })
     return data

@@ -5,9 +5,9 @@ import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
-import Message from 'primevue/message'
 import Select from 'primevue/select'
 import Skeleton from 'primevue/skeleton'
+import SplitButton from 'primevue/splitbutton'
 import Textarea from 'primevue/textarea'
 import ToggleSwitch from 'primevue/toggleswitch'
 import Json5Editor from '@/shared/components/Json5Editor.vue'
@@ -15,13 +15,17 @@ import AdditionalConfigsEditor from '@/shared/components/AdditionalConfigsEditor
 import { cleanConfigRows, configRowProblem } from '@/shared/utils/additional-configs'
 import { useToast } from 'primevue/usetoast'
 import { apiErrorMessage } from '@/core/api/client'
+import FormError from '@/shared/components/FormError.vue'
+import { scrollToFirstInvalid } from '@/shared/utils/scroll-to-invalid'
 import TagSelect from '@/features/tags/components/TagSelect.vue'
+import FormSection from '@/features/users/components/package/FormSection.vue'
+import PackageTimeLine, { type TimeState } from '@/features/users/components/package/PackageTimeLine.vue'
+import PresetChips from '@/features/users/components/package/PresetChips.vue'
+import ResetModePicker from '@/features/users/components/package/ResetModePicker.vue'
 import { saveFormTags } from '@/features/tags/useTags'
 import {
-  MODE_ICON,
   UNLIMITED_DAYS,
   UNLIMITED_GB,
-  USER_MODES,
   usersApi,
   type AdditionalConfig,
   type UserDetail,
@@ -34,16 +38,6 @@ import { unitLabel } from '@/shared/utils/format-metrics'
 import { daysFromToday, gb, sizeText, relativeDays, shortDate } from '@/features/users/format'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-/** Quick picks; the last one is "unlimited" (the highest value the server keeps). */
-const LIMIT_PRESETS = [10, 50, 100, 200, 500, 1000, UNLIMITED_GB]
-const DAY_PRESETS = [
-  { days: 7, key: 'week' },
-  { days: 30, key: 'month' },
-  { days: 90, key: 'months3' },
-  { days: 180, key: 'months6' },
-  { days: 365, key: 'year' },
-  { days: UNLIMITED_DAYS, key: 'unlimited' },
-] as const
 
 /** `user`: the one being edited (its detail is loaded); null adds a new user. */
 const props = defineProps<{
@@ -53,7 +47,8 @@ const props = defineProps<{
   focus?: 'usage' | 'time' | null
 }>()
 const visible = defineModel<boolean>('visible', { required: true })
-const emit = defineEmits<{ saved: [user: UserDetail, created: boolean] }>()
+/** atEnd: a new user goes to the end of the users list (the add button's menu), not to the top. */
+const emit = defineEmits<{ saved: [user: UserDetail, created: boolean, atEnd: boolean] }>()
 
 const { t, locale } = useI18n()
 
@@ -62,6 +57,17 @@ const loading = ref(false)
 const busy = ref(false)
 const error = ref<string | null>(null)
 const touched = ref(false)
+const formEl = ref<HTMLFormElement | null>(null)
+/** Which add was asked: the button (top of the list, also Enter in a field) or its "at end" entry. */
+const addAtEnd = ref(false)
+const addMenu = computed(() => [
+  { label: t('users.form.add'), icon: 'pi pi-user-plus', command: () => addAt(false) },
+  { label: t('users.form.addAtEnd'), icon: 'pi pi-arrow-down', command: () => addAt(true) },
+])
+function addAt(end: boolean) {
+  addAtEnd.value = end
+  formEl.value?.requestSubmit()
+}
 const showAdvanced = ref(false)
 
 const name = ref('')
@@ -138,7 +144,6 @@ watch(visible, async (open) => {
 // ---- Data section
 const usedGb = computed(() => (resetUsage.value ? 0 : detail.value?.current_usage_GB ?? 0))
 
-const modeOptions = computed(() => USER_MODES.map((m) => ({ value: m, label: t(`users.mode.${m}`), icon: MODE_ICON[m] })))
 const nextReset = computed(() => (mode.value !== 'no_reset' && detail.value?.days_to_reset != null ? detail.value.days_to_reset : null))
 
 // ---- Time section: started N ago / remaining / package days
@@ -157,12 +162,11 @@ const expireDate = computed(() => {
 
 const unlimitedTime = computed(() => (packageDays.value ?? 0) >= UNLIMITED_DAYS)
 /** pending: restart chosen (on save) · waiting: not started yet · running: started (ended when past). */
-const timeState = computed<'pending' | 'waiting' | 'running' | 'ended'>(() => {
+const timeState = computed<TimeState>(() => {
   if (resetDays.value) return 'pending'
   if (!started.value) return 'waiting'
   return !unlimitedTime.value && remaining.value < 0 ? 'ended' : 'running'
 })
-const TIME_ICON = { pending: 'pi pi-replay', waiting: 'pi pi-hourglass', running: 'pi pi-calendar', ended: 'pi pi-calendar-times' } as const
 
 /** Dates instead of "5 weeks ago": starts from the list's choice (same browser setting). */
 function listShowsDates(): boolean {
@@ -222,8 +226,10 @@ const extraError = computed(() => {
 async function submit() {
   touched.value = true
   const extraBad = canModifyUserExtra.value && !!extraError.value
-  if (!name.value.trim() || uuidError.value || extraBad || configsInvalid.value || busy.value) {
+  if (busy.value) return
+  if (!name.value.trim() || uuidError.value || extraBad || configsInvalid.value) {
     if (uuidError.value || extraBad || configsInvalid.value) showAdvanced.value = true
+    void scrollToFirstInvalid(formEl.value, '.uf-error')
     return
   }
   busy.value = true
@@ -248,7 +254,7 @@ async function submit() {
     const saved = props.user ? await usersApi.update(props.user.uuid, payload) : await usersApi.create(payload)
     if (await saveFormTags('user', saved.uuid, tagIds.value, initialTags.value)) saved.tags = [...tagIds.value]
     else toast.add({ severity: 'warn', summary: t('tags.saveFailed'), life: 5000 })
-    emit('saved', saved, !props.user)
+    emit('saved', saved, !props.user, !props.user && addAtEnd.value)
     visible.value = false
   } catch (err) {
     error.value = apiErrorMessage(err)
@@ -285,10 +291,9 @@ async function submit() {
       <Skeleton v-for="i in 4" :key="i" height="4.5rem" border-radius="12px" />
     </div>
 
-    <form v-else class="uf" @submit.prevent="submit">
+    <form v-else ref="formEl" class="uf" @submit.prevent="submit">
       <!-- Who -->
-      <section v-if="!focus" class="uf-sec">
-        <h4 class="uf-sec__title"><i class="pi pi-user" />{{ t('users.form.who') }}</h4>
+      <FormSection v-if="!focus" icon="pi pi-user" :title="t('users.form.who')">
         <div class="uf-grid">
           <!-- Name and Tag side by side -->
           <div class="uf-namerow uf-field--wide">
@@ -307,11 +312,10 @@ async function submit() {
             <Textarea id="uf-note" v-model="comment" rows="2" auto-resize maxlength="512" :disabled="busy" :placeholder="t('users.form.notePlaceholder')" />
           </div>
         </div>
-      </section>
+      </FormSection>
 
       <!-- Data -->
-      <section v-if="!focus || focus === 'usage'" class="uf-sec">
-        <h4 class="uf-sec__title"><i class="pi pi-database" />{{ t('users.form.data') }}</h4>
+      <FormSection v-if="!focus || focus === 'usage'" icon="pi pi-database" :title="t('users.form.data')">
         <!-- Used (read only, can be reset) and the limit, in one row -->
         <div class="uf-data">
           <div v-if="editing" class="uf-used" :class="{ 'uf-used--reset': resetUsage }">
@@ -336,46 +340,13 @@ async function submit() {
           </div>
         </div>
         <small v-if="resetUsage" class="uf-pending"><i class="pi pi-clock" />{{ t('users.form.resetUsagePending') }}</small>
-        <div class="uf-chips">
-          <button
-            v-for="v in LIMIT_PRESETS"
-            :key="v"
-            type="button"
-            class="uf-chip"
-            :class="{ 'uf-chip--on': usageLimit === v, 'uf-chip--extra': v === 200 || v === 500 }"
-            @click="usageLimit = v"
-          >
-            <svg v-if="v === UNLIMITED_GB" class="uf-chip__inf" viewBox="0 0 24 24" role="img" :aria-label="t('users.form.unlimited')"><path fill="currentColor" d="M18.6 6.62c-1.44 0-2.8.56-3.77 1.53L12 10.66 10.48 12h.01L7.8 14.39c-.64.64-1.49.99-2.4.99-1.87 0-3.39-1.51-3.39-3.38S3.53 8.62 5.4 8.62c.91 0 1.76.35 2.44 1.03l1.13 1 1.51-1.34L9.22 8.2A5.37 5.37 0 0 0 5.4 6.62C2.42 6.62 0 9.04 0 12s2.42 5.38 5.4 5.38c1.44 0 2.8-.56 3.77-1.53l2.83-2.5.01.01L13.52 12h-.01l2.69-2.39c.64-.64 1.49-.99 2.4-.99 1.87 0 3.39 1.51 3.39 3.38s-1.52 3.38-3.39 3.38c-.9 0-1.76-.35-2.44-1.03l-1.14-1.01-1.51 1.34 1.27 1.12a5.386 5.386 0 0 0 3.82 1.57c2.98 0 5.4-2.41 5.4-5.38s-2.42-5.37-5.4-5.37z" /></svg><template v-else>{{ v >= 1000 ? `${v / 1000} ${unitLabel('TB')}` : `${v} ${unitLabel('GB')}` }}</template>
-          </button>
-        </div>
+        <PresetChips v-model="usageLimit" kind="usage" :disabled="busy" />
 
-        <div class="uf-field">
-          <span class="font-medium">{{ t('users.form.mode') }}</span>
-          <div class="uf-modes" role="radiogroup" :aria-label="t('users.form.mode')">
-            <button
-              v-for="m in modeOptions"
-              :key="m.value"
-              type="button"
-              role="radio"
-              class="uf-mode"
-              :class="{ 'uf-mode--on': mode === m.value }"
-              :aria-checked="mode === m.value"
-              :disabled="busy"
-              @click="mode = m.value"
-            >
-              <i :class="m.icon" /><span>{{ m.label }}</span>
-            </button>
-          </div>
-          <small class="text-muted-color">
-            {{ t(`users.modeHint.${mode}`) }}
-            <template v-if="nextReset !== null"> · {{ t('users.form.nextReset', { when: relativeDays(nextReset, locale) }) }}</template>
-          </small>
-        </div>
-      </section>
+        <ResetModePicker v-model="mode" :disabled="busy" :after="nextReset !== null ? t('users.form.nextReset', { when: relativeDays(nextReset, locale) }) : null" />
+      </FormSection>
 
       <!-- Time: the same shape as Data (used days ↻ of package length) -->
-      <section v-if="!focus || focus === 'time'" class="uf-sec">
-        <h4 class="uf-sec__title"><i class="pi pi-calendar" />{{ t('users.form.time') }}</h4>
+      <FormSection v-if="!focus || focus === 'time'" icon="pi pi-calendar" :title="t('users.form.time')">
         <div class="uf-data">
           <div v-if="editing" class="uf-used" :class="{ 'uf-used--reset': resetDays }">
             <span class="uf-used__label">{{ t('users.form.used') }}</span>
@@ -404,57 +375,39 @@ async function submit() {
             <InputNumber v-else v-model="packageDays" input-id="uf-days" :min="0" :max="UNLIMITED_DAYS - 1" :suffix="` ${t('users.form.daysUnit')}`" :disabled="busy" fluid />
           </div>
         </div>
-        <div class="uf-chips">
-          <button
-            v-for="p in DAY_PRESETS"
-            :key="p.days"
-            type="button"
-            class="uf-chip"
-            :class="{ 'uf-chip--on': packageDays === p.days, 'uf-chip--extra': p.key === 'week' }"
-            @click="packageDays = p.days"
-          >
-            <svg v-if="p.key === 'unlimited'" class="uf-chip__inf" viewBox="0 0 24 24" role="img" :aria-label="t('users.form.unlimited')"><path fill="currentColor" d="M18.6 6.62c-1.44 0-2.8.56-3.77 1.53L12 10.66 10.48 12h.01L7.8 14.39c-.64.64-1.49.99-2.4.99-1.87 0-3.39-1.51-3.39-3.38S3.53 8.62 5.4 8.62c.91 0 1.76.35 2.44 1.03l1.13 1 1.51-1.34L9.22 8.2A5.37 5.37 0 0 0 5.4 6.62C2.42 6.62 0 9.04 0 12s2.42 5.38 5.4 5.38c1.44 0 2.8-.56 3.77-1.53l2.83-2.5.01.01L13.52 12h-.01l2.69-2.39c.64-.64 1.49-.99 2.4-.99 1.87 0 3.39 1.51 3.39 3.38s-1.52 3.38-3.39 3.38c-.9 0-1.76-.35-2.44-1.03l-1.14-1.01-1.51 1.34 1.27 1.12a5.386 5.386 0 0 0 3.82 1.57c2.98 0 5.4-2.41 5.4-5.38s-2.42-5.37-5.4-5.37z" /></svg><template v-else>{{ t(`users.form.period.${p.key}`) }}</template>
-          </button>
-        </div>
+        <PresetChips v-model="packageDays" kind="days" :disabled="busy" />
         <!-- One short line: relative by default, dates on request -->
-        <div class="uf-when" :class="`uf-when--${timeState}`">
-          <i :class="TIME_ICON[timeState]" />
-          <span class="uf-when__text">
-            <template v-if="timeState === 'pending'">{{ t('users.form.restartPending') }}</template>
-            <template v-else-if="timeState === 'waiting'">{{ unlimitedTime ? t('users.form.waitingUnlimited') : t('users.form.waitingText', { n: packageDays ?? 0 }) }}</template>
-            <template v-else>
-              {{ t('users.form.startedWhen', { when: showDates ? shortDate(started, locale) : relativeDays(-(startedDays ?? 0), locale) }) }}
-              ·
-              <b v-if="unlimitedTime">{{ t('users.form.neverExpires') }}</b>
-              <b v-else :class="{ 'uf-when__late': remaining < 0 }">{{ t(remaining < 0 ? 'users.form.endedWhen' : 'users.form.endsWhen', { when: showDates ? shortDate(expireDate, locale) : relativeDays(remaining, locale) }) }}</b>
-            </template>
-          </span>
-          <Button
-            v-if="timeState === 'running' || timeState === 'ended'"
-            type="button"
-            icon="pi pi-calendar"
-            size="small"
-            text
-            rounded
-            class="uf-when__dates"
-            :severity="showDates ? undefined : 'secondary'"
-            :aria-pressed="showDates"
-            :aria-label="showDates ? t('users.showRelative') : t('users.showDates')"
-            v-tooltip.top="showDates ? t('users.showRelative') : t('users.showDates')"
-            @click="showDates = !showDates"
-          />
-        </div>
-      </section>
+        <PackageTimeLine :state="timeState">
+          <template v-if="timeState === 'pending'">{{ t('users.form.restartPending') }}</template>
+          <template v-else-if="timeState === 'waiting'">{{ unlimitedTime ? t('users.form.waitingUnlimited') : t('users.form.waitingText', { n: packageDays ?? 0 }) }}</template>
+          <template v-else>
+            {{ t('users.form.startedWhen', { when: showDates ? shortDate(started, locale) : relativeDays(-(startedDays ?? 0), locale) }) }}
+            ·
+            <b v-if="unlimitedTime">{{ t('users.form.neverExpires') }}</b>
+            <b v-else :class="{ 'ptl__late': remaining < 0 }">{{ t(remaining < 0 ? 'users.form.endedWhen' : 'users.form.endsWhen', { when: showDates ? shortDate(expireDate, locale) : relativeDays(remaining, locale) }) }}</b>
+          </template>
+          <template #action>
+            <Button
+              v-if="timeState === 'running' || timeState === 'ended'"
+              type="button"
+              icon="pi pi-calendar"
+              size="small"
+              text
+              rounded
+              class="uf-when__dates"
+              :severity="showDates ? undefined : 'secondary'"
+              :aria-pressed="showDates"
+              :aria-label="showDates ? t('users.showRelative') : t('users.showDates')"
+              v-tooltip.top="showDates ? t('users.showRelative') : t('users.showDates')"
+              @click="showDates = !showDates"
+            />
+          </template>
+        </PackageTimeLine>
+      </FormSection>
 
       <!-- Advanced -->
-      <section v-if="!focus" class="uf-sec">
-        <button type="button" class="uf-toggle" :aria-expanded="showAdvanced" @click="showAdvanced = !showAdvanced">
-          <i class="pi pi-sliders-h" />
-          <span class="flex-1">{{ t('users.form.advanced') }}</span>
-          <i class="pi pi-angle-down uf-toggle__caret" :class="{ 'uf-toggle__caret--open': showAdvanced }" />
-        </button>
-        <p v-if="!showAdvanced && advancedSummary" class="uf-adv-summary">{{ advancedSummary }}</p>
-        <div v-if="showAdvanced" class="uf-grid">
+      <FormSection v-if="!focus" v-model:open="showAdvanced" icon="pi pi-sliders-h" :title="t('users.form.advanced')" collapsible :summary="advancedSummary">
+        <div class="uf-grid">
           <div class="uf-field--wide uf-adv-blocks">
           <!-- Routing -->
           <section v-if="(state?.outbounds.length ?? 0) > 0" class="uf-sub">
@@ -503,13 +456,24 @@ async function submit() {
             <small :class="extraError ? 'uf-error' : 'text-muted-color'">{{ extraError ?? t('users.form.extraHint') }}</small>
           </div>
         </div>
-      </section>
+      </FormSection>
 
-      <Message v-if="error" severity="error" :closable="false"><span class="whitespace-pre-line">{{ error }}</span></Message>
+      <FormError :error="error" :title="t('common.saveFailed')" />
 
       <div class="uf-actions">
         <Button type="button" :label="t('common.cancel')" severity="secondary" text :disabled="busy" @click="visible = false" />
-        <Button type="submit" :icon="editing ? 'pi pi-check' : 'pi pi-user-plus'" :label="editing ? t('common.save') : t('users.form.add')" :loading="busy" />
+        <Button v-if="editing" type="submit" icon="pi pi-check" :label="t('common.save')" :loading="busy" />
+        <!-- Add: on top of the users list; the menu adds it at the end instead. The button stays the form's submit (Enter). -->
+        <SplitButton
+          v-else
+          :label="t('users.form.add')"
+          :icon="busy ? 'pi pi-spin pi-spinner' : 'pi pi-user-plus'"
+          :model="addMenu"
+          :disabled="busy"
+          :button-props="{ type: 'submit' }"
+          :menu-button-props="{ 'aria-label': t('users.form.addAtEnd') }"
+          @click="addAtEnd = false"
+        />
       </div>
     </form>
   </Dialog>
@@ -543,29 +507,6 @@ async function submit() {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-.uf-sec {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  padding: 1rem;
-  border-radius: 14px;
-  border: 1px solid var(--p-content-border-color);
-  background: var(--p-content-background);
-}
-.uf-sec__title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--p-text-muted-color);
-}
-.uf-sec__title i {
-  color: var(--p-primary-color);
 }
 .uf-count {
   padding: 0 0.45rem;
@@ -651,32 +592,6 @@ async function submit() {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
-.uf-adv-summary {
-  margin: -0.35rem 0 0;
-  font-size: 0.8rem;
-  color: var(--p-text-muted-color);
-}
-.uf-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-.uf-chip {
-  padding: 0.15rem 0.6rem;
-  border-radius: 999px;
-  border: 1px solid var(--p-content-border-color);
-  background: transparent;
-  color: var(--p-text-muted-color);
-  font: inherit;
-  font-size: 0.78rem;
-  cursor: pointer;
-}
-.uf-chip:hover,
-.uf-chip--on {
-  color: var(--p-primary-color);
-  border-color: var(--p-primary-color);
-  background: color-mix(in srgb, var(--p-primary-color) 8%, transparent);
 }
 
 /* Tones */
@@ -767,48 +682,6 @@ async function submit() {
   opacity: 0.4;
   cursor: default;
 }
-/* Reset period: 4 equal buttons, 2×2 on phones */
-.uf-modes {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.35rem;
-  padding: 0.25rem;
-  border-radius: 12px;
-  background: var(--p-content-hover-background, rgba(127, 127, 127, 0.07));
-}
-.uf-mode {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  min-width: 0;
-  padding: 0.45rem 0.4rem;
-  border: 0;
-  border-radius: 9px;
-  background: transparent;
-  color: var(--p-text-muted-color);
-  font: inherit;
-  font-size: 0.84rem;
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.uf-mode span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.uf-mode i {
-  font-size: 0.8rem;
-}
-.uf-mode--on {
-  color: var(--p-primary-color);
-  font-weight: 600;
-  background: var(--p-content-background);
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
-}
 .uf-pending {
   display: inline-flex;
   align-items: center;
@@ -832,40 +705,6 @@ async function submit() {
   line-height: 1;
   color: var(--p-primary-color);
 }
-.uf-when {
-  --tone: var(--p-green-600, #16a34a);
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  min-height: 1.9rem;
-  font-size: 0.82rem;
-  color: var(--p-text-muted-color);
-}
-.uf-when > i {
-  font-size: 0.8rem;
-  color: var(--tone);
-}
-.uf-when--waiting {
-  --tone: var(--p-sky-500, #0ea5e9);
-}
-.uf-when--pending {
-  --tone: var(--p-amber-600, #d97706);
-  color: var(--tone);
-  font-weight: 600;
-}
-.uf-when--ended {
-  --tone: var(--p-red-500, #ef4444);
-}
-.uf-when__text {
-  flex: 1;
-  min-width: 0;
-}
-.uf-when__text b {
-  color: var(--p-text-color);
-}
-.uf-when__text .uf-when__late {
-  color: var(--p-red-500, #ef4444);
-}
 .uf-when__dates {
   flex-shrink: 0;
   width: 1.9rem !important;
@@ -882,30 +721,6 @@ async function submit() {
 .uf-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.8rem;
-}
-.uf-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--p-text-muted-color);
-  font: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-align: start;
-  cursor: pointer;
-}
-.uf-toggle:hover {
-  color: var(--p-primary-color);
-}
-.uf-toggle__caret {
-  transition: transform 0.25s ease;
-}
-.uf-toggle__caret--open {
-  transform: rotate(180deg);
 }
 .uf-actions {
   position: sticky;
@@ -930,33 +745,5 @@ async function submit() {
   .uf-grid {
     grid-template-columns: 1fr;
   }
-  /* Room is short: fewer quick picks, all on one line */
-  .uf-chip--extra {
-    display: none;
-  }
-  .uf-chips {
-    flex-wrap: nowrap;
-  }
-  .uf-chip {
-    flex: 1 1 0;
-    min-width: 0;
-    padding-inline: 0.3rem;
-    text-align: center;
-    white-space: nowrap;
-  }
-  .uf-modes {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .uf-sec {
-    padding: 0.85rem;
-  }
-
-}
-/* Unlimited: an infinity icon (PrimeIcons has none), the chip's text height so the chips keep theirs */
-.uf-chip__inf {
-  display: inline-block;
-  width: 1.35em;
-  height: 1em;
-  vertical-align: -0.15em;
 }
 </style>

@@ -79,8 +79,10 @@ def system_stats() -> dict:
 
     hiddify_used = get_folder_size('/opt/hiddify-manager/') / 1024**3
 
-    # Network usage
-    net_stats = psutil.net_io_counters()
+    # Network usage (the real interfaces only, as on the dashboard)
+    from .system_metrics import wire_counters
+
+    net_stats = wire_counters()
     bytes_sent_cumulative = net_stats.bytes_sent
     bytes_recv_cumulative = net_stats.bytes_recv
     bytes_sent = net_stats.bytes_sent - getattr(system_stats, 'prev_bytes_sent', 0)
@@ -118,3 +120,21 @@ def system_stats() -> dict:
         "load_avg_15min": load_avg[2],
         'num_cpus': num_cpus
     }
+
+
+#: One panel worker (granian process) per this many users; each worker runs HIDDIFY_PANEL_THREADS threads.
+USERS_PER_PANEL_WORKER = 10_000
+#: A worker is respawned above 500 MB (--workers-max-rss): keep 2 GB of RAM per worker for the rest of the server.
+RAM_PER_PANEL_WORKER = 2 * 1024**3
+MAX_PANEL_WORKERS = 4
+
+
+def panel_workers(users: int, parent: bool, cpus: int | None = None, ram_bytes: int | None = None) -> int:
+    """Granian workers for hiddify-panel.service: more on a parent panel with many users, one everywhere else."""
+    if not parent:
+        return 1
+    cpus = cpus or os.cpu_count() or 1
+    ram_bytes = ram_bytes or psutil.virtual_memory().total
+    wanted = -(-users // USERS_PER_PANEL_WORKER)  # ceil
+    cap = min(cpus, ram_bytes // RAM_PER_PANEL_WORKER, MAX_PANEL_WORKERS)
+    return int(max(1, min(wanted, cap)))

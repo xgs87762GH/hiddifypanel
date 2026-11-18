@@ -1,6 +1,6 @@
 """Panel settings for Admin V2, described from (and saved through) the classic settings form.
 
-The WTForms form in ``panel/admin/SettingAdmin.py`` stays the single source of
+The WTForms form in ``panel/settings_form.py`` stays the single source of
 truth for which settings exist, their widgets, choices and validators; this API
 only translates it to JSON and back.
 """
@@ -32,7 +32,6 @@ ESSENTIAL_KEYS = frozenset(
         ConfigEnum.country,
         ConfigEnum.auto_update,
         ConfigEnum.firewall,
-        ConfigEnum.torrent_block,
         ConfigEnum.block_iran_sites,
         ConfigEnum.decoy_domain,
         ConfigEnum.telegram_bot_token,
@@ -44,6 +43,14 @@ ESSENTIAL_KEYS = frozenset(
 _HTML_TAGS = frozenset({"a", "br", "strong", "b", "em", "i", "code", "p", "ul", "ol", "li", "span"})
 _HTML_ATTRS = {"a": ["href", "target", "rel"]}
 _APPLY_RANK = {ApplyMode.nothing: 0, ApplyMode.apply_config: 1, ApplyMode.reinstall: 2}
+#: Edited inside another field's editor (the support box's HTML editor), not as rows of their own.
+COMPANION_OF = {
+    ConfigEnum.branding_support_title: ConfigEnum.branding_freetext,
+    ConfigEnum.branding_support_title_show: ConfigEnum.branding_freetext,
+    ConfigEnum.branding_support_more: ConfigEnum.branding_freetext,
+    ConfigEnum.branding_support_more_show: ConfigEnum.branding_freetext,
+    ConfigEnum.branding_freetext_full: ConfigEnum.branding_freetext,
+}
 _SKIP_FIELDS = frozenset({"description_for_fieldset", "csrf_token", "submit"})
 
 
@@ -92,6 +99,8 @@ def _describe_field(field: wtf.Field) -> dict[str, Any]:
         row["pattern_message"] = str(render_kw.get("title") or "")
     if maxlength := render_kw.get("maxlength"):
         row["maxlength"] = int(maxlength)
+    if owner := COMPANION_OF.get(key):
+        row["companion_of"] = str(owner)
     return row
 
 
@@ -135,7 +144,7 @@ def _formdata(current_form, values: dict[str, Any]) -> MultiDict:
 
 
 def _restart_mode(old_configs: dict) -> str:
-    """Same decision as ``hiddify.check_need_reset``, without flashing or running anything."""
+    """Which apply the changed settings need (nothing, apply configs or reinstall), without running anything."""
     if old_configs.get(ConfigEnum.package_mode) != hconfig(ConfigEnum.package_mode):
         return "update"
     mode = ApplyMode.nothing
@@ -159,18 +168,25 @@ def _field_errors(form) -> dict[str, list[str]]:
     return errors
 
 
+def _warp_terms_flag() -> dict[str, bool]:
+    """Whether an admin has accepted Cloudflare's WARP terms. The field is hidden, so it is not in the form."""
+    from hiddifypanel.proxy_v3.outbounds import warp_terms_accepted
+
+    return {"warp_tos_accepted": warp_terms_accepted()}
+
+
 class SettingsApi(MethodView):
     decorators = [login_required({Role.super_admin})]
 
     def get(self):
         """Settings: All panel settings grouped by category"""
-        from hiddifypanel.panel.admin.SettingAdmin import get_config_form
+        from hiddifypanel.panel.settings_form import get_config_form
 
-        return {"categories": describe_settings(get_config_form(formdata=None, meta={"csrf": False}))}
+        return {"categories": describe_settings(get_config_form(formdata=None, meta={"csrf": False})), **_warp_terms_flag()}
 
     def put(self):
         """Settings: Save changed settings (`{"values": {key: value}}`)"""
-        from hiddifypanel.panel.admin.SettingAdmin import get_config_form, save_config_form
+        from hiddifypanel.panel.settings_form import get_config_form, save_config_form
 
         body = request.get_json(silent=True) or {}
         values = body.get("values")
@@ -217,4 +233,5 @@ class SettingsApi(MethodView):
             "reload": hconfig(ConfigEnum.admin_lang) != admin_lang,
             # Takes effect after applying configs; the admin UI then lives here.
             "new_admin_path": f"/{new_admin_path}/admin/v2/" if new_admin_path != admin_path else None,
+            **_warp_terms_flag(),
         }

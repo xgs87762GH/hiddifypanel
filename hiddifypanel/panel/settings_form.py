@@ -1,0 +1,395 @@
+"""The settings form (WTForms): built and saved for the admin API (restapi/v2/admin/settings_api.py)."""
+
+import re
+from dataclasses import dataclass
+from dataclasses import field as dc_field
+
+import flask_babel
+import wtforms as wtf
+from bleach import ALLOWED_TAGS as BLEACH_ALLOWED_TAGS
+from bleach import clean as bleach_clean
+
+# from flask_babelex import gettext as _
+from flask_babel import lazy_gettext as _
+from flask_bootstrap import SwitchField
+
+# from gettext import gettext as _
+from flask_wtf import FlaskForm
+from loguru import logger
+from markupsafe import Markup
+
+from hiddifypanel import hutils
+from hiddifypanel.cache import cache
+from hiddifypanel.database import db
+from hiddifypanel.models import *
+from hiddifypanel.models import BoolConfig, ConfigCategory, ConfigEnum, StrConfig, hconfig
+from hiddifypanel.panel import custom_widgets
+
+ALLOWED_TAGS = set([*BLEACH_ALLOWED_TAGS, "h1", "h2", "h3", "h4", "p"])
+
+
+@dataclass
+class SettingsSaveResult:
+    errors: list[str] = dc_field(default_factory=list)
+    warnings: list[str] = dc_field(default_factory=list)
+    old_configs: dict = dc_field(default_factory=dict)
+    changed_configs: dict = dc_field(default_factory=dict)
+    # Set when the Telegram bot token changed: the result of connecting it.
+    telegram: dict | None = None
+
+    def fail(self, message) -> "SettingsSaveResult":
+        self.errors.append(str(message))
+        return self
+
+
+def _port_conflict(key, value, sections) -> tuple[str, str] | None:
+    """A port rule this value breaks: ``("", port)`` for 80/443 outside the http/tls lists, or ``(other_key, port)``.
+
+    Only keys ending in ``_port`` or ``_ports`` are port lists. Matching the substring ``port`` also selects text
+    settings such as ``branding_support_title`` ("support" contains "port"); two empty ones then look like the same port.
+    """
+    if not isinstance(value, str) or not key.endswith(("_port", "_ports")):
+        return None
+    for raw in value.split(","):
+        port = raw.strip()
+        if not port:
+            continue
+        if (key != ConfigEnum.tls_ports and port == "443") or (key != ConfigEnum.http_ports and port == "80"):
+            return ("", port)
+        for items in sections.values():
+            if not isinstance(items, dict):
+                continue
+            for other, other_value in items.items():
+                if other == key.name or not isinstance(other, str) or not other.endswith(("_port", "_ports")) or not isinstance(other_value, str):
+                    continue
+                if port in [part.strip() for part in other_value.split(",") if part.strip()]:
+                    return (other, port)
+    return None
+
+
+def save_config_form(form) -> SettingsSaveResult:
+    """Cross-field checks + save for an already validated settings form (classic page and Admin V2 API).
+
+    Returns ``errors`` instead of flashing, so each caller reports them its own way.
+    Nothing is saved when ``errors`` is non-empty.
+    """
+    result = SettingsSaveResult()
+    boolconfigs = BoolConfig.query.filter(BoolConfig.child_id == Child.current().id).all()
+    bool_types = {c.key: "bool" for c in boolconfigs}
+
+    old_configs = get_hconfigs()
+    result.old_configs = old_configs
+    changed_configs = {}
+
+    for category, c_items in form.data.items():  # [c for c in ConfigEnum]:
+        if isinstance(c_items, dict):
+            for k in ConfigEnum:
+                if k.name not in c_items:
+                    continue
+                v = c_items[k.name]
+                if k.type == str:
+                    if "_domain" in k or "_fakedomain" in k:
+                        v = v.lower()
+                    if k == ConfigEnum.warp_sites and "https://" in v:
+                        return result.fail(_("config.warp-https-domain-for-warp-site"))
+                    conflict = _port_conflict(k, v, form.data)
+                    if conflict:
+                        other, _port = conflict
+                        if not other:
+                            return result.fail(_("Port 80 and 443 can not be selected"))
+                        return result.fail(_("Port is already used! in") + f" {other} {k}")
+
+                if old_configs[k] != v:
+                    changed_configs[k] = v
+
+        # print(cat,vs)
+
+    # Turning WARP on is refused until an admin has accepted Cloudflare's terms. A save that does not
+    # change warp_mode (it was already on) is not refused here; routing still stays off until they accept.
+    new_warp = changed_configs.get(ConfigEnum.warp_mode)
+    if new_warp is not None and str(new_warp) != "disable" and str(old_configs.get(ConfigEnum.warp_mode) or "disable") == "disable":
+        from hiddifypanel.proxy_v3.outbounds import WARP_TOS_MESSAGE, warp_terms_accepted
+
+        if not warp_terms_accepted():
+            return result.fail(WARP_TOS_MESSAGE)
+
+    merged_configs = {**old_configs, **changed_configs}
+    if len(set([merged_configs[ConfigEnum.proxy_path], merged_configs[ConfigEnum.proxy_path_client], merged_configs[ConfigEnum.proxy_path_admin]])) != 3:
+        return result.fail(_("ProxyPath is already used! use different proxy path"))
+    parent_apikey = ""
+
+    if p_p := changed_configs.get(ConfigEnum.parent_panel):
+        parent_baseurl, uuid = hutils.flask.extract_parent_info_from_url(p_p.strip())
+        if not parent_baseurl or not uuid:
+            return result.fail(_("parent.invalid-parent-url"))
+        elif (activeres := hutils.node.is_panel_active(parent_baseurl, uuid)) and not activeres[0]:
+            return result.fail(_("parent.panel-not-active") + f": {activeres[1]}")
+        else:
+            changed_configs[ConfigEnum.parent_panel] = parent_baseurl
+            parent_apikey = uuid
+
+    for k, v in changed_configs.items():
+        # html inputs santitizing
+        if k in {ConfigEnum.branding_title, ConfigEnum.branding_site, ConfigEnum.branding_support_title, ConfigEnum.branding_support_more}:
+            v = bleach_clean(v, tags=ALLOWED_TAGS)
+        elif k in {ConfigEnum.branding_freetext, ConfigEnum.branding_freetext_full}:  # the users' support box: HTML5 with inline styles
+            v = hutils.user_html.clean_user_html(v)
+        set_hconfig(k, v, commit=False)
+
+    db.session.commit()
+    flask_babel.refresh()
+
+    if parent_apikey or changed_configs.get(ConfigEnum.node_name):
+        node_name = hconfig(ConfigEnum.node_name)
+        # Register while still standalone/parent — flipping to child first makes the
+        # parent endpoint reject the request (and self-register would always fail).
+        try:
+            sucess, msg = hutils.node.child.register_to_parent(node_name, parent_apikey or hconfig(ConfigEnum.unique_id), mode=ChildMode.remote)
+        except Exception as e:
+            logger.exception("Error while registering to parent")
+            sucess, msg = False, str(e)
+        if not sucess:
+            result.warnings.append(str(_("child.register-failed") + f": {msg}"))
+            set_hconfig(ConfigEnum.parent_panel, "")
+
+    cache.invalidate_all_cached_functions()
+    # hutils.proxy.get_proxies.invalidate_all()
+    from hiddifypanel.panel.commercial.telegrambot import register_bot
+
+    telegram = register_bot(set_hook=True)
+    if old_configs.get(ConfigEnum.telegram_bot_token) != hconfig(ConfigEnum.telegram_bot_token) and hconfig(ConfigEnum.telegram_bot_token):
+        result.telegram = telegram
+
+    # sync with parent if needed
+    if hutils.node.is_child():
+        hutils.node.child.schedule_notify_parent_config_changed()
+
+    # if hutils.node.is_child():
+    # if hutils.node.child.is_registered():
+    # hutils.node.run_node_op_in_bg(hutils.node.child.sync_with_parent, *[hutils.node.child.SyncFields.hconfigs])
+    # else:
+    #     name = hconfig(ConfigEnum.unique_id)
+    #     parent_info = hutils.node.get_panel_info(hconfig(ConfigEnum.parent_domain), hconfig(ConfigEnum.parent_admin_proxy_path), parent_apikey)
+    #     if parent_info.get("version") != __version__:
+    #         hutils.flask.flash(_("node.diff-version"), "danger")
+    #     if not hutils.node.child.register_to_parent(name, parent_apikey, mode=ChildMode.remote):
+    #         hutils.flask.flash(_("child.register-failed"), "danger")
+    #     else:  # TODO: it's just for debuging
+    #         hutils.flask.flash(_("child.register-success"))
+    result.changed_configs = changed_configs
+    return result
+
+
+def validate_vless_encryption(form, field):
+    """VLESS encryption and decryption: empty, or both from one ``xray vlessenc`` output. Xray does not start with a
+    decryption it can't read, and clients can't connect when the two don't belong together."""
+    encryption, decryption = form.vless_encryption.data, form.vless_decryption.data
+    error = hutils.crypto.vless_encryption_error(encryption or "", decryption or "")
+    if error == "pair":
+        raise wtf.ValidationError(_("config.vless_encryption_pair_mismatch"))
+    if error and field.short_name == f"vless_{error}":
+        raise wtf.ValidationError(_(f"config.invalid_vless_{error}"))
+
+
+def get_config_form(**form_kwargs):
+    """The settings form; ``form_kwargs`` go to the form (e.g. explicit ``formdata`` and ``meta`` for the API)."""
+    strconfigs = StrConfig.query.filter(StrConfig.child_id == Child.current().id).all()
+    boolconfigs = BoolConfig.query.filter(BoolConfig.child_id == Child.current().id).all()
+    bool_types = {c.key: "bool" for c in boolconfigs}
+
+    configs = [*boolconfigs, *strconfigs]
+    configs_key = {k.key: k for k in configs}
+    # categories=sorted([ c for c in {c.key.category:1 for c in configs}])
+    # dict_configs={cat:[c for c in configs if c.category==cat] for cat in categories}
+
+    class DynamicForm(FlaskForm):
+        pass
+
+    is_parent = hutils.node.is_parent()
+
+    for cat in ConfigCategory:
+        if cat == "hidden":
+            continue
+
+        cat_configs = [c for c in ConfigEnum if c.category == cat and (not is_parent or c.show_in_parent)]
+        if len(cat_configs) == 0:
+            continue
+
+        class CategoryForm(FlaskForm):
+            class Meta:
+                csrf = False
+
+            description_for_fieldset = wtf.TextAreaField("", description=_(f"config.{cat}.description"), render_kw={"class": "d-none"})
+
+        for c2 in cat_configs:
+            if c2 not in configs_key:
+                continue
+            c = configs_key[c2]
+            if hutils.node.is_parent():
+                if c.key == ConfigEnum.parent_panel:
+                    continue
+            extra_info = ""
+            if c.key in bool_types:
+                field = SwitchField(_(f"config.{c.key}.label"), default=c.value, description=_(f"config.{c.key}.description"))
+            elif c.key == ConfigEnum.core_type:
+                field = wtf.SelectField(_(f"config.{c.key}.label"), choices=[("xray", _("Xray")), ("singbox", _("SingBox"))], description=_(f"config.{c.key}.description"), default=hconfig(c.key))
+            elif c.key == ConfigEnum.warp_mode:
+                field = wtf.SelectField(
+                    _(f"config.{c.key}.label"), choices=[("disable", _("Disable")), ("all", _("All")), ("custom", _("Only Blocked and Local websites"))], description=_(f"config.{c.key}.description"), default=hconfig(c.key)
+                )
+
+            elif c.key == ConfigEnum.lang or c.key == ConfigEnum.admin_lang:
+                field = wtf.SelectField(
+                    _(f"config.{c.key}.label"),
+                    choices=[("en", _("lang.en")), ("fa", Markup(_("lang.fa"))), ("zh", _("lang.zh")), ("pt", _("lang.pt")), ("ru", _("lang.ru")), ("my", _("lang.my"))],
+                    description=_(f"config.{c.key}.description"),
+                    default=hconfig(c.key),
+                )
+            elif c.key == ConfigEnum.country:
+                field = wtf.SelectField(_(f"config.{c.key}.label"), choices=[("ir", _("Iran")), ("zh", _("China")), ("ru", _("Russia")), ("other", _("Others"))], description=_(f"config.{c.key}.description"), default=hconfig(c.key))
+            elif c.key == ConfigEnum.package_mode:
+                package_modes = [("release", _("Release")), ("beta", _("Beta"))]
+                if hconfig(c.key) == "develop":
+                    package_modes.append(("develop", _("Develop")))
+                field = wtf.SelectField(_(f"config.{c.key}.label"), choices=package_modes, description=_(f"config.{c.key}.description"), default=hconfig(c.key))
+
+            # the shadowsocks2022_method is hidden now, because it only has one option to choose
+            # elif c.key == ConfigEnum.shadowsocks2022_method:
+            #     field = wtf.SelectField(
+            #         _(f"config.{c.key}.label"),
+            #         choices=[
+            #             ("2022-blake3-aes-256-gcm", "2022-blake3-aes-256-gcm"),
+            #             # ("2022-blake3-chacha20-poly1305", "2022-blake3-chacha20-poly1305"),
+            #         ],
+            #         description=_(f"config.{c.key}.description"), default=hconfig(c.key))
+
+            elif c.key == ConfigEnum.utls:
+                field = wtf.SelectField(
+                    _(f"config.{c.key}.label"),
+                    choices=[("none", "None"), ("chrome", "Chrome"), ("edge", "Edge"), ("ios", "iOS"), ("android", "Android"), ("safari", "Safari"), ("firefox", "Firefox"), ("random", "Random"), ("randomized", "Randomized")],
+                    description=_(f"config.{c.key}.description"),
+                    default=hconfig(c.key),
+                )
+            elif c.key == ConfigEnum.telegram_lib:
+                # if hconfig(ConfigEnum.telegram_lib)=='python':
+                #     continue6
+                # telemt is the only Telegram proxy (erlang, python, tgo and orig are deprecated).
+                libs = [("telemt", _("lib.telegram.telemt"))]
+                field = wtf.SelectField(_("config.telegram_lib.label"), choices=libs, description=_("config.telegram_lib.description"), default=hconfig(ConfigEnum.telegram_lib))
+            elif c.key == ConfigEnum.mux_protocol:
+                choices = [("smux", "smux"), ("yamux", "yamux"), ("h2mux", "h2mux")]
+                field = wtf.SelectField(_(f"config.{c.key}.label"), choices=choices, description=_(f"config.{c.key}.description"), default=hconfig(c.key))
+
+            elif c.key == ConfigEnum.warp_sites:
+                validators = [wtf.validators.Length(max=2048), wtf.validators.Regexp(r"^(?:[\w.-]+\.\w+(?:\.\w+)?(?:\r?\n|$)|^$)", 0, _("config.invalid-pattern-for-warp-sites") + f" {c.key}")]
+                render_kw = {"class": "ltr", "maxlength": 2048}
+                field = wtf.TextAreaField(_(f"config.{c.key}.label"), validators, default=c.value, description=_(f"config.{c.key}.description"), render_kw=render_kw)
+            elif c.key in {ConfigEnum.additional_configs_xrayjson, ConfigEnum.additional_configs_singbox, ConfigEnum.additional_configs_urls}:
+                render_kw = {"class": "ltr", "maxlength": 20480}
+                field = wtf.TextAreaField(_(f"config.{c.key}.label"), default=c.value, description=_(f"config.{c.key}.description"), render_kw=render_kw)
+            elif c.key in {ConfigEnum.branding_freetext, ConfigEnum.branding_freetext_full}:
+                # the Full text (Read More) has room for more than the box itself
+                limit = 8192 if c.key == ConfigEnum.branding_freetext_full else 2048
+                validators = [wtf.validators.Length(max=limit)]
+                render_kw = {"class": "ltr", "maxlength": limit}
+                field = custom_widgets.CKTextAreaField(_(f"config.{c.key}.label"), validators, default=c.value, description=_(f"config.{c.key}.description"), render_kw=render_kw)
+            elif isinstance(c2.type, type) and issubclass(c2.type, config_enum.HEnum) and c2.type != str:
+                items = [(f"{k}", _(f"config.{c.key}.{k}")) for k in c2.type]
+                field = wtf.SelectField(_(f"config.{c.key}.label"), choices=items, description=_(f"config.{c.key}.description"), default=hconfig(c.key))
+
+            else:
+                render_kw = {"class": "ltr"}
+                validators = []
+                if c.key == ConfigEnum.domain_fronting_domain:
+                    validators.append(wtf.validators.Regexp("^([A-Za-z0-9\\-\\.]+\\.[a-zA-Z]{2,})|$", re.IGNORECASE, _("config.Invalid_domain")))
+                    validators.append(hutils.flask.validate_domain_exist)
+                elif "_domain" in c.key or "_fakedomain" in c.key:
+                    validators.append(wtf.validators.Regexp("^([A-Za-z0-9\\-\\.]+\\.[a-zA-Z]{2,})$", re.IGNORECASE, _("config.Invalid_domain")))
+                    validators.append(hutils.flask.validate_domain_exist)
+
+                    if c.key != ConfigEnum.decoy_domain:
+                        from hiddifypanel.panel.fake_proxy_domains import domains_taken_by_others
+
+                        validators.append(wtf.validators.NoneOf(domains_taken_by_others(c.key, Child.current().id), _("config.Domain_already_used")))
+                        validators.append(
+                            wtf.validators.NoneOf(
+                                [cc.value.lower() for cc in StrConfig.query.filter(StrConfig.child_id == Child.current().id).all() if cc.key != c.key and "fakedomain" in cc.key and cc.key != ConfigEnum.decoy_domain],
+                                _("config.Domain_already_used"),
+                            )
+                        )
+
+                    render_kw["required"] = ""
+                    if len(c.value) < 3:
+                        c.value = hutils.network.get_random_domains(1)[0]
+
+                # if c.key ==ConfigEnum.reality_short_ids:
+                #     extra_info=f" <a target='_blank' href='{hurl_for('admin.Actions:get_some_random_reality_friendly_domain',test_domain=c.value)}'>"+_('Example Domains')+"</a>"
+                # if c.key ==ConfigEnum.reality_server_names:
+                #     validators.append(wtf.validators.Regexp("^([\w-]+\.)+[\w-]+(,\s*([\w-]+\.)+[\w-]+)*$",re.IGNORECASE,_("Invalid REALITY hostnames")))
+                # gauge width gate lamp weasel jaguar minute enough few attitude endorse situate usdt trc20 doge bep20 trx doge ltc bnb eth btc bnb
+                # enjoy control list debris chronic few door broken way negative daring life season recipe profit switch bitter casual frame aunt plate brush aerobic display
+
+                if c.key == ConfigEnum.parent_panel:
+                    validators.append(wtf.validators.Regexp("()|(http(s|)://([A-Za-z0-9\\-\\.]+\\.[a-zA-Z]{2,})/.*)", re.IGNORECASE, _("Invalid admin link")))
+                if c.key == ConfigEnum.telegram_bot_token:
+                    validators.append(wtf.validators.Regexp("()|^([0-9]{8,12}:[a-zA-Z0-9_-]{30,40})|$", re.IGNORECASE, _("config.Invalid_telegram_bot_token")))
+                if c.key == ConfigEnum.branding_site:
+                    validators.append(wtf.validators.Regexp("()|(http(s|)://([A-Za-z0-9\\-\\.]+\\.[a-zA-Z]{2,})/?.*)", re.IGNORECASE, _("config.Invalid_brand_link")))
+                    # render_kw['required']=""
+
+                if "secret" in c.key:
+                    validators.append(wtf.validators.Regexp("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", re.IGNORECASE, _("config.invalid_uuid")))
+                    render_kw["required"] = ""
+
+                if c.key == ConfigEnum.proxy_path:
+                    validators.append(wtf.validators.Regexp("^[a-zA-Z0-9]*$", re.IGNORECASE, _("config.Invalid_proxy_path")))
+                    render_kw["required"] = ""
+
+                # not `"port" in c.key`: "support" has it too, and the support box's title and button text are no ports
+                if c.key.endswith(("_port", "_ports")):
+                    if c.key in [ConfigEnum.http_ports, ConfigEnum.tls_ports]:
+                        validators.append(wtf.validators.Regexp("^(\\d+)(,\\d+)*$", re.IGNORECASE, _("config.Invalid_port")))
+                        render_kw["required"] = ""
+                    else:
+                        validators.append(wtf.validators.Regexp("^(\\d+)(,\\d+)*$|^$", re.IGNORECASE, _("config.Invalid_port")))
+                    # validators.append(wtf.validators.Regexp("^(\d+)(,\d+)*$",re.IGNORECASE,_("config.port is required")))
+
+                # tls tricks validations
+                if c.key in [ConfigEnum.tls_fragment_size, ConfigEnum.tls_fragment_sleep, ConfigEnum.tls_padding_length, ConfigEnum.wireguard_noise_trick]:
+                    validators.append(wtf.validators.Regexp("^\\d+-\\d+$", re.IGNORECASE, _("config.Invalid_The_pattern_is_number-number") + f" {c.key}"))
+                if c.key == ConfigEnum.tls_fragment_packets:
+                    validators.append(wtf.validators.Regexp("^(tlshello|\\d+-\\d+)$", re.IGNORECASE, _("config.Invalid_The_pattern_is_number-number") + f" {c.key}"))
+                if c.key in (ConfigEnum.vless_encryption, ConfigEnum.vless_decryption):
+                    validators.append(validate_vless_encryption)
+                # mux and hysteria validations
+                if c.key in [
+                    ConfigEnum.hysteria_up_mbps,
+                    ConfigEnum.hysteria_down_mbps,
+                    ConfigEnum.mux_max_connections,
+                    ConfigEnum.mux_min_streams,
+                    ConfigEnum.mux_max_streams,
+                    ConfigEnum.mux_brutal_down_mbps,
+                    ConfigEnum.mux_brutal_up_mbps,
+                ]:
+                    validators.append(wtf.validators.Regexp("^\\d+$", re.IGNORECASE, _("config.Invalid_it_should_be_a_number_only") + f" {c.key}"))
+
+                for val in validators:
+                    if hasattr(val, "regex"):
+                        render_kw["pattern"] = val.regex.pattern
+                        render_kw["title"] = val.message
+
+                label = _(f"config.{c.key}.label")
+                description = _(f"config.{c.key}.description")
+
+                # a pasted key often brings a space or line break along
+                filters = [lambda v: v.strip() if isinstance(v, str) else v] if c.key in (ConfigEnum.vless_encryption, ConfigEnum.vless_decryption) else []
+                field = wtf.StringField(label, validators, filters=filters, default=c.value, description=description + extra_info, render_kw=render_kw)
+            setattr(CategoryForm, f"{c.key}", field)
+
+        multifield = wtf.FormField(CategoryForm, Markup('<i class="fa-solid fa-plus"></i>&nbsp' + _(f"config.{cat}.label")))
+
+        setattr(DynamicForm, cat, multifield)
+
+    DynamicForm.submit = wtf.SubmitField(_("Submit"))
+
+    return DynamicForm(**form_kwargs)

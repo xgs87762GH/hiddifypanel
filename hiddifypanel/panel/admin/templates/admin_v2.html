@@ -3,6 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Installed app (PWA): iOS zooms the page into any focused field under 16px. maximum-scale=1 stops that
+      // auto-zoom (iOS still allows pinch zoom); viewport-fit=cover lets the page draw
+      // under the status bar (the top bar grows by it). In a browser tab the viewport stays as it is.
+      if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) {
+        document.querySelector('meta[name=viewport]').content += ', maximum-scale=1, viewport-fit=cover'
+      }
+    </script>
     <title>HiddifyManager</title>
     <script>
       window.__API_BASE__ = {{ api_base | tojson }};
@@ -20,14 +28,22 @@
       window.__CAPABILITIES__ = {{ capabilities | tojson }};
       window.__NEEDS_QUICK_SETUP__ = {{ needs_quick_setup | tojson }};
       window.__TELEGRAM__ = {{ telegram | tojson }};
+      window.__PASSKEY_SUGGESTION__ = {{ passkey_suggestion | tojson }};
+      window.__APP_ICON__ = {{ app_icon | tojson }};
     </script>
     <link rel="stylesheet" crossorigin href="{{ static_css }}">
-    <link rel="icon" type="image/x-icon" href="{{ static_url_for(filename='images/favicon.ico') }}">
+    <!-- The admin panel's own icon in the browser tab. The 256 px one is also the picture the install guide shows. -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ hutils.flask.app_icon_url('favicon-admin-32.png') }}">
+    <link rel="icon" type="image/png" sizes="256x256" href="{{ hutils.flask.app_icon_url('favicon-admin-256.png') }}">
     <!-- Installed app (PWA): Hiddify's icon. Without these the browser asks /apple-touch-icon.png and /favicon.ico at the
          site root, which the decoy site answers (so the app got the decoy site's icon). -->
-    <link rel="apple-touch-icon" href="{{ static_url_for(filename='images/hiddify-dark.png') }}">
-    <link rel="manifest" href="{{ hurl_for('common_bp.LoginView:create_pwa_manifest', secret_uuid=g.account.uuid or '') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ hutils.flask.app_icon_url('app-icon-admin-apple-180.png') }}">
+    <link rel="manifest" href="{{ hurl_for('common_bp.LoginView:create_pwa_manifest', secret_uuid=g.account.uuid or '', icon=hutils.flask.admin_icon_color()) }}">
     <meta name="theme-color" content="#1a1b21">
+    <!-- Installed app on iOS: the page draws under the status bar, so the topbar's color runs up behind the clock
+         (the topbar adds env(safe-area-inset-top) to its height). Without it iOS paints its own plain strip there. -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   </head>
   <body>
     <div id="app"></div>

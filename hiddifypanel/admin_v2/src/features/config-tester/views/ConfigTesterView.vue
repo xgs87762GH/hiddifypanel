@@ -1,5 +1,6 @@
 <template>
   <PageHeader :title="t('configTester.title')" :subtitle="t('configTester.subtitle')" />
+  <TesterRestoreBar />
 
   <!-- 1. What to test -->
   <Panel class="ct-form">
@@ -107,6 +108,8 @@
       </div>
     </div>
 
+    <ProxyHealthCard :results="finishedResults" />
+
     <ul class="ct-list">
       <li v-for="r in shown" :key="r.index" class="ct-row" :class="`ct-row--${r.state}`">
         <span class="ct-ico" :aria-label="t(`configTester.state.${r.state}`)">
@@ -199,6 +202,7 @@
 import { computed, onBeforeUnmount, onErrorCaptured, onMounted, ref, shallowRef, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { isRtlLanguage } from '@/shared/utils/languages'
 import Panel from 'primevue/panel'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
@@ -225,19 +229,35 @@ import JsonTree from '@/features/config-tester/components/JsonTree.vue'
 import UserLinkPicker from '@/features/config-tester/components/UserLinkPicker.vue'
 import { unwrapSubscriptionText } from '@/shared/utils/sublink-pretty'
 import CodeBlock from '@/features/config-tester/components/CodeBlock.vue'
+import ProxyHealthCard from '@/features/config-tester/components/ProxyHealthCard.vue'
+import TesterRestoreBar from '@/features/config-tester/components/TesterRestoreBar.vue'
 
 const { t, locale } = useI18n()
-const rtl = computed(() => ['fa', 'ar'].includes(locale.value))
+const rtl = computed(() => isRtlLanguage(locale.value))
 const route = useRoute()
 const router = useRouter()
 
 /** The client the subscription is tested for: its user agent fetches the link, and a format it cannot read is an error. */
 type App = 'hiddify' | 'xray' | 'clash'
-const APPS: { key: App; label: string; ua: string }[] = [
-  { key: 'hiddify', label: 'Hiddify v5.0.2', ua: 'HiddifyNext/5.0.2 (linux) like ClashMeta v2ray sing-box' },
-  { key: 'xray', label: 'Xray v26.3.27', ua: 'xray/26.3.27' },
-  { key: 'clash', label: 'Clash Mihomo 1.92.32', ua: 'clash.meta/1.92.32' },
-]
+interface AppChoice { key: App; label: string; ua: string }
+/** Until the server answers; then the versions of the cores installed on it (config-tester/apps/). */
+const APPS = ref<AppChoice[]>([
+  { key: 'hiddify', label: 'Hiddify', ua: 'HiddifyNext/5.3.0 (linux) like ClashMeta v2ray sing-box' },
+  { key: 'xray', label: 'Xray', ua: 'xray/26.10.31' },
+  { key: 'clash', label: 'Clash Mihomo', ua: 'clash.meta/1.19.32' },
+])
+async function loadApps(): Promise<void> {
+  try {
+    const { data } = await getHttp().get<{ apps: AppChoice[] }>('config-tester/apps/')
+    if (!data.apps?.length) return
+    // The user agent still the default of its client follows the new version; one typed in stays.
+    const wasDefault = APPS.value.some((a) => a.key === app.value && a.ua === userAgent.value)
+    APPS.value = data.apps
+    if (wasDefault) onApp()
+  } catch {
+    // the built-in list stays
+  }
+}
 const FILTERS = [
   { key: 'all', icon: 'pi pi-list' },
   { key: 'ok', icon: 'pi pi-check-circle' },
@@ -277,7 +297,7 @@ const editText = ref(true)
 const showViewer = computed(() => mode.value === 'content' && rows.value.length > 0 && !editText.value)
 const url = ref('')
 const app = ref<App>('hiddify')
-const userAgent = ref(APPS[0].ua)
+const userAgent = ref(APPS.value[0].ua)
 const testUrl = ref(DEFAULT_TEST_URL)
 const workers = ref(8)
 const timeout = ref(10)
@@ -329,6 +349,12 @@ const counts = computed(() => ({
 }))
 const doneCount = computed(() => rows.value.filter((r) => r.state === 'ok' || r.state === 'failed' || r.state === 'idle').length)
 const pending = computed(() => rows.value.some((r) => r.state === 'waiting'))
+/** The results once every config has one (null while testing): the panel's own configs are judged from them. */
+const finishedResults = computed(() => {
+  if (pending.value || busy.value || !rows.value.length) return null
+  const done = rows.value.filter((r) => r.state === 'ok' || r.state === 'failed')
+  return done.length ? done.map((r) => ({ name: r.name, ok: r.state === 'ok' })) : null
+})
 const sourceLabel = computed(() =>
   t(
     `configTester.source${
@@ -368,7 +394,7 @@ function pretty(value: unknown): string {
 
 /** Choosing a client puts its user agent in; it can be changed after. */
 function onApp() {
-  userAgent.value = APPS.find((a) => a.key === app.value)?.ua ?? userAgent.value
+  userAgent.value = APPS.value.find((a) => a.key === app.value)?.ua ?? userAgent.value
 }
 
 /** The client a user agent is from (a link opened with only `ua`). */
@@ -658,6 +684,7 @@ function syncLink() {
 
 // Opened from a user's link dialog or by the address: fill the form in, and test when asked.
 onMounted(() => {
+  void loadApps()
   const q = route.query
   const str = (v: unknown) => (typeof v === 'string' && v ? v : '')
   const num = (v: unknown, min: number, max: number) => {
@@ -668,8 +695,8 @@ onMounted(() => {
   if (q.mode === 'content') mode.value = 'content'
   if (!str(q.url) && !job) return
   url.value = str(q.url)
-  app.value = APPS.some((a) => a.key === q.app) ? (q.app as App) : str(q.ua) ? appOfUa(str(q.ua)) : app.value
-  userAgent.value = str(q.ua) || (APPS.find((a) => a.key === app.value)?.ua ?? userAgent.value)
+  app.value = APPS.value.some((a) => a.key === q.app) ? (q.app as App) : str(q.ua) ? appOfUa(str(q.ua)) : app.value
+  userAgent.value = str(q.ua) || (APPS.value.find((a) => a.key === app.value)?.ua ?? userAgent.value)
   if (str(q.test)) testUrl.value = str(q.test)
   workers.value = num(q.workers, 1, 32) ?? workers.value
   timeout.value = num(q.timeout, 2, 60) ?? timeout.value

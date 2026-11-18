@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { setLocale } from '@/core/i18n'
+import { syncAppIcon, type AppIconInfo } from '@/shared/composables/useAppIcon'
 
 export interface AdminMenuItem {
   label: string
@@ -106,6 +107,7 @@ export type AdminCapabilities = {
   modify_user_extra: boolean
   modify_domains: boolean
   modify_outbounds: boolean
+  modify_free_package: boolean
 }
 const EMPTY_CAPS: AdminCapabilities = {
   add_sub_admins: false,
@@ -114,6 +116,7 @@ const EMPTY_CAPS: AdminCapabilities = {
   modify_user_extra: false,
   modify_domains: false,
   modify_outbounds: false,
+  modify_free_package: false,
 }
 export const accountCapabilities = ref<AdminCapabilities>({ ...EMPTY_CAPS, ...(window.__CAPABILITIES__ ?? {}) })
 export function hasCapability(key: keyof AdminCapabilities): boolean {
@@ -135,6 +138,14 @@ export interface TelegramInfo {
 }
 export const telegramInfo = ref<TelegramInfo | null>(window.__TELEGRAM__ ?? null)
 
+/** Right after a password sign-in, when I have no passkey yet on some of the panel's domains (null: do not offer one). */
+export interface PasskeySuggestion {
+  /** This page's domain (null on an IP). */
+  domain: string | null
+  missing: string[]
+}
+export const passkeySuggestion = ref<PasskeySuggestion | null>(window.__PASSKEY_SUGGESTION__ ?? null)
+
 export const legacyMenu = ref<AdminMenuGroup[]>(window.__ADMIN_MENU__ ?? [])
 export const panelNotices = ref<PanelNotice[]>(window.__ADMIN_NOTICES__ ?? [])
 
@@ -147,11 +158,14 @@ export function applyBootstrapShell(data: {
   capabilities?: Partial<AdminCapabilities> | null
   needs_quick_setup?: boolean
   telegram?: TelegramInfo | null
+  passkey_suggestion?: PasskeySuggestion | null
   locale?: string
   panel_version?: string
   panel_logo_url?: string
   pwa_manifest_url?: string
   pwa_icon_url?: string
+  app_icon_url?: string
+  app_icon?: AppIconInfo | null
 }) {
   if (data.menu?.length) {
     legacyMenu.value = data.menu
@@ -177,6 +191,10 @@ export function applyBootstrapShell(data: {
     telegramInfo.value = data.telegram
     window.__TELEGRAM__ = data.telegram
   }
+  if (data.passkey_suggestion !== undefined) {
+    passkeySuggestion.value = data.passkey_suggestion
+    window.__PASSKEY_SUGGESTION__ = data.passkey_suggestion
+  }
   if (data.account_mode !== undefined) {
     accountMode.value = data.account_mode
     window.__ACCOUNT_MODE__ = data.account_mode
@@ -197,13 +215,20 @@ export function applyBootstrapShell(data: {
   }
   ensureHeadLink('manifest', data.pwa_manifest_url)
   ensureHeadLink('apple-touch-icon', data.pwa_icon_url)
+  ensureHeadLink('icon', data.app_icon_url, '256x256')
+  if (data.app_icon !== undefined) {
+    window.__APP_ICON__ = data.app_icon
+    syncAppIcon()
+  }
 }
 
 /** Add `<link rel=…>` when the page has none (the production template has them; the Vite dev page does not). */
-function ensureHeadLink(rel: string, href: string | undefined) {
-  if (!href || typeof document === 'undefined' || document.head.querySelector(`link[rel="${rel}"]`)) return
+function ensureHeadLink(rel: string, href: string | undefined, sizes?: string) {
+  const own = `link[rel="${rel}"]` + (sizes ? `[sizes="${sizes}"]` : '')
+  if (!href || typeof document === 'undefined' || document.head.querySelector(own)) return
   const link = document.createElement('link')
   link.rel = rel
+  if (sizes) link.setAttribute('sizes', sizes)
   link.href = href
   document.head.appendChild(link)
 }
@@ -218,7 +243,10 @@ export function applyBootstrapResponse(data: Record<string, unknown>) {
     needs_quick_setup: data.needs_quick_setup as boolean | undefined,
     pwa_manifest_url: data.pwa_manifest_url as string | undefined,
     pwa_icon_url: data.pwa_icon_url as string | undefined,
+    app_icon_url: data.app_icon_url as string | undefined,
+    app_icon: data.app_icon as AppIconInfo | null | undefined,
     telegram: data.telegram as TelegramInfo | null | undefined,
+    passkey_suggestion: data.passkey_suggestion as PasskeySuggestion | null | undefined,
     locale: data.locale as string | undefined,
     panel_version: data.panel_version as string | undefined,
     panel_logo_url: data.panel_logo_url as string | undefined,

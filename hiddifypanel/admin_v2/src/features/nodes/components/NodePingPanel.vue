@@ -14,6 +14,13 @@ const props = defineProps<{ node: PanelNode }>()
 const emit = defineEmits<{ close: [] }>()
 
 const { t } = useI18n()
+/** A ping's error (the server's TCP error) in the panel's words when it is a known one */
+function pingError(error: string): string {
+  if (/refused/i.test(error)) return t('nodes.contact.refused.title')
+  if (/timed? ?out|timeout/i.test(error)) return t('nodes.pingDialog.timeout')
+  if (/name or service|getaddrinfo|resolv/i.test(error)) return t('nodes.contact.dns.title')
+  return error
+}
 
 interface Reply {
   seq: number
@@ -39,7 +46,7 @@ async function loop(id: number, mine: number) {
       const res = await nodesApi.icmp(id)
       ip.value = res.ip
       if (res.method) method.value = res.method
-      reply = { seq, ok: res.ok, ms: res.ms, error: res.error === 'no_address' ? t('nodes.pingDialog.noAddress') : res.error }
+      reply = { seq, ok: res.ok, ms: res.ms, error: res.error === 'no_address' ? t('nodes.pingDialog.noAddress') : pingError(res.error) }
     } catch (err) {
       reply = { seq, ok: false, ms: null, error: apiErrorMessage(err) }
     }
@@ -128,6 +135,14 @@ const fmt = (ms: number) => (ms < 10 ? ms.toFixed(1) : Math.round(ms).toString()
   box-shadow: 0 18px 40px -18px rgb(15 23 42 / 45%);
   overflow: hidden auto;
   animation: nping-in 0.18s ease-out;
+}
+/* The colour themes make --p-content-background see-through glass: this panel lies over the card's own text,
+   so it gets a solid surface there */
+html.theme-glass .nping {
+  background: var(--p-surface-0);
+}
+html.theme-glass.app-dark .nping {
+  background: var(--p-surface-900);
 }
 .nping__close {
   margin-inline-start: -0.25rem;

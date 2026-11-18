@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import Panel from 'primevue/panel'
@@ -103,6 +103,15 @@ function onEditorChange() {
   })
 }
 
+// Links scanned on the QR code page arrive in the navigation state (not the address: they can hold secrets).
+onMounted(() => {
+  const scanned: unknown = window.history.state?.sublinks
+  if (typeof scanned !== 'string' || !scanned) return
+  tab.value = 'sublink'
+  rawLinks.value = scanned
+  onRawInput(scanned)
+})
+
 async function copy(value: string) {
   await navigator.clipboard.writeText(value)
   toast.add({ severity: 'success', summary: t('common.copied'), life: 1500 })
@@ -110,6 +119,11 @@ async function copy(value: string) {
 </script>
 
 <style>
+/* Links, Base64, JSON: a monospace font with Latin digits, in Persian too (the page font draws Persian digits, and
+   PrimeVue's own font rule wins over the font-mono class; two classes to win over it) */
+.p-textarea.util-textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'Vazirmatn', monospace;
+}
 .util-textarea {
   min-height: 14rem;
   field-sizing: fixed;

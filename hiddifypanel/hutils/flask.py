@@ -20,7 +20,7 @@ from wtforms.validators import ValidationError
 
 from hiddifypanel import current_app, g, hutils
 from hiddifypanel.cache import STATIC, cache
-from hiddifypanel.models import AdminUser, ApplyMode, Child, ConfigEnum, Role, hconfig
+from hiddifypanel.models import AdminUser, Child, ConfigEnum, Role, hconfig
 
 
 def flash(message: str | Markup | LazyString, category: str = "message"):
@@ -29,32 +29,70 @@ def flash(message: str | Markup | LazyString, category: str = "message"):
     return flask_flash(message, category)
 
 
-def flash_config_success(restart_mode: ApplyMode = ApplyMode.nothing, domain_changed=True):
-    if restart_mode != ApplyMode.nothing:
-        url = hurl_for("admin.Actions:reinstall", complete_install=restart_mode == ApplyMode.reinstall, domain_changed=domain_changed)
-        apply_btn = f"<a href='{url}' class='btn btn-primary form_post'>" + _("admin.config.apply_configs") + "</a>"
-        flash((_("config.validation-success", link=apply_btn)), "success")
-    else:
-        flash((_("config.validation-success-no-reset")), "success")
-
-
 def static_url_for(**values):
     orig = url_for("static", **values)
     return orig.split("user_secret")[0]
 
 
-def hurl_for(endpoint, **values):
-    # Legacy pages can still render their sidebar when debug-only views are absent.
-    # Keep registered legacy views in debug mode; otherwise link to Admin V2.
-    legacy_sections = {
-        "admin.Dashboard:index": "",
-        "admin.ProxyAdmin:index": "custom-proxies",
-        "admin.SettingAdmin:index": "settings",
-        "admin.Backup:index": "backup",
+# The panel's own icons (static/images/app-icon-*.png and favicon-*.png). The proxy serves static images as immutable
+# for a year, so a changed picture reaches browsers only under a new URL: raise this number with every change to them.
+APP_ICON_VERSION = 7
+
+
+# The app icons come in other colors too (hutils.app_icon): the color a browser chose (App Color) is in a cookie,
+# one for the admin panel and one for the user page. The browser tab's icon (favicon-*.png) never follows it.
+ICON_COOKIES = {"admin": "hiddify_admin_icon", "user": "hiddify_user_icon"}
+ADMIN_ICON_COOKIE = ICON_COOKIES["admin"]
+
+
+def icon_color(kind: str) -> str | None:
+    """The color this browser chose for the app icon of `kind` ("admin" or "user"), or None for the stock icon."""
+    color = hutils.app_icon.normalize(request.cookies.get(ICON_COOKIES[kind]))
+    return color if color and color != hutils.app_icon.DEFAULT and hutils.app_icon.available() else None
+
+
+def admin_icon_color() -> str | None:
+    return icon_color("admin")
+
+
+def app_icon_url(name: str, color: str | None = None) -> str:
+    """The URL of one of the panel's own icons, e.g. `app-icon-admin-192.png` or `favicon-user-32.png`.
+
+    An app icon (never the tab icon) comes in `color` when one is given (the manifest names it in its URL),
+    else in the color this browser chose; the stock color is the plain file."""
+    for kind, files in hutils.app_icon.STOCK.items():
+        drawn = next((k for k, v in files.items() if v == name), None) if name.startswith(f"app-icon-{kind}-") else None
+        if drawn:
+            color = hutils.app_icon.normalize(color) if color else icon_color(kind)
+            if color and color != hutils.app_icon.DEFAULT:
+                return url_for("app_icon", proxy_path=g.proxy_path, kind=kind, color=color, name=drawn, version=APP_ICON_VERSION)
+    return static_url_for(filename=f"images/{name}", version=APP_ICON_VERSION)
+
+
+def app_icon_info(kind: str, proxy_path: str) -> dict:
+    """What a page needs to offer its app icon in other colors (App Color; hutils.app_icon)."""
+    icon = hutils.app_icon
+    drawn = url_for("app_icon", proxy_path=proxy_path, kind=kind, color="COLOR", name="NAME", version=APP_ICON_VERSION)
+    return {
+        "enabled": icon.available(),
+        "color": icon_color(kind) or icon.DEFAULT,
+        # Picked by hand (also the stock color): the admin panel's icon stops following the theme's color
+        "chosen": icon.normalize(request.cookies.get(ICON_COOKIES[kind])) is not None,
+        "default": icon.DEFAULT,
+        "cookie": ICON_COOKIES[kind],
+        "cookie_path": f"/{proxy_path}/",
+        # The drawn icon of a color: the page fills in {color} (RRGGBB) and {name}.
+        "url": drawn.replace("COLOR", "{color}").replace("NAME", "{name}"),
+        # The stock icon's files and manifest, for when the stock color is chosen again.
+        "stock": {
+            "apple-180": app_icon_url(f"app-icon-{kind}-apple-180.png", icon.DEFAULT),
+            "tile-256": app_icon_url(f"favicon-{kind}-256.png"),
+            "manifest": hurl_for("common_bp.LoginView:create_pwa_manifest", secret_uuid=g.account.uuid or ""),
+        },
     }
-    if endpoint in legacy_sections and endpoint not in current_app.view_functions:
-        values.setdefault("subpath", legacy_sections[endpoint])
-        endpoint = "admin.admin_v2"
+
+
+def hurl_for(endpoint, **values):
     if Child.current().id != 0:
         new_endpoint = "child_" + endpoint
         if new_endpoint in current_app.view_functions:

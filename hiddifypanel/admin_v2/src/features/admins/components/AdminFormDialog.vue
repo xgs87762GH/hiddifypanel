@@ -11,13 +11,19 @@ import ToggleSwitch from 'primevue/toggleswitch'
 import TreeSelect from 'primevue/treeselect'
 import type { TreeNode } from 'primevue/treenode'
 import { apiErrorMessage } from '@/core/api/client'
+import NumberStepper from '@/shared/components/NumberStepper.vue'
 import AdditionalConfigsEditor from '@/shared/components/AdditionalConfigsEditor.vue'
 import DefaultOutboundSelect from '@/features/admins/components/DefaultOutboundSelect.vue'
 import { cleanConfigRows, configRowProblem, type AdditionalConfig } from '@/shared/utils/additional-configs'
 import { unitLabel } from '@/shared/utils/format-metrics'
+import ResetModePicker from '@/features/users/components/package/ResetModePicker.vue'
+import { relativeDays, sizeText } from '@/features/users/format'
+import type { UserMode } from '@/features/users/api'
 import { ALIAS_MIN, aliasProblem } from '@/shared/utils/password-strength'
 import {
   ADMIN_CAPABILITIES,
+  CAPABILITY_ICON,
+  CAPABILITY_COLOR,
   adminsApi,
   type AdminCapabilities,
   type AdminCredentials,
@@ -39,7 +45,7 @@ const emit = defineEmits<{
   resetPassword: [admin: AdminRow]
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const name = ref('')
 const alias = ref('')
@@ -48,6 +54,7 @@ const aliasError = computed(() => {
   return problem ? t(`account.aliasProblem.${problem}`, { n: ALIAS_MIN }) : null
 })
 const comment = ref('')
+const telegramId = ref<number | null>(null)
 const uuid = ref('')
 const emptyCapabilities = (): AdminCapabilities => Object.fromEntries(ADMIN_CAPABILITIES.map((k) => [k, false])) as AdminCapabilities
 const capabilities = ref<AdminCapabilities>(emptyCapabilities())
@@ -58,20 +65,21 @@ const limits = ref<{ max_users: number | null; max_active_users: number | null; 
   max_online_users: null,
   max_total_usage_GB: null,
 })
+/** When the admin's traffic counter goes back to zero; resetUsage: set it to zero on save. */
+const usageMode = ref<UserMode>('no_reset')
+const resetUsage = ref(false)
+const usedGb = computed(() => (resetUsage.value ? 0 : props.admin?.stats.usage_GB ?? 0))
+const nextReset = computed(() =>
+  usageMode.value !== 'no_reset' && usageMode.value === props.admin?.usage_mode && props.admin.days_to_reset != null ? props.admin.days_to_reset : null,
+)
 const showAdvanced = ref(false)
 const showCapabilities = ref(false)
 const touched = ref(false)
 const busy = ref(false)
 const error = ref<string | null>(null)
 
-const CAP_ICON: Record<keyof AdminCapabilities, string> = {
-  add_sub_admins: 'pi-user-plus',
-  override_preferred_outbound: 'pi-directions',
-  add_extra_sublinks: 'pi-paperclip',
-  modify_user_extra: 'pi-palette',
-  modify_domains: 'pi-link',
-  modify_outbounds: 'pi-share-alt',
-}
+const CAP_ICON = CAPABILITY_ICON
+const CAP_COLOR = CAPABILITY_COLOR
 
 const editing = computed(() => props.admin !== null)
 const targetIsSuper = computed(() => props.admin?.mode === 'super_admin')
@@ -141,9 +149,12 @@ watch(visible, (open) => {
   error.value = null
   showAdvanced.value = false
   showCapabilities.value = false
+  usageMode.value = admin?.usage_mode ?? 'no_reset'
+  resetUsage.value = false
   name.value = admin?.name ?? ''
   alias.value = admin?.alias ?? ''
   comment.value = admin?.comment ?? ''
+  telegramId.value = admin?.telegram_id ?? null
   uuid.value = admin?.uuid ?? randomUuid()
   configs.value = (admin?.additional_configs ?? []).map((row) => [...row] as AdditionalConfig)
   defaultOutbound.value = admin?.default_outbound ?? null
@@ -173,7 +184,7 @@ const limitFields = computed(() =>
       { key: 'max_online_users', icon: 'pi pi-wifi', optional: true, suffix: '' },
       { key: 'max_active_users', icon: 'pi pi-bolt', optional: false, suffix: '' },
       { key: 'max_users', icon: 'pi pi-users', optional: false, suffix: '' },
-      { key: 'max_total_usage_GB', icon: 'pi pi-arrow-right-arrow-left', optional: true, suffix: ` ${unitLabel('GB')}` },
+      { key: 'max_total_usage_GB', icon: 'pi pi-arrow-right-arrow-left', optional: true, suffix: unitLabel('GB') },
     ] as const
   ).map((field) => {
     const mine = myLimits.value?.[field.key] ?? null
@@ -198,6 +209,7 @@ async function submit() {
   const payload: AdminPayload = {
     name: name.value.trim(),
     comment: comment.value.trim(),
+    telegram_id: telegramId.value || null,
     can_add_admin: capabilities.value.add_sub_admins,
     capabilities: { ...capabilities.value },
     parent_uuid: Object.keys(parent.value)[0] || undefined,
@@ -210,6 +222,8 @@ async function submit() {
     payload.max_active_users = limits.value.max_active_users ?? DEFAULT_LIMIT
     payload.max_online_users = limits.value.max_online_users ?? 0
     payload.max_total_usage_GB = limits.value.max_total_usage_GB ?? 0
+    payload.usage_mode = usageMode.value
+    if (resetUsage.value) payload.reset_usage = true
   }
   try {
     if (props.admin) {
@@ -297,7 +311,7 @@ async function submit() {
             <span class="admin-caps__summary-body">
               <span class="admin-caps__title">{{ t('admins.form.capabilities') }}</span>
               <span v-if="enabledCapabilities.length" class="admin-caps__chips">
-                <span v-for="key in enabledCapabilities" :key="key" class="admin-caps__chip">
+                <span v-for="key in enabledCapabilities" :key="key" class="admin-caps__chip" :style="{ '--cap': CAP_COLOR[key] }">
                   <i class="pi" :class="CAP_ICON[key]" />{{ t(`admins.capability.${key}`) }}
                 </span>
               </span>
@@ -315,6 +329,7 @@ async function submit() {
               :key="key"
               class="admin-caps__row"
               :class="{ 'admin-caps__row--on': capabilities[key] }"
+              :style="{ '--cap': CAP_COLOR[key] }"
               :for="`admin-cap-${key}`"
             >
               <span class="admin-caps__row-icon" aria-hidden="true"><i class="pi" :class="CAP_ICON[key]" /></span>
@@ -346,27 +361,44 @@ async function submit() {
           <div class="admin-form__limits">
             <div v-for="field in limitFields" :key="field.key" class="admin-form__field">
               <label :for="`admin-${field.key}`" class="admin-form__limit-label"><i :class="field.icon" />{{ t(`admins.limit.${field.key}`) }}</label>
-              <InputNumber
+              <NumberStepper
                 v-model="limits[field.key]"
                 :input-id="`admin-${field.key}`"
                 :min="0"
                 :max="field.mine ?? undefined"
-                :max-fraction-digits="field.key === 'max_total_usage_GB' ? 2 : 0"
+                :fraction-digits="field.key === 'max_total_usage_GB' ? 2 : 0"
                 :suffix="field.suffix"
                 :placeholder="field.optional ? t('admins.form.noLimit') : ''"
                 :invalid="field.invalid"
                 :disabled="busy"
-                show-buttons
-                button-layout="horizontal"
-                fluid
-              >
-                <template #incrementicon><span class="pi pi-plus" /></template>
-                <template #decrementicon><span class="pi pi-minus" /></template>
-              </InputNumber>
+              />
               <small v-if="field.mine !== null" class="text-muted-color" :class="{ 'admin-form__error': field.invalid }">{{ t('admins.form.upTo', { max: field.mine }) }}</small>
               <small v-else-if="field.optional" class="text-muted-color">{{ t('admins.form.emptyNoLimit') }}</small>
             </div>
           </div>
+          <!-- Traffic used by this admin's users (and its sub-admins' users): can be reset, and resets on a period -->
+          <div v-if="editing" class="admin-used" :class="{ 'admin-used--reset': resetUsage }">
+            <span class="admin-used__label">{{ t('admins.form.used') }}</span>
+            <b class="admin-used__value" dir="ltr">{{ sizeText(usedGb, locale) }}</b>
+            <button
+              type="button"
+              class="admin-used__reset"
+              :disabled="busy || (!resetUsage && !admin?.stats.usage_GB)"
+              v-tooltip.top="resetUsage ? t('users.form.resetUsagePending') : t('users.form.resetUsage')"
+              :aria-label="resetUsage ? t('users.form.undo') : t('users.form.resetUsage')"
+              @click="resetUsage = !resetUsage"
+            >
+              <i class="pi" :class="resetUsage ? 'pi-undo' : 'pi-refresh'" />
+              <span>{{ resetUsage ? t('users.form.undo') : t('users.form.reset') }}</span>
+            </button>
+          </div>
+          <small v-if="resetUsage" class="admin-used__pending"><i class="pi pi-clock" />{{ t('users.form.resetUsagePending') }}</small>
+          <ResetModePicker
+            v-model="usageMode"
+            hint-key="admins.modeHint"
+            :disabled="busy"
+            :after="nextReset !== null ? t('users.form.nextReset', { when: relativeDays(nextReset, locale) }) : null"
+          />
         </template>
       </section>
 
@@ -414,6 +446,10 @@ async function submit() {
           <span class="admin-form__limit-label"><i class="pi pi-paperclip" />{{ t('admins.form.configs') }}<span v-if="configs.length" class="admin-form__count">{{ configs.length }}</span></span>
           <small class="text-muted-color">{{ t('admins.form.configsHint') }}</small>
           <AdditionalConfigsEditor v-model="configs" :disabled="busy" :show-errors="touched" />
+        </div>
+        <div v-if="showAdvanced" class="admin-form__field">
+          <label for="admin-tg" class="font-medium">{{ t('users.form.telegram') }} <span class="text-muted-color font-normal">({{ t('users.form.optional') }})</span></label>
+          <InputNumber v-model="telegramId" input-id="admin-tg" :use-grouping="false" :min="0" :disabled="busy" fluid />
         </div>
       </section>
 
@@ -515,9 +551,6 @@ async function submit() {
   font-size: 0.8rem;
   color: var(--p-primary-color);
 }
-.admin-form__limits :deep(.p-inputnumber-input) {
-  text-align: center;
-}
 .admin-caps {
   border-radius: 16px;
   border: 1px solid var(--p-content-border-color);
@@ -589,8 +622,8 @@ async function submit() {
   border-radius: 999px;
   font-size: 0.72rem;
   font-weight: 600;
-  color: var(--p-primary-color);
-  background: color-mix(in srgb, var(--p-primary-color) 12%, transparent);
+  color: var(--cap, var(--p-primary-color));
+  background: color-mix(in srgb, var(--cap, var(--p-primary-color)) 12%, transparent);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -641,8 +674,8 @@ async function submit() {
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 .admin-caps__row--on {
-  border-color: color-mix(in srgb, var(--p-primary-color) 28%, transparent);
-  background: color-mix(in srgb, var(--p-primary-color) 6%, var(--p-content-background, #fff));
+  border-color: color-mix(in srgb, var(--cap, var(--p-primary-color)) 28%, transparent);
+  background: color-mix(in srgb, var(--cap, var(--p-primary-color)) 6%, var(--p-content-background, #fff));
 }
 .admin-caps__row-icon {
   flex-shrink: 0;
@@ -656,8 +689,8 @@ async function submit() {
   background: var(--p-content-hover-background, rgba(127, 127, 127, 0.08));
 }
 .admin-caps__row--on .admin-caps__row-icon {
-  color: var(--p-primary-color);
-  background: color-mix(in srgb, var(--p-primary-color) 14%, transparent);
+  color: var(--cap, var(--p-primary-color));
+  background: color-mix(in srgb, var(--cap, var(--p-primary-color)) 14%, transparent);
 }
 .admin-caps__row-text {
   flex: 1;
@@ -758,5 +791,70 @@ async function submit() {
   .admin-caps__done {
     width: 100%;
   }
+}
+.admin-used {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 0.4rem;
+  padding: 0.35rem 0.4rem 0.35rem 0.75rem;
+  min-height: 2.6rem;
+  border-radius: 10px;
+  background: var(--p-content-hover-background, rgba(127, 127, 127, 0.07));
+}
+.admin-used__label {
+  grid-column: 1;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color);
+}
+.admin-used__value {
+  grid-column: 1;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  text-align: start;
+}
+.admin-used--reset .admin-used__value {
+  text-decoration: line-through;
+  color: var(--p-text-muted-color);
+}
+.admin-used__reset {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 1.9rem;
+  padding: 0 0.7rem;
+  border: 0;
+  border-radius: 999px;
+  color: var(--p-amber-700, #b45309);
+  background: color-mix(in srgb, var(--p-amber-500, #f59e0b) 14%, transparent);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.admin-used__reset:not(:disabled):hover {
+  background: color-mix(in srgb, var(--p-amber-500, #f59e0b) 24%, transparent);
+}
+.admin-used__reset i {
+  font-size: 0.75rem;
+}
+.admin-used--reset .admin-used__reset {
+  color: var(--p-text-muted-color);
+  background: var(--p-content-background);
+}
+.admin-used__reset:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.admin-used__pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: var(--p-amber-700, #b45309);
 }
 </style>

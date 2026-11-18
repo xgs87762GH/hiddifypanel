@@ -9,6 +9,7 @@ from flask_babel import gettext as _
 from pydantic import Field
 from strenum import StrEnum
 
+from hiddifypanel.hutils import domain_label
 from hiddifypanel import current_app as app
 from hiddifypanel import g, hutils
 from hiddifypanel.auth import login_required
@@ -47,6 +48,7 @@ class AppSchema(ApiModel):
     guide_url: str = Field(default="", description="The guide url of the app")
     deeplink: str = Field(default="", description="The deeplink of the app to imoprt configs")
     install: list[AppInstall] = Field(default_factory=list, description="The install url of the app")
+    recommended: bool = Field(default=False, description="The app we advise users to pick first")
 
 
 # this class is not a Data Transfer Object, It's just an enum
@@ -82,7 +84,7 @@ class AppAPI(MethodView):
         self.user_panel_url = f"https://{urlparse(request.base_url).hostname}/{g.proxy_path}/{g.account.uuid}/"
         self.user_panel_encoded_url = hutils.encode.url_encode(self.user_panel_url)
         c = get_common_data(g.account.uuid, "new")
-        self.subscription_link_url = f"{self.user_panel_url}all.txt?name={c['db_domain'].alias or c['db_domain'].domain}-{c['asn']}&asn={c['asn']}&mode={c['mode']}"
+        self.subscription_link_url = f"{self.user_panel_url}all.txt?name={hutils.encode.url_encode(domain_label.for_domain(c['db_domain']) + '-' + str(c['asn']))}&asn={c['asn']}&mode={c['mode']}"
         self.subscription_link_encoded_url = hutils.encode.do_base_64(self.subscription_link_url)
         domain = c["db_domain"].alias or c["db_domain"].domain
         self.profile_title = hutils.encode.url_encode(c["profile_title"])
@@ -247,7 +249,8 @@ class AppAPI(MethodView):
         dto.deeplink = f"clash://install-config?url={self.user_panel_encoded_url}"
 
         latest_url, version = get_latest_release_url("https://github.com/MatsuriDayo/NekoBoxForAndroid")
-        ins_url = latest_url.split("releases/")[0] + f"releases/download/{version}/NB4A-{version}-x86_64.apk"
+        # 1.4 renamed NB4A-*-x86_64.apk (an emulator build) to NekoBox-*-arm64-v8a.apk, the phone build.
+        ins_url = latest_url.split("releases/")[0] + f"releases/download/{version}/NekoBox-{version}-arm64-v8a.apk"
         dto.install = [self.__get_app_install_dto(AppInstallType.apk, ins_url)]
         return dto
 
@@ -272,7 +275,9 @@ class AppAPI(MethodView):
         dto.description = _("app.foxray.description")
         dto.icon_url = self.__get_app_icon_url(_("app.foxray.title"))
         dto.guide_url = ""
-        dto.deeplink = f"https://yiguo.dev/sub/add/?url={hutils.encode.do_base_64(self.subscription_link_encoded_url)}#{self.profile_title}"
+        # Use the user front's Copy Link fallback. An HTTPS import helper can
+        # receive the subscription URL when the app does not handle the link.
+        dto.deeplink = ""
 
         ins_url = "https://apps.apple.com/us/app/foxray/id6448898396"
         dto.install = [
@@ -297,6 +302,7 @@ class AppAPI(MethodView):
     def __get_streisand_app_dto(self):
         dto = AppSchema()
         dto.title = _("app.streisand.title")
+        dto.recommended = True
         dto.description = _("app.streisand.description")
         dto.icon_url = self.__get_app_icon_url(_("app.streisand.title"))
         dto.guide_url = "https://www.youtube.com/watch?v=jaMkZTLH2QY"
@@ -498,6 +504,7 @@ class AppAPI(MethodView):
     def __get_hiddify_next_app_dto(self):
         dto = AppSchema()
         dto.title = _("app.hiddify.next.title")
+        dto.recommended = True
         dto.description = _("app.hiddify.next.description")
         dto.icon_url = self.__get_app_icon_url(_("app.hiddify.next.title"))
         dto.guide_url = "https://www.youtube.com/watch?v=vUaA1AEUy1s"

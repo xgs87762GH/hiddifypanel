@@ -36,6 +36,12 @@ def init_app(app):
         bp.add_url_rule("/admins/me/language/", view_func=MyAdminLanguageApi)
         bp.add_url_rule("/admins/me/users-layout/", view_func=MyAdminUsersLayoutApi)
         bp.add_url_rule("/admins/me/default-outbound/", view_func=MyAdminOutboundApi)
+        from .passkeys_api import MyPasskeyItemApi, MyPasskeyOptionsApi, MyPasskeysApi, MyPasskeyTourApi
+
+        bp.add_url_rule("/admins/me/passkeys/", view_func=MyPasskeysApi)
+        bp.add_url_rule("/admins/me/passkeys/options/", view_func=MyPasskeyOptionsApi)
+        bp.add_url_rule("/admins/me/passkeys/tour/", view_func=MyPasskeyTourApi)
+        bp.add_url_rule("/admins/me/passkeys/<int:passkey_id>/", view_func=MyPasskeyItemApi)
         bp.add_url_rule("/admins/<uuid:uuid>/", view_func=AdminTreeItemApi)
         bp.add_url_rule("/admins/<uuid:uuid>/reset-password/", view_func=AdminResetPasswordApi)
 
@@ -49,17 +55,22 @@ def init_app(app):
 
         bp.add_url_rule("/protocols/", view_func=ProtocolSwitchesApi)
 
-        from .config_tester_api import ConfigTesterApi, ConfigTesterJobApi, ConfigTesterUserLinkApi
+        from .config_tester_api import ConfigTesterApi, ConfigTesterAppsApi, ConfigTesterDisableApi, ConfigTesterJobApi, ConfigTesterProxiesApi, ConfigTesterRestoreApi, ConfigTesterUserLinkApi
 
         bp.add_url_rule("/config-tester/", view_func=ConfigTesterApi, methods=["POST"])
+        bp.add_url_rule("/config-tester/apps/", view_func=ConfigTesterAppsApi, methods=["GET"])
         bp.add_url_rule("/config-tester/user-link/", view_func=ConfigTesterUserLinkApi, methods=["GET"])
+        bp.add_url_rule("/config-tester/proxies/", view_func=ConfigTesterProxiesApi, methods=["GET", "POST"])
+        bp.add_url_rule("/config-tester/proxies/disable/", view_func=ConfigTesterDisableApi, methods=["POST"])
+        bp.add_url_rule("/config-tester/proxies/restore/", view_func=ConfigTesterRestoreApi, methods=["POST"])
         bp.add_url_rule("/config-tester/<string:job_id>/", view_func=ConfigTesterJobApi, methods=["GET", "DELETE"])
 
         from hiddifypanel.proxy_v3.outbounds import subscribe_events as subscribe_outbound_events
 
-        from .outbounds_api import OutboundApi, OutboundDefaultApi, OutboundOrderApi, OutboundResetApi, OutboundsApi
+        from .outbounds_api import OutboundApi, OutboundDefaultApi, OutboundOrderApi, OutboundResetApi, OutboundsApi, OutboundWarpTermsApi
 
         bp.add_url_rule("/outbounds/", view_func=OutboundsApi)
+        bp.add_url_rule("/outbounds/warp-terms/", view_func=OutboundWarpTermsApi)
         bp.add_url_rule("/outbounds/order/", view_func=OutboundOrderApi)
         bp.add_url_rule("/outbounds/<int:outbound_id>/", view_func=OutboundApi)
         bp.add_url_rule("/outbounds/<int:outbound_id>/default/", view_func=OutboundDefaultApi)
@@ -85,12 +96,15 @@ def init_app(app):
         bp.add_url_rule("/quick-setup/domains/", view_func=QuickSetupDomainsApi)
         bp.add_url_rule("/quick-setup/finish/", view_func=QuickSetupFinishApi)
 
-        from .nodes_api import NodeApi, NodeIcmpPingApi, NodeJobApi, NodePingApi, NodesApi, NodeSyncApi, NodeSyncReportApi
+        from .nodes_api import NodeApi, NodeIcmpPingApi, NodeIpInfoApi, NodeJobApi, NodeOsApi, NodePingApi, NodeProblemsApi, NodesApi, NodeSyncApi, NodeSyncReportApi
 
         bp.add_url_rule("/nodes/", view_func=NodesApi)
         bp.add_url_rule("/nodes/jobs/<string:job_id>/", view_func=NodeJobApi)
+        bp.add_url_rule("/nodes/problems/", view_func=NodeProblemsApi)
         bp.add_url_rule("/nodes/<int:node_id>/", view_func=NodeApi)
         bp.add_url_rule("/nodes/<int:node_id>/ping/", view_func=NodePingApi)
+        bp.add_url_rule("/nodes/<int:node_id>/os/", view_func=NodeOsApi)
+        bp.add_url_rule("/nodes/<int:node_id>/ip-info/", view_func=NodeIpInfoApi)
         bp.add_url_rule("/nodes/<int:node_id>/icmp/", view_func=NodeIcmpPingApi)
         bp.add_url_rule("/nodes/<int:node_id>/sync/", view_func=NodeSyncApi)
         bp.add_url_rule("/nodes/<int:node_id>/sync-status/", view_func=NodeSyncReportApi)
@@ -115,6 +129,13 @@ def init_app(app):
         bp.add_url_rule("/tags/", view_func=TagsApi)
         bp.add_url_rule("/tags/assign/", view_func=TagAssignApi)
         bp.add_url_rule("/tags/<int:tag_id>/", view_func=TagApi)
+        from .inbox_api import ConversationApi, FreeAnswerApi, FreePackageApi, InboxApi, InboxCountsApi
+
+        bp.add_url_rule("/inbox/", view_func=InboxApi)
+        bp.add_url_rule("/inbox/counts/", view_func=InboxCountsApi)
+        bp.add_url_rule("/inbox/free-test/", view_func=FreePackageApi)
+        bp.add_url_rule("/inbox/<int:conversation_id>/", view_func=ConversationApi)
+        bp.add_url_rule("/inbox/<int:conversation_id>/free/", view_func=FreeAnswerApi)
         bp.add_url_rule("/users/", view_func=UsersPageApi)
         bp.add_url_rule("/users/bulk/", view_func=UsersBulkApi)
         bp.add_url_rule("/users/bulk-create/", view_func=UsersBulkCreateApi)
@@ -202,9 +223,11 @@ def init_app(app):
 
         from .domains_page_api import DomainsPageApi, DomainsPageCertificateApi, DomainsPageDetectApi, DomainsPageIpsApi, DomainsPageItemApi, DomainsPageOptionsApi, DomainsPageOrderApi, DomainsPagePortCheckApi, DomainsPageProblemsApi
 
-        from .config_health_api import ConfigHealthApi
+        from .config_health_api import ConfigHealthApi, ConfigHealthDisableApi, ConfigHealthRestoreApi
 
         bp.add_url_rule("/config-health/", view_func=ConfigHealthApi)
+        bp.add_url_rule("/config-health/disable/", view_func=ConfigHealthDisableApi)
+        bp.add_url_rule("/config-health/restore/", view_func=ConfigHealthRestoreApi)
         from .clean_ip_api import AsnNamesApi, CleanIpNetworkApi, CleanIpProbeApi, SniCandidatesApi, CleanIpReportApi, CleanIpScriptApi, CleanIpTokenApi, CleanIpTokenStatusApi, RealitySniApi, RealitySniSwitchApi
 
         bp.add_url_rule("/clean-ip/reality/", view_func=RealitySniApi)
@@ -235,11 +258,12 @@ def init_app(app):
             ServerIpsApi,
         )
 
-        from .broadcast_api import BroadcastApi, BroadcastJobApi, BroadcastPreviewApi, BroadcastRecipientsApi
+        from .broadcast_api import BroadcastApi, BroadcastJobApi, BroadcastPreviewApi, BroadcastRecipientsApi, BroadcastSelectionApi
 
         bp.add_url_rule("/broadcast/", view_func=BroadcastApi)
         bp.add_url_rule("/broadcast/recipients/", view_func=BroadcastRecipientsApi)
         bp.add_url_rule("/broadcast/preview/", view_func=BroadcastPreviewApi)
+        bp.add_url_rule("/broadcast/selection/", view_func=BroadcastSelectionApi)
         bp.add_url_rule("/broadcast/<string:job_id>/", view_func=BroadcastJobApi)
         bp.add_url_rule("/server-ips/", view_func=ServerIpsApi)
         bp.add_url_rule("/server-ips/<int:ip_id>/", view_func=ServerIpApi)

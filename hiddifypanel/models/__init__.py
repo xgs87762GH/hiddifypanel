@@ -36,9 +36,11 @@ from .proxy_base_config import (
 )
 from .outbound import Outbound, OutboundMode
 from .tag import Tag, TagLink
+from .message import Conversation, Message
+from .passkey import AdminPasskey
 from .server_ip import ServerIp
 from .tls_store import TlsStore
-from .usage import DailyUsage, UnsyncedUsage
+from .usage import AppliedUsageBatch, DailyUsage, UnsyncedUsage, UsageBatchItem
 from .usage_data import UsageData
 from .user import ONE_GIG, User, UserDetail, UserMode
 # from .report import Report, ReportDetail

@@ -42,7 +42,7 @@
 
     <div v-else class="settings-layout">
       <!-- Category navigation: sidebar on desktop, scrollable chips on mobile -->
-      <nav class="settings-nav" :aria-label="t('settings.categories')">
+      <nav ref="navEl" class="settings-nav" :aria-label="t('settings.categories')">
         <button
           v-for="cat in visibleCategories"
           :key="cat.id"
@@ -53,7 +53,7 @@
           @click="scrollToCategory(cat.id)"
         >
           <i :class="cat.icon" class="settings-nav__icon" />
-          <span class="settings-nav__label">{{ cat.title }}</span>
+          <span class="settings-nav__label"><IconText :text="cat.title" /></span>
           <span v-if="cat.changed" class="settings-nav__dot" :title="t('settings.changed')" />
         </button>
       </nav>
@@ -73,14 +73,21 @@
             <header class="settings-card__header">
               <span class="settings-card__icon"><i :class="cat.icon" /></span>
               <div class="min-w-0 flex-1">
-                <h3 class="settings-card__title">{{ cat.title }}</h3>
+                <h3 class="settings-card__title"><IconText :text="cat.title" /></h3>
                 <!-- eslint-disable-next-line vue/no-v-html -- sanitized server-side -->
-                <p v-if="cat.description" class="settings-card__desc" v-html="cat.description" />
+                <p v-if="cat.description" class="settings-card__desc" v-html="iconizeHtml(cat.description)" />
               </div>
               <RouterLink v-if="cat.hasProtocolSwitches" :to="{ name: 'protocols' }" class="settings-card__link">
                 <i class="pi pi-sliders-h" />{{ t('settings.openProtocols') }}
               </RouterLink>
             </header>
+
+            <Message v-if="cat.id === 'warp' && warpNeedsTerms" severity="warn" :closable="false" class="settings-warp-terms">
+              <div class="settings-warp-terms__row">
+                <span>{{ t('outbounds.terms.banner') }}</span>
+                <Button type="button" size="small" :label="t('outbounds.terms.review')" :disabled="saving" @click="reviewWarpTerms" />
+              </div>
+            </Message>
 
             <TransitionGroup v-if="cat.fields.length" name="settings-row" tag="div" class="settings-card__fields">
               <SettingFieldRow
@@ -88,10 +95,12 @@
                 :key="field.key"
                 v-model="draft[field.key]"
                 :field="field"
-                :errors="fieldErrors[field.key]"
-                :changed="isChanged(field)"
+                :errors="rowErrors(field.key)"
+                :changed="isChanged(field) || companionsChanged(field.key)"
                 :highlighted="highlightKey === field.key"
                 :mark-advanced="cat.mixed"
+                :values="draft"
+                @companion="(key: string, value: SettingValue) => (draft[key] = value)"
               />
             </TransitionGroup>
 
@@ -114,6 +123,7 @@
     </div>
 
     <StickySaveBar :count="dirtyCount" :saving="saving" @save="save" @discard="discard" />
+    <WarpTermsDialog v-model:visible="termsOpen" @accept="acceptWarpTerms" @cancel="cancelWarpTerms" />
   </div>
 </template>
 
@@ -134,10 +144,15 @@ import PageHeader from '@/shared/components/PageHeader.vue'
 import ApplyNotice from '@/shared/components/ApplyNotice.vue'
 import StickySaveBar from '@/shared/components/StickySaveBar.vue'
 import SettingFieldRow from '@/features/settings/components/SettingFieldRow.vue'
+import { isDnsValue } from '@/features/settings/dns-presets'
 import { apiErrorMessage } from '@/core/api/client'
 import { displayConfigLabel, htmlToText } from '@/shared/utils/config-labels'
 import { strongerRestartMode, type RestartMode } from '@/shared/utils/restart-mode'
 import { settingsApi, type SettingCategory, type SettingField, type SettingsErrorBody, type SettingValue } from '@/features/settings/api'
+import { outboundsApi } from '@/features/outbounds/api'
+import WarpTermsDialog from '@/features/outbounds/components/WarpTermsDialog.vue'
+import { iconizeHtml } from '@/shared/utils/emoji-icons'
+import IconText from '@/shared/components/IconText.vue'
 
 const ADVANCED_STORAGE_KEY = 'hiddify.settings.showAdvanced'
 
@@ -178,6 +193,11 @@ const route = useRoute()
 
 const categories = ref<SettingCategory[]>([])
 const draft = reactive<Record<string, SettingValue>>({})
+const warpTermsAccepted = ref(false)
+const termsOpen = ref(false)
+/** The WARP mode the admin picked, held until they accept Cloudflare's terms. */
+const pendingWarpMode = ref<string | null>(null)
+let fillingDraft = false
 const loading = ref(true)
 const loadError = ref<string | null>(null)
 const saving = ref(false)
@@ -189,6 +209,22 @@ const formErrors = ref<string[]>([])
 const pendingApply = ref<RestartMode>('nothing')
 const newAdminPath = ref<string | null>(null)
 const activeCategory = ref<string | null>(null)
+
+// Phones: the chip bar scrolls sideways to keep the section on screen in view (its icon moves, _icon-motion.scss).
+// By the rectangles, not scrollLeft, so it is the same in RTL; the page itself is not scrolled.
+const navEl = ref<HTMLElement | null>(null)
+const chipBarQuery = window.matchMedia('(max-width: 991px)')
+watch(activeCategory, async () => {
+  if (!chipBarQuery.matches) return
+  await nextTick()
+  const nav = navEl.value
+  const chip = nav?.querySelector<HTMLElement>('.settings-nav__item--active')
+  if (!nav || !chip) return
+  const n = nav.getBoundingClientRect()
+  const c = chip.getBoundingClientRect()
+  if (c.left >= n.left + 8 && c.right <= n.right - 8) return
+  nav.scrollBy({ left: c.left + c.width / 2 - (n.left + n.width / 2), behavior: 'smooth' })
+})
 useHashState({ q: search, cat: activeCategory })
 const highlightCategory = ref<string | null>(null)
 const highlightKey = ref<string | null>(null)
@@ -210,6 +246,7 @@ watch(showAdvanced, (value) => {
 })
 
 const allFields = computed(() => categories.value.flatMap((cat) => cat.fields))
+const warpNeedsTerms = computed(() => !warpTermsAccepted.value && draft.warp_mode != null && String(draft.warp_mode) !== 'disable')
 const searching = computed(() => search.value.trim().length > 0)
 
 function isChanged(field: SettingField): boolean {
@@ -221,6 +258,7 @@ function localErrors(field: SettingField): string[] {
   if (field.type === 'bool' || !isChanged(field)) return []
   const value = String(draft[field.key] ?? '')
   if (field.required && !value.trim()) return [t('settings.required')]
+  if (field.key === 'dns_server' && value.trim() && !isDnsValue(value)) return [t('settings.dns.invalid')]
   if (field.pattern && value) {
     try {
       if (!new RegExp(`^(?:${field.pattern})$`).test(value)) return [field.pattern_message || t('settings.invalid')]
@@ -229,6 +267,16 @@ function localErrors(field: SettingField): string[] {
     }
   }
   return []
+}
+
+/** A row's errors, with those of the settings edited in its editor (the support box's title and button): they have no row. */
+function rowErrors(key: string): string[] | undefined {
+  const errors = [key, ...allFields.value.filter((f) => f.companion_of === key).map((f) => f.key)].flatMap((k) => fieldErrors.value[k] ?? [])
+  return errors.length ? errors : undefined
+}
+
+function companionsChanged(key: string): boolean {
+  return allFields.value.some((f) => f.companion_of === key && isChanged(f))
 }
 
 const dirtyCount = computed(() => allFields.value.filter(isChanged).length)
@@ -244,17 +292,19 @@ const visibleCategories = computed(() => {
     .map((cat) => {
       const look = CATEGORY_LOOK[cat.id] ?? DEFAULT_LOOK
       const isExpanded = expanded.value.has(cat.id)
+      // fields edited inside another field's editor are not rows
+      const rows = cat.fields.filter((field) => !field.companion_of)
       let fields: SettingField[]
       let hidden = 0
       if (query) {
         const catMatches = displayConfigLabel(cat.label).toLowerCase().includes(query)
-        fields = catMatches ? cat.fields : cat.fields.filter((field) => matches(field, query))
+        fields = catMatches ? rows : rows.filter((field) => matches(field, query))
       } else if (showAdvanced.value || isExpanded) {
-        fields = cat.fields
+        fields = rows
       } else {
         // Keep changed and invalid fields visible even when they are advanced.
-        fields = cat.fields.filter((field) => field.essential || isChanged(field) || fieldErrors.value[field.key])
-        hidden = cat.fields.length - fields.length
+        fields = rows.filter((field) => field.essential || isChanged(field) || companionsChanged(field.key) || rowErrors(field.key))
+        hidden = rows.length - fields.length
       }
       return {
         id: cat.id,
@@ -265,7 +315,7 @@ const visibleCategories = computed(() => {
         fields,
         hidden,
         expanded: isExpanded,
-        mixed: cat.fields.some((f) => f.essential) && cat.fields.some((f) => !f.essential),
+        mixed: rows.some((f) => f.essential) && rows.some((f) => !f.essential),
         changed: cat.fields.some(isChanged),
         hasProtocolSwitches: cat.fields.some((f) => f.protocol_switch),
       }
@@ -286,22 +336,56 @@ function collapseCategory(id: string) {
 }
 
 // --- scroll spy + deep links ---
-const sections = new Map<string, Element>()
-let observer: IntersectionObserver | null = null
+// The highlighted category is the last card whose top has passed the line under the top bar (its scroll-margin), or
+// the last one once the page can't scroll further. A category picked in the menu (or by a deep link) stays highlighted
+// until the admin scrolls themselves: on the way there the smooth scroll passes other cards, and a card near the end
+// of the page can't reach the line at all.
+const sections = new Map<string, HTMLElement>()
+let pinned = false
 
 function registerSection(id: string, el: Element | null) {
-  const previous = sections.get(id)
-  if (previous && previous !== el) observer?.unobserve(previous)
-  if (el) {
-    sections.set(id, el)
-    observer?.observe(el)
+  if (el) sections.set(id, el as HTMLElement)
+  else sections.delete(id)
+}
+
+function spy() {
+  if (pinned || !sections.size) return
+  const cards = visibleCategories.value.map((cat) => sections.get(cat.id)).filter((el): el is HTMLElement => !!el)
+  if (!cards.length) return
+  const doc = document.scrollingElement ?? document.documentElement
+  let current = cards[0]
+  if (window.innerHeight + window.scrollY >= doc.scrollHeight - 2) {
+    current = cards[cards.length - 1]
   } else {
-    sections.delete(id)
+    for (const el of cards) {
+      const line = (parseFloat(getComputedStyle(el).scrollMarginTop) || 0) + 24
+      if (el.getBoundingClientRect().top <= line) current = el
+      else break
+    }
   }
+  if (current.dataset.category) activeCategory.value = current.dataset.category
+}
+
+let spyFrame = 0
+function onScroll() {
+  if (!spyFrame) spyFrame = requestAnimationFrame(() => ((spyFrame = 0), spy()))
+}
+
+/** The admin scrolls or clicks in the page: the highlight follows the scroll again. */
+function unpin(event: Event) {
+  if (event.type === 'keydown' && !['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes((event as KeyboardEvent).key)) return
+  if (event.type === 'pointerdown' && (event.target as Element | null)?.closest?.('.settings-nav')) return
+  pinned = false
+}
+const UNPIN_EVENTS = ['wheel', 'touchmove', 'keydown', 'pointerdown'] as const
+
+function pin(id: string) {
+  pinned = true
+  activeCategory.value = id
 }
 
 function scrollToCategory(id: string) {
-  activeCategory.value = id
+  pin(id)
   document.getElementById(`settings-cat-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
@@ -323,14 +407,54 @@ async function openDeepLink() {
   await nextTick()
   const target = key ? document.getElementById(`setting-row-${key}`) : document.getElementById(`settings-cat-${targetCategory}`)
   target?.scrollIntoView({ behavior: 'smooth', block: key ? 'center' : 'start' })
-  activeCategory.value = targetCategory
+  pin(targetCategory)
   flash({ category: key ? undefined : targetCategory, key: key || undefined })
 }
 
 // --- data ---
 function resetDraft() {
+  fillingDraft = true
   for (const key of Object.keys(draft)) delete draft[key]
   for (const field of allFields.value) draft[field.key] = field.value
+  fillingDraft = false
+}
+
+watch(
+  () => draft.warp_mode,
+  (value, old) => {
+    if (fillingDraft || warpTermsAccepted.value || termsOpen.value) return
+    if (old == null || value == null) return
+    if (String(old) === 'disable' && String(value) !== 'disable') {
+      pendingWarpMode.value = String(value)
+      fillingDraft = true
+      draft.warp_mode = 'disable'
+      fillingDraft = false
+      termsOpen.value = true
+    }
+  },
+)
+
+function reviewWarpTerms() {
+  pendingWarpMode.value = null
+  termsOpen.value = true
+}
+
+async function acceptWarpTerms() {
+  const chosen = pendingWarpMode.value
+  pendingWarpMode.value = null
+  try {
+    const res = await outboundsApi.acceptWarpTerms()
+    warpTermsAccepted.value = true
+    if (chosen) draft.warp_mode = chosen
+    pendingApply.value = strongerRestartMode(pendingApply.value, res.restart_mode ?? 'apply_config')
+    toast.add({ severity: 'success', summary: t(chosen ? 'outbounds.terms.acceptedSave' : 'outbounds.terms.accepted'), life: 6000 })
+  } catch (error) {
+    toast.add({ severity: 'error', summary: apiErrorMessage(error) || t('common.saveFailed'), life: 6000 })
+  }
+}
+
+function cancelWarpTerms() {
+  pendingWarpMode.value = null
 }
 
 function discard() {
@@ -343,7 +467,9 @@ async function load() {
   loading.value = true
   loadError.value = null
   try {
-    categories.value = await settingsApi.list()
+    const listed = await settingsApi.list()
+    categories.value = listed.categories
+    warpTermsAccepted.value = listed.warp_tos_accepted === true
     resetDraft()
   } catch (error) {
     loadError.value = apiErrorMessage(error) || t('common.loadFailed')
@@ -352,6 +478,7 @@ async function load() {
   }
   await nextTick()
   await openDeepLink()
+  spy()
 }
 
 async function save() {
@@ -373,6 +500,7 @@ async function save() {
     fieldErrors.value = {}
     formErrors.value = []
     categories.value = res.categories
+    if (typeof res.warp_tos_accepted === 'boolean') warpTermsAccepted.value = res.warp_tos_accepted
     resetDraft()
     pendingApply.value = strongerRestartMode(pendingApply.value, res.restart_mode)
     if (res.new_admin_path) newAdminPath.value = res.new_admin_path
@@ -402,7 +530,9 @@ async function save() {
 }
 
 async function focusFirstError() {
-  const key = Object.keys(fieldErrors.value)[0]
+  const first = Object.keys(fieldErrors.value)[0]
+  // a setting edited in another one's editor has no row: its owner's
+  const key = first ? (allFields.value.find((f) => f.key === first)?.companion_of ?? first) : undefined
   const category = key ? categories.value.find((cat) => cat.fields.some((f) => f.key === key))?.id : undefined
   if (category) expandCategory(category)
   await nextTick()
@@ -445,21 +575,16 @@ watch(
 )
 
 onMounted(() => {
-  observer = new IntersectionObserver(
-    (entries) => {
-      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
-      const first = visible[0]?.target as HTMLElement | undefined
-      if (first?.dataset.category) activeCategory.value = first.dataset.category
-    },
-    { rootMargin: '-80px 0px -60% 0px' },
-  )
-  for (const el of sections.values()) observer.observe(el)
+  window.addEventListener('scroll', onScroll, { passive: true })
+  for (const name of UNPIN_EVENTS) window.addEventListener(name, unpin, { passive: true, capture: true })
   window.addEventListener('beforeunload', onBeforeUnload)
   void load()
 })
 
 onBeforeUnmount(() => {
-  observer?.disconnect()
+  window.removeEventListener('scroll', onScroll)
+  for (const name of UNPIN_EVENTS) window.removeEventListener(name, unpin, { capture: true })
+  if (spyFrame) cancelAnimationFrame(spyFrame)
   window.removeEventListener('beforeunload', onBeforeUnload)
 })
 </script>
@@ -470,6 +595,15 @@ onBeforeUnmount(() => {
 }
 .settings-page--dirty {
   padding-bottom: 5.5rem;
+}
+.settings-warp-terms {
+  margin: 0 1rem 0.25rem;
+}
+.settings-warp-terms__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
 }
 
 /* Toolbar */
@@ -523,7 +657,7 @@ onBeforeUnmount(() => {
 }
 .settings-nav {
   position: sticky;
-  top: 5.5rem;
+  top: calc(5.5rem + var(--safe-top));
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -561,9 +695,16 @@ onBeforeUnmount(() => {
   background: color-mix(in srgb, var(--settings-accent) 12%, transparent);
   font-weight: 600;
 }
+/* The glyph's hover motion (_icon-motion.scss) plays in a box a little bigger than the 1rem glyph; the negative
+   margins keep the glyph and the name where they were */
 .settings-nav__icon {
-  width: 1rem;
-  text-align: center;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin: -0.2rem;
+  overflow: hidden;
   color: var(--settings-accent);
 }
 .settings-nav__label {
@@ -583,7 +724,7 @@ onBeforeUnmount(() => {
 /* Cards */
 .settings-card {
   --settings-accent: var(--p-primary-color);
-  scroll-margin-top: 5.5rem;
+  scroll-margin-top: calc(5.5rem + var(--safe-top));
   padding: 1rem 1.1rem 0.75rem;
   border-radius: 16px;
   background: var(--p-content-background);
@@ -728,7 +869,7 @@ onBeforeUnmount(() => {
     grid-template-columns: minmax(0, 1fr);
   }
   .settings-nav {
-    top: 4.25rem;
+    top: calc(4.25rem + var(--safe-top));
     z-index: 5;
     flex-direction: row;
     max-height: none;
@@ -753,7 +894,7 @@ onBeforeUnmount(() => {
     overflow: visible;
   }
   .settings-card {
-    scroll-margin-top: 8rem;
+    scroll-margin-top: calc(8rem + var(--safe-top));
   }
 }
 @media (max-width: 640px) {

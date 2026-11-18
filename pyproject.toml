@@ -5,7 +5,7 @@ documentation = "https://hiddify.com/manager"
 
 [project]
 name = "hiddifypanel"
-version = '14.2.7'
+version = '14.5.0b2'
 description = "hiddifypanel multi proxy panel"
 readme = "README.md"
 authors = [{ name = "hiddify" }]
@@ -19,11 +19,9 @@ dependencies = [
     "acme>=5.8.0",
     "apiflask[async]>=3.1.2",
     "babel==2.18.0",
-    "bleach>=6.4.0",
+    "bleach[css]>=6.4.0",
     "bootstrap-flask==2.5.0",
     "celery>=5.6.3,<6.0.0",
-    "flask-admin==1.6.1",
-    "flask-adminlte3==1.0.9",
     "flask-classful==0.16.0",
     "flask-login==0.6.3",
     "flask-restful==0.3.10",
@@ -114,10 +112,8 @@ exclude = ["tests*", ".github", "hiddifypanel.admin_v2*", "hiddifypanel.user_fro
 
 [tool.setuptools.package-data]
 "hiddifypanel" = [
-    "translations/*/LC_MESSAGES/*.mo",
     "translations.i18n/*.json"
 ]
-#"" = ["hiddifypanel/translations/*/LC_MESSAGES/*.mo"]
 
 
 [uv]

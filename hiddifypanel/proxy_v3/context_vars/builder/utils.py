@@ -73,6 +73,7 @@ protocol_config_map: dict[ProxyProto, ConfigEnum] = {
     ProxyProto.hysteria: ConfigEnum.hysteria_enable,
     ProxyProto.hysteria2: ConfigEnum.hysteria_enable,
     ProxyProto.wireguard: ConfigEnum.wireguard_enable,
+    ProxyProto.openvpn: ConfigEnum.openvpn_enable,
     ProxyProto.naive: ConfigEnum.naive_enable,
     ProxyProto.mieru: ConfigEnum.mieru_enable,
     ProxyProto.anytls: ConfigEnum.anytls_enable,
@@ -97,6 +98,10 @@ tls_layer_config_map: dict[TlsLayer, ConfigEnum] = {
     TlsLayer.quic_tls: ConfigEnum.quic_enable,
     TlsLayer.quic_tcp_tls: ConfigEnum.quic_enable,
 }
+
+# Protocols that never run over HTTP (Shadowsocks 2022, Mieru, DNS tunnels). Their tls_layer is stored as "http" only to
+# mean "no TLS layer", so "Allow HTTP Connection" must not turn them off (Hiddify-Manager#5666).
+NON_HTTP_PROTOS = frozenset({ProxyProto.shadowsocks, ProxyProto.mieru, ProxyProto.dnstt, ProxyProto.slipstream, ProxyProto.masterdns})
 
 category_config_map: dict[str, ConfigEnum] = {
     # The two Telegram proxies have their own switch each (both are proto telegram).
@@ -147,7 +152,7 @@ def parent_enable_keys(
     if transport is not None and not (proto == ProxyProto.mieru and transport == CustomProxyTransport.tcp):
         add(transport_config_map.get(transport))
     for layer in (tls_layer, download_tls_layer):
-        if layer is not None:
+        if layer is not None and not (layer == TlsLayer.http and proto in NON_HTTP_PROTOS):
             add(tls_layer_config_map.get(layer))
     for mode in list(domain_modes or []) + list(download_domain_modes or []):
         add(domain_mode_config_map.get(mode.lower()))

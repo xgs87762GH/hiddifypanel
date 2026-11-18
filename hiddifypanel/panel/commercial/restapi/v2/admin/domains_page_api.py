@@ -7,6 +7,7 @@ rebuilt immediately via ``apply-users``; HAProxy / full gateway still needs Appl
 
 from __future__ import annotations
 
+import functools
 import ipaddress
 import json
 import re
@@ -67,11 +68,12 @@ def is_host(name: str) -> bool:
 # A domain's own TLS / HTTP port is not served by anything: the firewall redirects it to 443 / 80
 # (services/firewall). So no process may listen on it, not even haproxy or rpxy-l4.
 #: Settings whose ports belong to other services (a domain gateway port must not take them).
+# Shadowsocks 2022 is a custom proxy: its port is reserved with the proxy (below), not this old setting.
+# Keeping the setting here locked the v12 port after the proxy had moved to another one.
 OTHER_SERVICE_PORTS = (
     ConfigEnum.wireguard_port,
     ConfigEnum.reality_port,
     ConfigEnum.special_port,
-    ConfigEnum.shadowsocks2022_port,
     ConfigEnum.naive_port,
     ConfigEnum.mieru_tcp_ports,
     ConfigEnum.kcp_ports,
@@ -99,9 +101,52 @@ def _enum(value):
 # ---------------------------------------------------------------------------------------------- rows
 
 
+_CURVES = {"secp256r1": "P-256", "secp384r1": "P-384", "secp521r1": "P-521"}
+
+
+@functools.lru_cache(maxsize=256)
+def _cert_facts(pem: str) -> dict[str, Any]:
+    """What the Domains page shows of a stored certificate beyond issuer and expiry: when it was issued, the names it
+    covers, its key and the organisation that issued it. Empty when the PEM does not read."""
+    try:
+        from cryptography import x509
+        from cryptography.hazmat.primitives.asymmetric import ec, rsa
+        from cryptography.x509.oid import NameOID
+
+        c = x509.load_pem_x509_certificate(pem.encode())
+    except Exception:
+        return {}
+    try:
+        san = c.extensions.get_extension_for_class(x509.SubjectAlternativeName).value
+        names = [*san.get_values_for_type(x509.DNSName), *(str(ip) for ip in san.get_values_for_type(x509.IPAddress))]
+    except x509.ExtensionNotFound:
+        names = []
+    key = c.public_key()
+    if isinstance(key, ec.EllipticCurvePublicKey):
+        key_name = f"ECDSA {_CURVES.get(key.curve.name, key.curve.name)}"
+    elif isinstance(key, rsa.RSAPublicKey):
+        key_name = f"RSA {key.key_size}"
+    else:
+        key_name = type(key).__name__.replace("PublicKey", "").lstrip("_")
+    org = c.issuer.get_attributes_for_oid(NameOID.ORGANIZATION_NAME)
+    return {
+        "issued_at": c.not_valid_before_utc.replace(tzinfo=None).isoformat() + "Z",
+        "names": names[:20],
+        "key": key_name,
+        "ca": str(org[0].value) if org else "",
+    }
+
+
 def _tls_out(d: Domain) -> dict[str, Any]:
     cert = d.certificate
+    facts = _cert_facts(cert.certificate) if cert and cert.certificate else {}
     return {
+        "issued_at": facts.get("issued_at"),
+        "names": facts.get("names", []),
+        "key": facts.get("key", ""),
+        "ca": facts.get("ca", ""),
+        "fingerprint": (cert.fingerprint if cert else "") or "",
+        "auto_renew": bool(cert.auto_renew) if cert else False,
         "status": d.tls_status,
         "needs_valid": bool(d.need_valid_ssl),
         "issuer": (cert.issuer if cert else "") or "",
@@ -215,11 +260,17 @@ def _compatible_proxies(child_id: int) -> dict[str, list[int]]:
 
 def _show_options(child_id: int) -> list[dict[str, Any]]:
     """Domains whose configs a domain can show: this panel's and its nodes' (not subscription-only ones)."""
-    rows = Domain.query.filter(Domain.mode != DomainType.sub_link_only).order_by(Domain.child_id, Domain.domain).all()
+    rows = (
+        Domain.query.filter(Domain.mode != DomainType.sub_link_only)
+        .options(selectinload(Domain.download_domain))
+        .order_by(Domain.child_id, Domain.domain)
+        .all()
+    )
     out = []
     for d in rows:
         node = None if d.child_id == child_id else (d.child.name if d.child else str(d.child_id))
-        out.append({"id": d.id, "domain": d.domain or "", "alias": d.alias or "", "mode": _enum(d.mode), "fake_mode": _enum(d.fake_mode), "node": node})
+        download = d.download_domain.domain if d.download_domain else ""
+        out.append({"id": d.id, "domain": d.domain or "", "alias": d.alias or "", "mode": _enum(d.mode), "fake_mode": _enum(d.fake_mode), "node": node, "download": download})
     return out
 
 
@@ -261,6 +312,9 @@ def _list_out(child_id: int) -> dict[str, Any]:
             "proxies": _proxies_list(child_id),
             "server_ips": _server_ips(child_id),
         },
+        # Whose configs a domain can show: with every list (it is quick), so a domain just added is offered at once;
+        # the options call takes seconds (the proxies that fit each kind of domain)
+        "show_options": _show_options(child_id),
     }
 
 
@@ -437,9 +491,7 @@ def _apply_body(d: Domain, body: dict[str, Any], child_id: int) -> None:
 
 def _cores_after_domain_change() -> None:
     """Dump + reload xray / hiddify-core / … so new or changed domains (and their certs) are live in the cores."""
-    from hiddifypanel.panel import hiddify
-
-    hiddify.quick_apply_users(domain=True)
+    hutils.apply_users.quick_apply_users(domain=True)
 
 
 def _save(d: Domain, *, is_created: bool) -> list[str]:

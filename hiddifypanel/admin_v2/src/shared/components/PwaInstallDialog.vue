@@ -4,33 +4,41 @@
     modal
     :show-header="false"
     :dismissable-mask="true"
-    :position="narrow ? 'bottom' : 'center'"
+    position="center"
     :draggable="false"
-    :style="{ width: 'min(27rem, 100vw)' }"
-    :pt="{ root: { class: ['pwa-dialog', { 'pwa-dialog--sheet': narrow }] }, content: { class: 'pwa-dialog__content' } }"
+    :style="{ width: 'min(27rem, calc(100vw - 1.5rem))' }"
+    :pt="{ root: { class: 'pwa-dialog' }, content: { class: 'pwa-dialog__content' } }"
   >
     <div class="pwa">
       <button type="button" class="pwa__close" :aria-label="t('pwa.later')" @click="close"><i class="pi pi-times" /></button>
 
-      <!-- The app as it will look on the home screen -->
-      <div class="pwa__hero">
-        <div class="pwa__app">
-          <img v-if="icon" :src="icon" alt="" class="pwa__icon" />
-          <i v-else class="pi pi-mobile pwa__icon pwa__icon--fallback" />
+      <!-- Only this part scrolls: on a short screen "Got it" below stays in view -->
+      <div ref="body" class="pwa__body" @scroll.passive="measure">
+        <!-- The app as it will look on the home screen -->
+        <div class="pwa__hero" :style="accent ? { '--pwa-accent': accent } : undefined">
+          <div class="pwa__app" :class="{ 'pwa__app--own': ownIcon }">
+            <!-- The icon in a new color fades in over the old one -->
+            <Transition name="pwa-icon">
+              <img v-if="shown" :key="shown" :src="shown" alt="" class="pwa__icon" />
+              <i v-else class="pi pi-mobile pwa__icon pwa__icon--fallback" />
+            </Transition>
+          </div>
+          <!-- The icon's color, chosen before installing -->
+          <PwaColorButton v-if="appIcon.enabled.value" center class="pwa__color" />
+          <h2 class="pwa__title">{{ t('pwa.title') }}</h2>
+          <p class="pwa__text">{{ t('pwa.text') }}</p>
         </div>
-        <h2 class="pwa__title">{{ t('pwa.title') }}</h2>
-        <p class="pwa__text">{{ t('pwa.text') }}</p>
+
+        <!-- How to install, animated for this device (Safari on iPhone, Chrome on Android or a computer) -->
+        <PwaInstallGuide :icon="shown" :own-shape="ownIcon" />
+
+        <label class="pwa__never">
+          <Checkbox v-model="never" binary input-id="pwa-never" />
+          <span>{{ t('pwa.never') }}</span>
+        </label>
       </div>
 
-      <!-- How to install, animated for this device (Safari on iPhone, Chrome on Android or a computer) -->
-      <PwaInstallGuide />
-
-      <label class="pwa__never">
-        <Checkbox v-model="never" binary input-id="pwa-never" />
-        <span>{{ t('pwa.never') }}</span>
-      </label>
-
-      <div class="pwa__actions">
+      <div class="pwa__actions" :class="{ 'pwa__actions--line': more }">
         <Button :label="t('pwa.gotIt')" icon="pi pi-check" size="large" class="pwa__got" autofocus @click="close" />
         <!-- The browser can install it right away: one click instead of the steps -->
         <Button v-if="canPrompt" icon="pi pi-download" :label="t('pwa.installNow')" severity="secondary" outlined class="pwa__install" :loading="busy" @click="doInstall" />
@@ -40,13 +48,15 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import Dialog from 'primevue/dialog'
+import { useAppIcon } from '@/shared/composables/useAppIcon'
 import { usePwaInstall } from '@/shared/composables/usePwaInstall'
+import PwaColorButton from '@/shared/components/PwaColorButton.vue'
 import PwaInstallGuide from '@/shared/components/PwaInstallGuide.vue'
 import { telegramPromptDue } from '@/shared/composables/useSpotlights'
 
@@ -64,15 +74,53 @@ const route = useRoute()
 const never = ref(false)
 const busy = ref(false)
 const icon = ref('')
+/** The icon is the panel's own app icon, already cut to its shape: shown as it is, without a frame around it. */
+const ownIcon = ref(false)
+/** The app icon in the color chosen with "PWA Color"; the top of the dialog takes a tint of that color. */
+const appIcon = useAppIcon()
+const accent = computed(() => (appIcon.enabled.value ? `#${appIcon.color.value}` : ''))
+/** The picture on screen: one in a new color replaces it once it has loaded, so the icon never blinks. */
+const shown = ref('')
+watch(icon, (url) => {
+  if (!url || !shown.value) {
+    shown.value = url
+    return
+  }
+  const next = new Image()
+  next.onload = next.onerror = () => {
+    if (icon.value === url) shown.value = url
+  }
+  next.src = url
+})
 
-// Phones: a sheet from the bottom.
-const narrowQuery = window.matchMedia('(max-width: 575px)')
-const narrow = ref(narrowQuery.matches)
-const onNarrow = (e: MediaQueryListEvent) => (narrow.value = e.matches)
+// More of the guide below the fold: a line over the buttons says so.
+const body = ref<HTMLElement | null>(null)
+const more = ref(false)
+function measure() {
+  const el = body.value
+  more.value = !!el && el.scrollTop + el.clientHeight < el.scrollHeight - 2
+}
+const sizeObserver = new ResizeObserver(() => measure())
+watch(body, (el, old) => {
+  if (old) sizeObserver.unobserve(old)
+  if (el) {
+    sizeObserver.observe(el)
+    if (el.firstElementChild) sizeObserver.observe(el.firstElementChild)
+    nextTick(measure)
+  }
+})
+
 
 /** The app icon the page declares (production template, or added from the bootstrap in dev). */
 function readIcon() {
-  icon.value = document.head.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]')?.href || window.__PANEL_LOGO_URL__ || ''
+  if (appIcon.enabled.value) {
+    ownIcon.value = true
+    icon.value = appIcon.iconUrl('tile-256')
+    return
+  }
+  const own = document.head.querySelector<HTMLLinkElement>('link[rel="icon"][sizes="256x256"]')?.href
+  ownIcon.value = !!own
+  icon.value = own || document.head.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]')?.href || window.__PANEL_LOGO_URL__ || ''
 }
 
 /** Offered once per page load (module state): coming back to the dashboard in the same visit does not repeat it. */
@@ -89,21 +137,16 @@ function offer() {
   visible.value = true
 }
 
-let offerTimer = 0
 onMounted(() => {
-  narrowQuery.addEventListener('change', onNarrow)
-  offerTimer = window.setTimeout(offer, 1200) // after the page has drawn (the browser's install event can come a little later too)
+  window.setTimeout(offer, 1200) // after the page has drawn (the browser's install event can come a little later too)
 })
 onBeforeUnmount(() => {
-  narrowQuery.removeEventListener('change', onNarrow)
-  window.clearTimeout(offerTimer)
+  sizeObserver.disconnect()
 })
 // Opened on another page first: the guide waits for the dashboard.
-watch(() => route.name, () => {
-  window.clearTimeout(offerTimer)
-  offerTimer = window.setTimeout(offer, 600)
-})
+watch(() => route.name, () => window.setTimeout(offer, 600))
 watch(visible, (open) => open && readIcon())
+watch(appIcon.color, () => visible.value && readIcon())
 
 function close() {
   if (never.value) dismissForever()
@@ -129,7 +172,17 @@ async function doInstall() {
   position: relative;
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.pwa__body {
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.25rem 1.25rem 0.25rem;
 }
 .pwa__close {
   position: absolute;
@@ -160,7 +213,8 @@ async function doInstall() {
   gap: 0.4rem;
   margin: -1.25rem -1.25rem 0;
   padding: 1.75rem 1.5rem 1.25rem;
-  background: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--p-primary-color) 22%, transparent), transparent 70%);
+  /* --pwa-accent: the icon color chosen in the dialog (the theme's color without one) */
+  background: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--pwa-accent, var(--p-primary-color)) 22%, transparent), transparent 70%);
 }
 .pwa__app {
   display: grid;
@@ -176,10 +230,41 @@ async function doInstall() {
   animation: pwa-pop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
 }
 .pwa__icon {
+  grid-area: 1 / 1; /* the old and the new picture overlap while one fades into the other */
   width: 4.1rem;
   height: 4.1rem;
   border-radius: 1.1rem;
   object-fit: contain;
+}
+.pwa-icon-enter-active {
+  transition:
+    opacity 0.28s ease,
+    transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+}
+.pwa-icon-leave-active {
+  transition: opacity 0.28s ease;
+}
+.pwa-icon-enter-from {
+  opacity: 0;
+  transform: scale(0.9);
+}
+.pwa-icon-leave-to {
+  opacity: 0;
+}
+/* The panel's own app icon: as on the home screen (its own shape and glass edge), with a soft glow under it */
+.pwa__app--own {
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.pwa__app--own .pwa__icon {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  filter: drop-shadow(0 10px 16px color-mix(in srgb, var(--pwa-accent, var(--p-primary-color)) 45%, transparent));
+}
+.pwa__color {
+  margin-bottom: 0.35rem;
 }
 .pwa__icon--fallback {
   display: grid;
@@ -204,8 +289,15 @@ async function doInstall() {
 
 .pwa__actions {
   display: flex;
+  flex: none;
   flex-direction: column;
   gap: 0.25rem;
+  padding: 0.75rem 1.25rem 1.25rem;
+  border-top: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+.pwa__actions--line {
+  border-top-color: var(--p-content-border-color);
 }
 .pwa__got,
 .pwa__install {
@@ -222,6 +314,50 @@ async function doInstall() {
   cursor: pointer;
 }
 
+/* Phones and short screens: the line under the title goes, so the guide has the room */
+@media (max-width: 575px), (max-height: 760px) {
+  .pwa__text {
+    display: none;
+  }
+}
+@media (max-height: 640px) {
+  .pwa__hero {
+    padding-top: 1.25rem;
+    padding-bottom: 0.75rem;
+  }
+  .pwa__app {
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: 1.1rem;
+  }
+  .pwa__icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.85rem;
+  }
+}
+
+/* Small phones: tighter still, so the icon, the scene and the current step all show without scrolling */
+@media (max-height: 560px) {
+  .pwa__body {
+    gap: 0.6rem;
+  }
+  .pwa__hero {
+    padding-top: 1rem;
+    padding-bottom: 0.5rem;
+  }
+}
+@media (max-height: 480px) {
+  .pwa__app {
+    width: 3.2rem;
+    height: 3.2rem;
+    margin-bottom: 0.2rem;
+  }
+  .pwa__title {
+    font-size: 1.05rem;
+  }
+}
+
 @keyframes pwa-pop {
   from {
     transform: scale(0.7) translateY(6px);
@@ -232,28 +368,28 @@ async function doInstall() {
   .pwa__app {
     animation: none;
   }
+  .pwa-icon-enter-active,
+  .pwa-icon-leave-active {
+    transition: none;
+  }
 }
 </style>
 
 <style>
 /* The dialog itself (not scoped: PrimeVue renders it outside this component) */
 .pwa-dialog .pwa-dialog__content {
-  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
   overflow: hidden;
   border-radius: inherit;
 }
+/* the visible screen (dvh: without a phone browser's bars), so the bottom is never under them */
 .pwa-dialog {
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   border-radius: 22px;
   overflow: hidden;
-}
-/* Phones: a sheet from the bottom, round only on top */
-.pwa-dialog.pwa-dialog--sheet {
-  margin: 0;
-  border-radius: 22px 22px 0 0;
-  max-height: 92vh;
-}
-.pwa-dialog.pwa-dialog--sheet .pwa-dialog__content {
-  overflow: auto;
-  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
 }
 </style>

@@ -3,9 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <script>
+    // Installed app (PWA): iOS zooms the page into any focused field under 16px. maximum-scale=1 stops that
+    // auto-zoom (iOS still allows pinch zoom); in a browser tab the viewport stays as it is.
+    if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) {
+      document.querySelector('meta[name=viewport]').content += ', maximum-scale=1'
+    }
+  </script>
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="light dark">
   <title>{{ texts.get('pageTitle', 'Sign in') }} · {{ title }}</title>
+  <!-- The admin panel's own icon in the browser tab -->
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ hutils.flask.app_icon_url('favicon-admin-32.png') }}">
+  <link rel="icon" type="image/png" sizes="256x256" href="{{ hutils.flask.app_icon_url('favicon-admin-256.png') }}">
   <script>
     // Shown inside the dashboard's frame (a classic page whose session ended): open in the whole window,
     // returning to the dashboard page that framed it.
@@ -69,13 +79,17 @@
     .glow { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
     .glow span {
       position: absolute; width: 46vmax; height: 46vmax; border-radius: 50%;
-      filter: blur(70px); opacity: 0.55; animation: drift 18s ease-in-out infinite alternate;
+      filter: blur(70px); opacity: 0.55; animation: drift 7s ease-in-out infinite alternate;
     }
     .glow span:nth-child(1) { background: #6d8bff; top: -18vmax; left: -12vmax; }
-    .glow span:nth-child(2) { background: #b18cff; bottom: -20vmax; right: -14vmax; animation-delay: -6s; }
-    .glow span:nth-child(3) { background: #5ad1ff; top: 40%; left: 55%; width: 28vmax; height: 28vmax; opacity: 0.35; animation-delay: -12s; }
+    .glow span:nth-child(2) { background: #b18cff; bottom: -20vmax; right: -14vmax; animation-delay: -2.5s; }
+    .glow span:nth-child(3) { background: #5ad1ff; top: 40%; left: 55%; width: 28vmax; height: 28vmax; opacity: 0.35; animation-delay: -5s; }
     .dark .glow span { opacity: 0.28; }
     @keyframes drift { to { transform: translate(6vmax, 4vmax) scale(1.08); } }
+    /* Flowing silk waves (WebGL); the blobs above stay when the browser has no WebGL */
+    #waves { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 1.2s ease; }
+    .waves #waves { opacity: 1; }
+    .waves .glow { display: none; }
 
     main { position: relative; z-index: 1; width: min(100%, 25rem); animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
     @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
@@ -142,6 +156,25 @@
     form.busy button.submit .spin { display: inline-block; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    .or { display: flex; align-items: center; gap: 0.75rem; margin: 1rem 0 0.9rem; font-size: 0.78rem; color: var(--muted); }
+    .or::before, .or::after { content: ""; flex: 1; border-top: 1px solid var(--field-border); }
+    .passkey {
+      width: 100%; height: 3rem; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 0.55rem;
+      border: 1px solid var(--field-border); background: var(--field); color: var(--text); cursor: pointer;
+      font: inherit; font-size: 0.95rem; font-weight: 600; text-decoration: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    .passkey:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .passkey:focus-visible { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 109, 245, 0.18); }
+    .passkey svg { width: 1.2rem; height: 1.2rem; color: var(--primary); }
+    .passkey[disabled] { opacity: 0.6; cursor: default; transform: none; }
+    .passkey .spin { display: none; width: 1rem; height: 1rem; border: 2px solid var(--field-border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .passkey.busy .spin { display: inline-block; }
+    .passkey.busy svg { display: none; }
+    .passkey-note { margin: 0.5rem 0 0; font-size: 0.78rem; color: var(--muted); text-align: center; line-height: 1.45; overflow-wrap: anywhere; }
+    .passkey-note[data-error] { color: var(--danger); }
+    .back-note { margin-bottom: 1rem; }
+
     .foot { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px dashed var(--field-border); display: flex; flex-direction: column; gap: 0.5rem; }
     .foot p { display: flex; gap: 0.5rem; align-items: flex-start; margin: 0; font-size: 0.8rem; color: var(--muted); line-height: 1.45; }
     .foot svg { flex-shrink: 0; width: 0.95rem; height: 0.95rem; margin-top: 0.1rem; color: var(--primary); }
@@ -157,6 +190,7 @@
   </style>
 </head>
 <body>
+  <canvas id="waves" aria-hidden="true"></canvas>
   <div class="glow" aria-hidden="true"><span></span><span></span><span></span></div>
   <main>
     <div class="card">
@@ -182,7 +216,7 @@
           <div class="field">
             <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <input type="text" id="username" name="username" value="{{ form.username.data or '' }}"
-                   autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required
+                   autocomplete="{{ 'username webauthn' if passkey else 'username' }}" autocapitalize="none" autocorrect="off" spellcheck="false" required
                    placeholder="{{ texts.get('usernamePlaceholder', '') }}"
                    {% if error == 'invalid' %}aria-invalid="true"{% endif %}
                    {% if not form.username.data %}autofocus{% endif %}>
@@ -208,6 +242,12 @@
         <button type="submit" class="submit"><span class="spin" aria-hidden="true"></span><span id="submit-text">{{ texts.get('submit', 'Sign in') }}</span></button>
       </form>
 
+      {% if passkey %}
+      <div class="or" aria-hidden="true">{{ texts.get('or', 'or') }}</div>
+      <button type="button" class="passkey" id="passkey-btn"><span class="spin" aria-hidden="true"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15 19 4M18 5l2 2M15 8l2 2"/></svg><span>{{ texts.get('passkey', 'Sign in with a passkey') }}</span></button>
+      <p class="passkey-note" id="passkey-msg" role="status" hidden></p>
+      {% endif %}
+
       <div class="foot">
         <p><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>{{ texts.get('tipLink', '') }}</p>
         <p><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>{{ texts.get('tipLost', '') }}</p>
@@ -216,6 +256,109 @@
     <p class="below">Hiddify</p>
   </main>
   <script>
+    // Background: soft colour waves drawn on the GPU at half resolution, paused while the tab is hidden.
+    (function () {
+      var canvas = document.getElementById('waves');
+      var gl = canvas.getContext('webgl', { alpha: false, antialias: false, depth: false, powerPreference: 'low-power' });
+      if (!gl) return;
+      var vs = 'attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }';
+      var fs = [
+        '#ifdef GL_FRAGMENT_PRECISION_HIGH',
+        'precision highp float;',
+        '#else',
+        'precision mediump float;',
+        '#endif',
+        'uniform vec2 res; uniform float t; uniform vec3 bg, c0, c1, c2, c3; uniform float amt;',
+        // 2D simplex noise (Ashima Arts / Stefan Gustavson, MIT): smooth, no visible repeat.
+        'vec3 perm(vec3 x) { return mod((x * 34.0 + 1.0) * x, 289.0); }',
+        'float sn(vec2 v) {',
+        '  const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);',
+        '  vec2 i = floor(v + dot(v, C.yy));',
+        '  vec2 x0 = v - i + dot(i, C.xx);',
+        '  vec2 i1 = x0.x > x0.y ? vec2(1.0, 0.0) : vec2(0.0, 1.0);',
+        '  vec4 x12 = x0.xyxy + C.xxzz;',
+        '  x12.xy -= i1;',
+        '  i = mod(i, 289.0);',
+        '  vec3 p = perm(perm(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));',
+        '  vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);',
+        '  m = m * m; m = m * m;',
+        '  vec3 x = 2.0 * fract(p * C.www) - 1.0;',
+        '  vec3 h = abs(x) - 0.5;',
+        '  vec3 a0 = x - floor(x + 0.5);',
+        '  m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);',
+        '  vec3 g = vec3(a0.x * x0.x + h.x * x0.y, a0.yz * x12.xz + h.yz * x12.yw);',
+        '  return 130.0 * dot(m, g);',
+        '}',
+        'float fbm(vec2 p) {',
+        '  float v = 0.0, a = 0.5;',
+        '  for (int i = 0; i < 2; i++) { v += a * sn(p); p = mat2(1.6, 1.2, -1.2, 1.6) * p + 7.3; a *= 0.5; }',
+        '  return v;',
+        '}',
+        'void main() {',
+        '  vec2 p = gl_FragCoord.xy / res.y * 0.55;',
+        '  float T = t * 0.16;',
+        // Noise warped by noise, each layer drifting its own way: the colours flow everywhere and never loop.
+        '  vec2 q = vec2(fbm(p + vec2(0.0, T * 0.6)), fbm(p + vec2(5.2, 1.3) - vec2(T * 0.5, 0.0)));',
+        '  vec2 r = vec2(fbm(p + 1.1 * q + vec2(1.7, 9.2) + T * 0.4), fbm(p + 1.1 * q + vec2(8.3, 2.8) - T * 0.3));',
+        '  float f = fbm(p + 1.1 * r);',
+        '  vec3 col = mix(c0, c1, smoothstep(-0.5, 0.5, f));',
+        '  col = mix(col, c2, smoothstep(0.0, 0.6, r.x) * 0.85);',
+        '  col = mix(col, c3, smoothstep(0.1, 0.6, q.y) * 0.75);',
+        '  float sheen = pow(1.0 - abs(f), 3.0);',
+        '  float fade = smoothstep(-0.35, 0.35, r.y + 0.3 * q.x);',
+        '  gl_FragColor = vec4(mix(bg, col + sheen * 0.06, amt * (0.3 + 0.7 * fade)), 1.0);',
+        '}',
+      ].join('\n');
+      function shader(type, src) {
+        var sh = gl.createShader(type);
+        gl.shaderSource(sh, src);
+        gl.compileShader(sh);
+        return gl.getShaderParameter(sh, gl.COMPILE_STATUS) ? sh : null;
+      }
+      var v = shader(gl.VERTEX_SHADER, vs), f = shader(gl.FRAGMENT_SHADER, fs);
+      if (!v || !f) return;
+      var prog = gl.createProgram();
+      gl.attachShader(prog, v);
+      gl.attachShader(prog, f);
+      gl.linkProgram(prog);
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+      gl.useProgram(prog);
+      gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      var loc = gl.getAttribLocation(prog, 'p');
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      function u(name) { return gl.getUniformLocation(prog, name); }
+      function hex(h) { return [1, 3, 5].map(function (i) { return parseInt(h.substr(i, 2), 16) / 255; }); }
+      var dark = document.documentElement.classList.contains('dark');
+      var colors = dark
+        ? { bg: '#0f1221', c0: '#3448b8', c1: '#7046c4', c2: '#2389b0', c3: '#9a48ae', amt: 0.6 }
+        : { bg: '#eef2fb', c0: '#8fa6ff', c1: '#c4a3ff', c2: '#8ee0ff', c3: '#f5b3ff', amt: 0.85 };
+      ['bg', 'c0', 'c1', 'c2', 'c3'].forEach(function (k) { gl.uniform3fv(u(k), hex(colors[k])); });
+      gl.uniform1f(u('amt'), colors.amt);
+      var uRes = u('res'), uT = u('t');
+      function size() {
+        // The waves are soft: half the CSS pixels is enough and keeps phones cool.
+        var w = Math.max(1, Math.round(innerWidth / 2)), h = Math.max(1, Math.round(innerHeight / 2));
+        if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
+        gl.uniform2f(uRes, w, h);
+      }
+      var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var start = performance.now() - 40000, raf = 0;
+      function draw(now) {
+        size();
+        gl.uniform1f(uT, (now - start) / 1000);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        raf = still || document.hidden ? 0 : requestAnimationFrame(draw);
+      }
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden && !raf && !still) raf = requestAnimationFrame(draw);
+      });
+      addEventListener('resize', function () { if (still) draw(performance.now()); });
+      draw(performance.now());
+      document.documentElement.classList.add('waves');
+    })();
+
     (function () {
       var form = document.getElementById('login-form');
       var pw = document.getElementById('password');
@@ -238,6 +381,104 @@
         document.getElementById('submit-text').textContent = {{ texts.get('signingIn', 'Signing in…')|tojson }};
       });
     })();
+
+    {% if passkey %}
+    // Passkeys of this domain: offered in the username field's suggestions, by the button, and started right away in a
+    // browser that used one here before (remembered in this browser). Without one, the password form is the way in.
+    (function () {
+      var btn = document.getElementById('passkey-btn');
+      var note = document.getElementById('passkey-msg');
+      var REMEMBER = 'hiddify_passkey';
+      var texts = {{ {
+        'cancelled': texts.get('passkeyCancelled', 'The passkey was not used. Try again, or sign in with your password.'),
+        'unsupported': texts.get('passkeyUnsupported', 'This browser can not use passkeys. Sign in with your password.'),
+        'locked': texts.get('error_locked', 'Too many tries from your network. Wait 15 minutes, then try again.'),
+        'unknown': texts.get('passkeyUnknown', 'This passkey was removed from the panel. Sign in with your password.'),
+        'failed': texts.get('passkeyFailed', 'The passkey could not be checked. Try again, or sign in with your password.')
+      }|tojson }};
+      var base = {{ passkey_base|tojson }};
+      var pending = null; // the running request (aborted before starting another)
+      function say(key) { note.textContent = texts[key] || texts.failed; note.hidden = false; note.setAttribute('data-error', ''); }
+      function remember(on) { try { on ? localStorage.setItem(REMEMBER, '1') : localStorage.removeItem(REMEMBER); } catch (e) {} }
+      function remembered() { try { return localStorage.getItem(REMEMBER) === '1'; } catch (e) { return false; } }
+      function b64(buf) {
+        var bytes = new Uint8Array(buf), s = '';
+        for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+        return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      }
+      function unb64(s) {
+        var bin = atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4));
+        var out = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        return out.buffer;
+      }
+      function post(url, body) {
+        return fetch(url, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) })
+          .then(function (r) { return r.json().catch(function () { return {}; }).then(function (data) { data.ok = r.ok; return data; }); });
+      }
+      if (!window.PublicKeyCredential || !navigator.credentials) { btn.disabled = true; say('unsupported'); return; }
+
+      // mode: 'conditional' (in the username suggestions, waits quietly), 'modal' (the button: the device's prompt now)
+      // or 'auto' (the prompt on opening the page; when it does not work, nothing is said).
+      function signIn(mode) {
+        if (pending) pending.abort();
+        var ctl = new AbortController();
+        pending = ctl;
+        if (mode !== 'conditional') { btn.classList.add('busy'); note.hidden = true; }
+        return post(base + 'options/')
+          .then(function (opts) {
+            if (!opts.ok) throw { code: opts.code };
+            opts.challenge = unb64(opts.challenge);
+            var req = { publicKey: opts, signal: ctl.signal };
+            if (mode === 'conditional') req.mediation = 'conditional';
+            return navigator.credentials.get(req);
+          })
+          .then(function (cred) {
+            if (!cred) throw { code: 'cancelled' };
+            btn.classList.add('busy');
+            var r = cred.response;
+            return post(base, {
+              credential: {
+                id: cred.id, type: cred.type,
+                response: {
+                  clientDataJSON: b64(r.clientDataJSON), authenticatorData: b64(r.authenticatorData),
+                  signature: b64(r.signature), userHandle: r.userHandle ? b64(r.userHandle) : null
+                }
+              },
+              next: {{ next_url|tojson }}
+            });
+          })
+          .then(function (res) {
+            if (!res.ok || !res.redirect) throw { code: res.code };
+            remember(true);
+            window.location.assign(res.redirect);
+          })
+          .catch(function (e) {
+            if (ctl.signal.aborted) return; // replaced by another request
+            pending = null;
+            btn.classList.remove('busy');
+            var code = e && e.name === 'NotAllowedError' ? 'cancelled' : (e && e.code) || 'failed';
+            if (code === 'unknown') remember(false);
+            // A quiet attempt that did not work: say nothing, the suggestions, the button and the password stay.
+            if (mode === 'modal') say(code);
+            if (mode !== 'conditional') startConditional();
+          });
+      }
+      function startConditional() {
+        if (!PublicKeyCredential.isConditionalMediationAvailable) return;
+        PublicKeyCredential.isConditionalMediationAvailable().then(function (ok) { if (ok && !pending) signIn('conditional'); }).catch(function () {});
+      }
+      btn.addEventListener('click', function () { signIn('modal'); });
+      // The form's own sign in: stop waiting for a passkey.
+      document.getElementById('login-form').addEventListener('submit', function () { if (pending) pending.abort(); });
+      if (remembered()) {
+        // Used a passkey here before: ask for it right away (a browser that needs a click first refuses quietly).
+        signIn('auto');
+      } else {
+        startConditional();
+      }
+    })();
+    {% endif %}
   </script>
 </body>
 </html>

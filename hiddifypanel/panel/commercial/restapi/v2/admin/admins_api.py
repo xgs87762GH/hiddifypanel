@@ -20,6 +20,7 @@ from hiddifypanel import admin_overrides
 from hiddifypanel.models import AdminUser, ConfigEnum, Domain, DomainType, User, hconfig
 from hiddifypanel.models.admin import AdminMode
 from hiddifypanel.models.config_enum import Lang
+from hiddifypanel.models.reset_mode import UserMode
 from hiddifypanel.models.role import Role
 from hiddifypanel.panel import hiddify
 from hiddifypanel.proxy_v3 import user_configs
@@ -68,6 +69,24 @@ def _outbound_options() -> list[dict]:
     from hiddifypanel.proxy_v3 import outbounds as ob
 
     return [{"id": o.id, "name": o.name, "mode": str(o.mode), "enabled": bool(o.enabled)} for o in ob.ordered_rows(0)]
+
+
+def _telegram_id_or_400(value, target: AdminUser | None) -> int | None:
+    """A Telegram chat id, or None (cleared). One admin per Telegram account: the bot finds the admin by it."""
+    if value in (None, "", 0, "0"):
+        return None
+    try:
+        tid = int(value)
+    except (TypeError, ValueError):
+        abort(400, "Telegram ID is not valid")
+    if tid <= 0:
+        abort(400, "Telegram ID is not valid")
+    other = AdminUser.query.filter(AdminUser.telegram_id == tid)
+    if target is not None:
+        other = other.filter(AdminUser.id != target.id)
+    if other.first():
+        abort(400, "This Telegram ID is already used by another admin")
+    return tid
 
 
 def _apply_default_outbound(admin: AdminUser, value) -> None:
@@ -137,11 +156,16 @@ def _limits(admin: AdminUser) -> dict | None:
     }
 
 
+def _usage(admin: AdminUser) -> dict:
+    """The admin's traffic counter: its reset period and the days to the next reset (null: never)."""
+    return {"usage_mode": str(admin.usage_mode or UserMode.no_reset), "days_to_reset": admin.days_to_reset()}
+
+
 def _tree_stats(admins: list[AdminUser]) -> dict[int, dict]:
-    """Users of each admin and all its sub-admins: total, active, online, traffic used."""
+    """Users of each admin and all its sub-admins: total, active, online; traffic: the admin's own counter (since its reset)."""
     ids = [a.id for a in admins]
     since = datetime.datetime.now() - ONLINE_WINDOW
-    direct = {i: {"total": 0, "active": 0, "online": 0, "usage_GB": 0.0} for i in ids}
+    direct = {i: {"total": 0, "active": 0, "online": 0} for i in ids}
     for user in User.query.filter(User.added_by.in_(ids), User.deleted.is_(False)).all():
         row = direct.get(user.added_by)
         if row is None:
@@ -149,7 +173,6 @@ def _tree_stats(admins: list[AdminUser]) -> dict[int, dict]:
         row["total"] += 1
         row["active"] += 1 if user.is_active else 0
         row["online"] += 1 if user.last_online and user.last_online >= since else 0
-        row["usage_GB"] += user.current_usage_GB or 0
 
     children: dict[int, list[int]] = {}
     for a in admins:
@@ -174,8 +197,8 @@ def _tree_stats(admins: list[AdminUser]) -> dict[int, dict]:
 
     for admin_id in ids:
         walk(admin_id, set())
-    for row in totals.values():
-        row["usage_GB"] = round(row["usage_GB"], 3)
+    for admin in admins:
+        totals[admin.id]["usage_GB"] = round(admin.current_usage_GB, 3)
     return totals
 
 
@@ -192,9 +215,11 @@ def _row(admin: AdminUser, actor: AdminUser, stats: dict, sub_admins: int, visib
     manageable = not is_me and admin.id != 1 and admin.id in visible_ids
     parent = admin.parent_admin
     return {
+        "id": admin.id,
         "uuid": admin.uuid,
         "name": admin.name,
         "comment": admin.comment or "",
+        "telegram_id": admin.telegram_id or None,
         "mode": str(admin.mode),
         "can_add_admin": caps.has(admin, caps.ADD_SUB_ADMINS),
         "capabilities": caps.of(admin),
@@ -207,6 +232,7 @@ def _row(admin: AdminUser, actor: AdminUser, stats: dict, sub_admins: int, visib
         "admin_link": _admin_link(admin),
         "limits": _limits(admin),
         "stats": stats,
+        **_usage(admin),
         "sub_admins": sub_admins,
         # Added to the subscription of every user of this admin and its sub-admins.
         "additional_configs": user_configs.clean_rows(admin.additional_configs or [])[0],
@@ -263,6 +289,8 @@ def _clean_payload(body: dict, *, target: AdminUser | None) -> dict:
         out["name"] = name[:512]
     if "comment" in body:
         out["comment"] = str(body.get("comment") or "")[:512]
+    if "telegram_id" in body:
+        out["telegram_id"] = _telegram_id_or_400(body.get("telegram_id"), target)
 
     if creating and body.get("uuid"):
         value = str(body["uuid"]).strip().lower()
@@ -299,6 +327,11 @@ def _clean_payload(body: dict, *, target: AdminUser | None) -> dict:
             if mine and (value > mine or (key in OPTIONAL_LIMITS and value == 0)):
                 abort(400, f"{key} can be at most {mine:g} (your own limit)")
             out[key] = value
+        if "usage_mode" in body:
+            try:
+                out["usage_mode"] = UserMode(str(body.get("usage_mode") or UserMode.no_reset))
+            except ValueError:
+                abort(400, "usage_mode is not valid")
 
     if creating or "parent_uuid" in body:
         parent_uuid = body.get("parent_uuid") or actor.uuid
@@ -400,7 +433,7 @@ class AdminsTreeApi(MethodView):
         db.session.commit()
         hutils.node.parent.notify_childs_users_changed()
         if "default_outbound" in body:
-            hiddify.quick_apply_users()
+            hutils.apply_users.quick_apply_users()
         return {"uuid": admin.uuid, "name": admin.name, **_credentials(admin, password)}
 
 
@@ -430,11 +463,15 @@ class AdminTreeItemApi(MethodView):
             payload["can_add_admin"] = admin.can_add_admin
         if "comment" in payload:
             admin.comment = payload.pop("comment")  # upsert skips empty text
+        if "telegram_id" in payload:
+            admin.telegram_id = payload.pop("telegram_id")  # upsert skips None: set it here so it can be cleared
+        if body.get("reset_usage") and not _is_super(admin):
+            admin.reset_usage()
         AdminUser.add_or_update(commit=False, old_uuid=admin.uuid, uuid=admin.uuid, **payload)
         db.session.commit()
         hutils.node.parent.notify_childs_users_changed()
         if "default_outbound" in body:
-            hiddify.quick_apply_users()
+            hutils.apply_users.quick_apply_users()
         return {"status": 200, "msg": "ok"}
 
     def delete(self, uuid):
@@ -475,7 +512,7 @@ class MyAdminAccountApi(MethodView):
             "capabilities": caps.of(actor),
             "parent_name": parent.name if parent and parent.id != actor.id else None,
             "has_password": bool(actor.password),
-            "strong_password": creds.is_strong(actor.password, avoid=creds.admin_avoid(actor)),
+            "strong_password": bool(actor.password and actor.password_strong),
             "telegram_connected": bool(actor.telegram_id),
             "alias": actor.alias or "",
             # My own interface language ("" = the panel's default admin language).
@@ -487,6 +524,7 @@ class MyAdminAccountApi(MethodView):
             "admin_link": _admin_link(actor),
             "limits": _limits(actor),
             "stats": stats[actor.id],
+            **_usage(actor),
             "sub_admins": len(admins) - 1,
             "additional_configs": user_configs.clean_rows(actor.additional_configs or [])[0],
             **_override_info(actor),
@@ -535,7 +573,7 @@ class MyAdminOutboundApi(MethodView):
         _apply_default_outbound(actor, (request.get_json(silent=True) or {}).get("default_outbound"))
         db.session.commit()
         hutils.node.parent.notify_childs_users_changed()
-        hiddify.quick_apply_users()
+        hutils.apply_users.quick_apply_users()
         return {"default_outbound": actor.default_outbound_id}
 
 
@@ -619,7 +657,7 @@ class MyAdminPasswordApi(MethodView):
         body = request.get_json(silent=True) or {}
         current = str(body.get("current_password") or "")
         new = str(body.get("new_password") or "")
-        if actor.password and not secrets.compare_digest(current, actor.password):
+        if actor.password and not actor.check_password(current):
             return {"message": "The current password is wrong", "code": "wrong_current"}, 400
         problems = creds.password_problems(new, avoid=creds.admin_avoid(actor))
         if problems:

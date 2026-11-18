@@ -10,7 +10,6 @@
       striped-rows
       paginator
       :rows="25"
-      :rows-per-page-options="[25, 50, 100]"
       :global-filter-fields="['access', 'value', 'label', 'description', 'category_label']"
       filter-display="row"
       data-key="access"
@@ -56,9 +55,13 @@
       <Column field="label" :header="t('templateVariables.label')" sortable :show-filter-menu="false" />
       <Column field="description" :header="t('templateVariables.description')" :show-filter-menu="false">
         <template #body="{ data }">
-          <div class="text-sm text-muted-color variable-desc-html" v-html="data.description" />
+          <div class="text-sm text-muted-color variable-desc-html" v-html="iconizeHtml(data.description)" />
         </template>
       </Column>
+      <!-- the Users page's pager: the bar, the page numbers, Previous / Next and the rows per page -->
+      <template #paginatorcontainer="p">
+        <TablePager :first="p.page * p.rows" :rows="p.rows" :total-records="p.totalRecords ?? 0" :options="[25, 50, 100]" @page="p.changePageCallback" @rows="p.rowChangeCallback" />
+      </template>
     </DataTable>
   </Panel>
 </template>
@@ -71,6 +74,7 @@ import { computed, onMounted, ref, toRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { FilterMatchMode } from '@primevue/core/api'
 import DataTable from 'primevue/datatable'
+import TablePager from '@/shared/components/TablePager.vue'
 import Column from 'primevue/column'
 import Panel from 'primevue/panel'
 import Button from 'primevue/button'
@@ -81,6 +85,7 @@ import InputIcon from 'primevue/inputicon'
 import PageHeader from '@/shared/components/PageHeader.vue'
 import { templateVariablesApi, type TemplateVariable, type TemplateVariableGroup } from '@/core/api/generated'
 import { flattenTemplateVariableGroups } from '@/shared/utils/template-variables'
+import { iconizeHtml } from '@/shared/utils/emoji-icons'
 
 const { t } = useI18n()
 

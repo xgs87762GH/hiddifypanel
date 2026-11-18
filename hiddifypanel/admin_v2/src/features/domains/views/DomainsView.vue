@@ -43,49 +43,41 @@
             :aria-pressed="kindFilter === k"
             @click="kindFilter = kindFilter === k ? null : k"
           >
-            <span>{{ KIND_META[k].emoji }}</span>
+            <i :class="KIND_META[k].icon" aria-hidden="true" />
             <span>{{ t(`domains.kind.${k}.name`) }}</span>
           </button>
         </template>
       </div>
 
       <ListFilterStatus :shown="rows.length" :total="state.domains.length" :active="filtering" @reset="resetFilters" />
-      <p class="dm-howto"><i class="pi pi-sort-alt" />{{ filtering ? t('domains.howtoFiltered') : t('domains.howto') }}</p>
+      <p class="dm-howto"><i class="pi pi-sort-alt" /><IconText :text="filtering ? t('domains.howtoFiltered') : t('domains.howto')" /></p>
 
-      <TransitionGroup name="dm-row" tag="ol" class="dm-list" :class="{ 'dm-list--dragging': dragId !== null }">
+      <TransitionGroup name="dm-row" tag="ol" class="dm-list" :class="{ 'dm-list--moving': rowDrag.moving.value, 'dm-list--settling': rowDrag.settling.value }">
         <li
           v-for="d in rows"
           :key="d.id"
           class="dm-row"
           :data-domain-id="d.id"
-          :style="{ '--kind-color': KIND_META[kindOf(d.mode)].color }"
+          :style="[{ '--kind-color': KIND_META[kindOf(d.mode)].color }, rowDrag.styleOf(d.id)]"
           :class="{
             'dm-row--minor': isFakeProxyMode(d.fake_mode),
             'dm-row--new': d.id === justChanged,
-            'dm-row--drag': d.id === dragId,
-            'dm-row--over': d.id === overId && d.id !== dragId,
+            'dm-row--lifted': d.id === rowDrag.lifted.value,
+            'dm-row--held': d.id === rowDrag.held.value,
           }"
-          @dragover.prevent="onDragOver(d)"
-          @drop.prevent="onDrop(d)"
         >
           <!-- Head: order, type, the address (copy) and its badges; the actions at the far side -->
-          <div class="dm-row__head" :class="{ 'dm-row__head--chosen': hasChosenProxies(d) }">
+          <div class="dm-row__head">
             <div class="dm-row__order">
               <span
                 v-if="!filtering"
                 class="dm-row__handle"
-                draggable="true"
                 role="button"
                 tabindex="0"
                 :aria-label="t('domains.drag')"
                 aria-keyshortcuts="ArrowUp ArrowDown"
                 v-tooltip.top="t('domains.drag')"
-                @dragstart="onDragStart($event, d)"
-                @dragend="onDragEnd"
-                @pointerdown="onHandleDown($event, d)"
-                @pointermove="onHandleMove"
-                @pointerup="onHandleUp"
-                @pointercancel="onDragEnd"
+                @pointerdown="!busy && rowDrag.start($event, d.id, rows.map((r) => r.id))"
                 @keydown.up.prevent="!busy && position(d) > 0 && move(d, -1)"
                 @keydown.down.prevent="!busy && position(d) < state.domains.length - 1 && move(d, 1)"
               ><i class="pi pi-bars" /></span>
@@ -106,7 +98,7 @@
                 ><i :class="copiedId === d.id ? 'pi pi-check' : 'pi pi-copy'" /></button>
                 <a v-if="d.panel_link" :href="d.panel_link" class="dm-row__domain" dir="ltr" target="_blank" rel="noopener" v-tooltip.top="t('domains.openPanel')">{{ d.domain }}</a>
                 <span v-else class="dm-row__domain" dir="ltr">{{ d.domain || t('domains.noName') }}</span>
-                <span v-if="d.alias && d.alias !== d.domain" class="dm-row__alias">{{ d.alias }}</span>
+                <span v-if="d.alias && d.alias !== d.domain" class="dm-row__alias"><IconText :text="d.alias" /></span>
               </div>
               <div class="dm-row__chips">
                 <span class="dm-badge dm-badge--kind">{{ t(`domains.kind.${kindOf(d.mode)}.name`) }}</span>
@@ -114,14 +106,27 @@
                   v-if="d.tls.needs_valid"
                   class="dm-badge"
                   :class="`dm-tls--${certState(d)}`"
-                  v-tooltip.top="tlsTooltip(d)"
+                  v-tooltip.top="tlsTip(d)"
                 >
                   <i :class="certIcon(d)" />
                   {{ certLabel(d) }}
                   <template v-if="d.tls.status === 'valid' && expiresIn(d) !== null"> · {{ t('domains.tls.expiresIn', { n: expiresIn(d) }) }}</template>
                 </span>
+                <!-- A failed certificate: why, in a few words; the rest opens under the row (the row keeps its height) -->
+                <button
+                  v-if="certFailed(d)"
+                  type="button"
+                  class="dm-cert-why"
+                  :class="{ 'dm-cert-why--open': certOpen.has(d.id) }"
+                  :aria-expanded="certOpen.has(d.id)"
+                  :aria-controls="`dm-cert-${d.id}`"
+                  @click="toggleCert(d.id)"
+                >
+                  <span class="dm-cert-why__kind">{{ isRateLimited(d) ? t('domains.tls.rateLimited') : t(`domains.certError.${certKind(d)}.title`) }}</span>
+                  <span class="dm-cert-why__more">{{ certOpen.has(d.id) ? t('domains.certError.showLess') : t('domains.certError.showMore') }}<i class="pi pi-chevron-down" /></span>
+                </button>
                 <!-- No certificate of its own: its TLS mode, each in its own colour (Valid is the certificate badge above) -->
-                <span v-else class="dm-badge dm-mode" :class="`dm-mode--${isFakeProxyMode(d.fake_mode) ? 'proxy' : d.fake_mode}`" v-tooltip.top="t('domains.tls.decoyHint')">
+                <span v-else class="dm-badge dm-mode" :class="`dm-mode--${isFakeProxyMode(d.fake_mode) ? 'proxy' : d.fake_mode}`" v-tooltip.top="modeTip(d)">
                   <i :class="MODE_ICON[d.fake_mode] ?? 'pi pi-eye-slash'" />{{ t(`domains.tlsMode.${d.fake_mode}`) }}
                 </span>
                 <span v-if="d.ech" class="dm-badge dm-badge--soft"><i class="pi pi-envelope" />ECH</span>
@@ -134,19 +139,19 @@
                 <span v-if="d.download_domain_id" class="dm-badge dm-badge--soft" dir="ltr"><i class="pi pi-download" />{{ domainName(d.download_domain_id) }}</span>
               </div>
               <!-- Its proxies and the configs it shows, side by side on one wrapping line (no empty room around them) -->
-              <!-- Chosen proxies stay under the badges; "automatic" and "show configs of" go to the middle block -->
-              <div v-if="hasChosenProxies(d)" class="dm-row__line dm-row__chosen">
-                <span class="dm-row__key"><i class="pi pi-sitemap" />{{ t('domains.field.proxies') }}</span>
-                <span v-for="p in proxiesOf(d)" :key="p.id" class="dm-proxy" :class="{ 'dm-proxy--off': !p.enabled }">
-                  <span class="dm-proxy__kind">{{ p.kind === 'sni' ? 'SNI' : p.kind === 'ip' ? 'IP' : 'L7' }}</span>{{ p.name }}
-                </span>
-              </div>
-              <div v-if="!isFakeProxyMode(d.fake_mode) && ((d.mode !== 'sub_link_only' && !hasChosenProxies(d)) || showsConfigs(d))" class="dm-row__lines">
-                <div v-if="d.mode !== 'sub_link_only' && !hasChosenProxies(d)" class="dm-row__line">
+              <!-- Proxies (chosen or "automatic") and "show configs of", all in the middle block -->
+              <div v-if="hasChosenProxies(d) || (!isFakeProxyMode(d.fake_mode) && (d.mode !== 'sub_link_only' || showsConfigs(d)))" class="dm-row__lines">
+                <div v-if="hasChosenProxies(d)" class="dm-row__line">
+                  <span class="dm-row__key"><i class="pi pi-sitemap" />{{ t('domains.field.proxies') }}</span>
+                  <span v-for="p in proxiesOf(d)" :key="p.id" class="dm-proxy" :class="{ 'dm-proxy--off': !p.enabled }">
+                    <span class="dm-proxy__kind">{{ p.kind === 'sni' ? 'SNI' : p.kind === 'ip' ? 'IP' : 'L7' }}</span>{{ p.name }}
+                  </span>
+                </div>
+                <div v-else-if="!isFakeProxyMode(d.fake_mode) && d.mode !== 'sub_link_only'" class="dm-row__line">
                   <span class="dm-row__key"><i class="pi pi-sitemap" />{{ t('domains.field.proxies') }}</span>
                   <span class="dm-row__auto">{{ t('domains.proxies.autoShort') }}</span>
                 </div>
-                <div v-if="showsConfigs(d)" class="dm-row__line">
+                <div v-if="!isFakeProxyMode(d.fake_mode) && showsConfigs(d)" class="dm-row__line">
                   <span class="dm-row__key"><i class="pi pi-eye" />{{ t('domains.field.showDomains') }}</span>
                   <template v-if="d.show_domain_ids.length">
                     <span v-for="id in d.show_domain_ids.slice(0, 4)" :key="id" class="dm-proxy" dir="ltr">{{ showName(id) }}</span>
@@ -178,14 +183,33 @@
           </div>
 
           <!-- The last certificate request failed: shown on the row, not only in the badge's tooltip -->
-          <div v-if="certFailed(d)" class="dm-row__cert-error" role="alert">
-            <i :class="isRateLimited(d) ? 'pi pi-hourglass' : 'pi pi-exclamation-triangle'" />
-            <span class="dm-row__cert-error-text">
-              <b>{{ t(isRateLimited(d) ? 'domains.tls.rateLimited' : d.tls.status === 'valid' ? 'domains.tls.renewFailed' : 'domains.tls.failed') }}</b>
-              <span v-if="certError(d)" dir="ltr" :title="certError(d)">{{ certError(d) }}</span>
-            </span>
-            <Button :label="t('domains.cert.retry')" icon="pi pi-refresh" size="small" text @click.stop="openCert(d)" />
-          </div>
+          <!-- The whole story, opened from "Show more": why it failed, the steps that fix it, the CA's own message -->
+          <Transition name="dm-cert">
+            <section v-if="certFailed(d) && certOpen.has(d.id)" :id="`dm-cert-${d.id}`" class="dm-cert" role="region" :aria-label="t('domains.tls.failed')">
+              <div class="dm-cert__in">
+                <header class="dm-cert__head">
+                  <span class="dm-cert__icon"><i :class="isRateLimited(d) ? 'pi pi-hourglass' : 'pi pi-exclamation-triangle'" /></span>
+                  <div class="min-w-0">
+                    <h3 class="dm-cert__title">{{ isRateLimited(d) ? t('domains.tls.rateLimited') : t(`domains.certError.${certKind(d)}.title`) }}</h3>
+                    <p class="dm-cert__lead">{{ isRateLimited(d) ? t('domains.cert.rateLimitedHint') : t(`domains.certError.${certKind(d)}.lead`, { domain: d.domain }) }}</p>
+                  </div>
+                </header>
+                <template v-if="!isRateLimited(d)">
+                  <h4 class="dm-cert__how">{{ t('domains.certError.howToFix') }}</h4>
+                  <ol class="dm-cert__steps">
+                    <li v-for="n in CERT_ERROR_STEPS[certKind(d)]" :key="n">{{ t(`domains.certError.${certKind(d)}.step${n}`) }}</li>
+                  </ol>
+                </template>
+                <div class="dm-cert__foot">
+                  <details v-if="certError(d)" class="dm-cert__details">
+                    <summary>{{ t('domains.certError.details') }}</summary>
+                    <code dir="ltr">{{ certError(d) }}</code>
+                  </details>
+                  <Button :label="t('domains.cert.retry')" icon="pi pi-refresh" size="small" class="dm-cert__retry" @click.stop="openCert(d)" />
+                </div>
+              </div>
+            </section>
+          </Transition>
 
         </li>
       </TransitionGroup>
@@ -220,6 +244,7 @@ import ListFilterStatus from '@/shared/components/ListFilterStatus.vue'
 import ListNoMatch from '@/shared/components/ListNoMatch.vue'
 import ListEmpty from '@/shared/components/ListEmpty.vue'
 import { useHashState } from '@/shared/composables/useHashState'
+import { useDragSort } from '@/shared/composables/useDragSort'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
@@ -245,7 +270,9 @@ import DomainIpsDialog from '@/features/domains/components/DomainIpsDialog.vue'
 import DomainDialog from '@/features/domains/components/DomainDialog.vue'
 import { loadDomainProblems, rememberDomainWarnings } from '@/shared/composables/useDomainNotices'
 import DomainsGuideDialog from '@/features/domains/components/DomainsGuideDialog.vue'
+import { CERT_ERROR_STEPS, certErrorKind } from '@/features/domains/cert-error'
 import { KIND_META, KINDS, TLS_ICON, domainsApi, isFakeProxyMode, kindOf, type DomainKind, type DomainProxy, type DomainRow, type DomainTls, type DomainsOptions, type TlsStatus, type DomainsState } from '@/features/domains/api'
+import IconText from '@/shared/components/IconText.vue'
 
 const { t, locale } = useI18n()
 const toast = useToast()
@@ -329,8 +356,6 @@ const certDone = ref(false)
 /** Ask for a certificate when the dialog opens (false: one was just asked for by saving). */
 const certStart = ref(true)
 
-const dragId = ref<number | null>(null)
-const overId = ref<number | null>(null)
 
 const byId = computed(() => new Map((state.value?.domains ?? []).map((d) => [d.id, d])))
 const proxyById = computed(() => new Map((state.value?.meta.proxies ?? []).map((p) => [p.id, p])))
@@ -378,16 +403,16 @@ function domainName(id: number | null): string {
 }
 /** A shown domain, also a node's (as `Node[name] domain`). */
 function showName(id: number): string {
-  const o = options.value?.show_options.find((x) => x.id === id)
+  const o = (state.value?.show_options ?? options.value?.show_options)?.find((x) => x.id === id)
   if (!o) return domainName(id)
   return o.node ? `Node[${o.node}] ${o.domain}` : o.domain
 }
 function proxiesOf(d: DomainRow): DomainProxy[] {
   return d.custom_proxy_ids.map((id) => proxyById.value.get(id)).filter(Boolean) as DomainProxy[]
 }
-/** Same rule as the editor: sub-link domains, or real-certificate domains while there is no sub-link domain. */
+/** Same rule as the editor: sub-link domains, or every domain while there is no sub-link domain. */
 function showsConfigs(d: DomainRow): boolean {
-  return d.mode === 'sub_link_only' || (!state.value?.meta.has_sublink && d.fake_mode === 'valid')
+  return d.mode === 'sub_link_only' || !state.value?.meta.has_sublink
 }
 function canGetCert(d: DomainRow): boolean {
   return d.tls.needs_valid && !!d.domain && !d.domain.includes('*') && d.tls.status !== 'valid'
@@ -403,6 +428,16 @@ function isRateLimited(d: DomainRow): boolean {
 }
 function certError(d: DomainRow): string {
   return (d.tls.job?.state === 'failed' && d.tls.job.error) || d.tls.error || ''
+}
+function certKind(d: DomainRow) {
+  return certErrorKind(certError(d))
+}
+/** Rows whose certificate error is opened ("Show more"); closed by default so every row keeps the same height. */
+const certOpen = ref(new Set<number>())
+function toggleCert(id: number) {
+  const next = new Set(certOpen.value)
+  if (!next.delete(id)) next.add(id)
+  certOpen.value = next
 }
 type CertState = TlsStatus | 'running' | 'failed' | 'renew_failed'
 function certState(d: DomainRow): CertState {
@@ -427,12 +462,64 @@ function certLabel(d: DomainRow): string {
 function expiresIn(d: DomainRow): number | null {
   return daysUntil(d.tls.expires_at)
 }
-function tlsTooltip(d: DomainRow): string {
-  const parts = [t(`domains.tls.${d.tls.status}Hint`)]
-  if (d.tls.issuer) parts.push(`${t('domains.tls.issuer')}: ${d.tls.issuer}`)
-  if (d.tls.expires_at) parts.push(`${t('domains.tls.expires')}: ${longDate(d.tls.expires_at, locale.value)} (${t('domains.tls.expiresIn', { n: expiresIn(d) })})`)
-  if (d.tls.error) parts.push(d.tls.error)
-  return parts.join('\n')
+const esc = (text: string) => text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
+const TIP_TONE: Record<string, string> = {
+  valid: '#16a34a',
+  renew_failed: '#d97706',
+  self_signed: '#d97706',
+  running: 'var(--p-primary-color)',
+  expired: '#dc2626',
+  invalid: '#dc2626',
+  failed: '#dc2626',
+  missing: '#64748b',
+  reality: '#8b5cf6',
+  fake: '#f97316',
+  dns: '#64748b',
+  proxy: '#0ea5e9',
+}
+/** A hover card (PrimeVue tooltip with HTML, styled in the unscoped block below): an icon, a title and a line, then rows */
+function tipCard(tone: string, icon: string, title: string, sub: string, body: string) {
+  const value = `<div class="dm-tip__card" style="--tip-tone:${tone}"><div class="dm-tip__head"><span class="dm-tip__icon"><i class="${icon}"></i></span><div><div class="dm-tip__title">${esc(title)}</div><div class="dm-tip__sub">${esc(sub)}</div></div></div>${body}</div>`
+  return { value, escape: false, class: 'dm-tip' }
+}
+const tipRow = (label: string, value: string, raw = false) => `<div class="dm-tip__row"><dt>${esc(label)}</dt><dd>${raw ? value : esc(value)}</dd></div>`
+
+/** The certificate badge's card: its state, how much of its life is left, and what the certificate is */
+function tlsTip(d: DomainRow) {
+  const state = certState(d)
+  const tls = d.tls
+  const days = expiresIn(d)
+  let life = ''
+  if (tls.issued_at && tls.expires_at) {
+    const start = Date.parse(tls.issued_at)
+    const end = Date.parse(tls.expires_at)
+    const left = Math.max(0, Math.min(1, (end - Date.now()) / Math.max(1, end - start)))
+    const urgency = days === null ? '' : days < 7 ? ' dm-tip__life--urgent' : days < 21 ? ' dm-tip__life--soon' : ''
+    life = `<div class="dm-tip__life${urgency}"><div class="dm-tip__bar"><span style="width:${(left * 100).toFixed(1)}%"></span></div><div class="dm-tip__dates"><span>${esc(longDate(tls.issued_at, locale.value))}</span><b>${esc(days !== null && days >= 0 ? t('domains.tls.expiresIn', { n: days }) : t('domains.tls.expired'))}</b><span>${esc(longDate(tls.expires_at, locale.value))}</span></div></div>`
+  } else if (tls.expires_at) {
+    life = `<dl class="dm-tip__rows">${tipRow(t('domains.tls.expires'), `${longDate(tls.expires_at, locale.value)} · ${t('domains.tls.expiresIn', { n: days ?? 0 })}`)}</dl>`
+  }
+  const rows: string[] = []
+  if (tls.ca || tls.issuer) rows.push(tipRow(t('domains.tip.issuedBy'), [tls.ca, tls.issuer].filter(Boolean).join(' · ')))
+  if (tls.names?.length) {
+    const chips = tls.names.slice(0, 4).map((n) => `<span class="dm-tip__chip" dir="ltr">${esc(n)}</span>`).join('') + (tls.names.length > 4 ? `<span class="dm-tip__more">+${tls.names.length - 4}</span>` : '')
+    rows.push(tipRow(t('domains.tip.covers'), `<span class="dm-tip__chips">${chips}</span>`, true))
+  }
+  if (tls.key) rows.push(tipRow(t('domains.tip.key'), tls.key))
+  if (tls.expires_at) rows.push(tipRow(t('domains.tip.autoRenew'), t(tls.auto_renew ? 'domains.tip.on' : 'domains.tip.off')))
+  if (tls.fingerprint) rows.push(tipRow(t('domains.tip.fingerprint'), `<code dir="ltr">${esc(tls.fingerprint.slice(0, 23))}…</code>`, true))
+  const error = tls.error && state !== 'valid' ? `<div class="dm-tip__note">${esc(tls.error.length > 160 ? `${tls.error.slice(0, 160)}…` : tls.error)}</div>` : ''
+  const hint = state === 'running' ? t('domains.cert.waiting') : state === 'failed' || state === 'renew_failed' ? t('domains.cert.failedHint') : t(`domains.tls.${tls.status}Hint`)
+  return tipCard(TIP_TONE[state] ?? '#64748b', certIcon(d), certLabel(d), hint, `${life}${rows.length ? `<dl class="dm-tip__rows">${rows.join('')}</dl>` : ''}${error}`)
+}
+
+/** A decoy TLS mode's card (Reality, Fake, DNS, a built-in server's fake-TLS name): what it does, no certificate of its own */
+function modeTip(d: DomainRow) {
+  const key = isFakeProxyMode(d.fake_mode) ? 'proxy' : d.fake_mode
+  const hint = t(`domains.tlsMode.${d.fake_mode}Hint`)
+  const rows = [tipRow(t('domains.tip.certificate'), t('domains.tip.noCertNeeded'))]
+  if (d.domain) rows.push(tipRow(t('domains.tip.sni'), `<span class="dm-tip__chip" dir="ltr">${esc(d.domain)}</span>`, true))
+  return tipCard(TIP_TONE[key] ?? '#64748b', MODE_ICON[d.fake_mode] ?? 'pi pi-eye-slash', t(`domains.tlsMode.${d.fake_mode}`), hint, `<dl class="dm-tip__rows">${rows.join('')}</dl>`)
 }
 
 const rowItems = computed<MenuItem[]>(() => {
@@ -526,41 +613,22 @@ function move(d: DomainRow, delta: number) {
   void reorder(ids, d.id)
 }
 
-function onDragStart(e: DragEvent, d: DomainRow) {
-  dragId.value = d.id
-  e.dataTransfer?.setData('text/plain', String(d.id))
-  if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
-}
-function onDragOver(d: DomainRow) {
-  if (dragId.value !== null) overId.value = d.id
-}
-function onDragEnd() {
-  dragId.value = null
-  overId.value = null
-}
-/** Touch and pen drag the handle with pointer events (the browser's own drag needs a mouse); the mouse keeps that one. */
-function onHandleDown(e: PointerEvent, d: DomainRow) {
-  if (e.pointerType === 'mouse' || filtering.value || busy.value) return
-  e.preventDefault()
-  ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
-  dragId.value = d.id
-  overId.value = d.id
-}
-function onHandleMove(e: PointerEvent) {
-  if (e.pointerType === 'mouse' || dragId.value === null) return
-  const row = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('[data-domain-id]')
-  if (row) overId.value = Number(row.dataset.domainId)
-  // Near the top or bottom of the screen the page scrolls on, to reach rows out of view
-  const edge = 70
-  if (e.clientY < edge) window.scrollBy(0, -14)
-  else if (e.clientY > window.innerHeight - edge) window.scrollBy(0, 14)
-}
-function onHandleUp(e: PointerEvent) {
-  if (e.pointerType === 'mouse' || dragId.value === null) return
-  const target = (state.value?.domains ?? []).find((r) => r.id === overId.value)
-  if (target) onDrop(target)
-  else onDragEnd()
-}
+/**
+ * Moving a domain by its handle, live (mouse, finger or pen): it follows the pointer, the others make room, and on
+ * release it glides into its place and the new order is saved.
+ */
+const rowDrag = useDragSort({
+  item: (id) => document.querySelector<HTMLElement>(`[data-domain-id="${id}"]`),
+  onDrop: (ids, from, to) => {
+    if (filtering.value) return false
+    const id = ids[from] as number
+    const all = (state.value?.domains ?? []).map((r) => r.id).filter((x) => x !== id)
+    const target = ids[to] as number
+    all.splice(all.indexOf(target) + (to > from ? 1 : 0), 0, id)
+    void reorder(all, id)
+    return true
+  },
+})
 
 /** A domain with proxies picked for it (not "automatic"): that list stays under its badges */
 function hasChosenProxies(d: DomainRow): boolean {
@@ -573,17 +641,6 @@ async function copyAddress(d: DomainRow) {
   await copy(d.domain)
   copiedId.value = d.id
   later(() => copiedId.value === d.id && (copiedId.value = null), 1500)
-}
-
-function onDrop(target: DomainRow) {
-  const id = dragId.value
-  onDragEnd()
-  if (id === null || id === target.id || filtering.value) return
-  const all = (state.value?.domains ?? []).map((r) => r.id)
-  const movingDown = all.indexOf(id) < all.indexOf(target.id)
-  const ids = all.filter((x) => x !== id)
-  ids.splice(ids.indexOf(target.id) + (movingDown ? 1 : 0), 0, id)
-  void reorder(ids, id)
 }
 
 function openMenu(e: Event, d: DomainRow) {
@@ -787,7 +844,11 @@ onBeforeUnmount(() => feed?.stop())
 }
 /* Desktop: name and badges, then the proxies and "show configs of" one above the other in the middle (the card's
    empty room), then the buttons. The phone layout is in the media query below. */
+/* Every row as tall as the tallest kind (name, badges and two middle lines), so the boxes match; the lines stay
+   together in the middle (the extra room is not shared out between them) */
 .dm-row__head {
+  min-height: 4.7rem;
+  align-content: center;
   display: grid;
   /* the middle block has a column of its own share (not just its width at the far side): it starts near the middle */
   grid-template-columns: auto auto minmax(0, 1.1fr) minmax(0, 1fr) auto;
@@ -812,49 +873,41 @@ onBeforeUnmount(() => feed?.stop())
 .dm-row__side {
   grid-area: side;
 }
-.dm-row__head--chosen {
-  grid-template-areas:
-    'order icon title lines side'
-    'order icon chips lines side'
-    'order icon chosen lines side';
-}
-.dm-row__chosen {
-  grid-area: chosen;
-}
-/* Telegram / ShadowTLS / SS FakeTLS front domains follow their own setting: smaller and quieter than real domains. */
+/* Telegram / ShadowTLS / SS FakeTLS front domains follow their own setting: the same box, only quieter. */
 .dm-row.dm-row--minor {
-  gap: 0.35rem;
-  padding: 0.4rem 0.75rem;
-  border-radius: 10px;
-  border-inline-start-width: 3px;
-  background: transparent;
   opacity: 0.72;
 }
 .dm-row.dm-row--minor:hover {
   opacity: 1;
-  box-shadow: none;
-}
-.dm-row--minor .dm-row__head {
-  gap: 0.6rem;
-}
-.dm-row--minor .dm-row__icon {
-  width: 1.9rem;
-  height: 1.9rem;
-  font-size: 0.85rem;
-}
-.dm-row--minor .dm-row__domain {
-  font-size: 0.9rem;
-  font-weight: 500;
 }
 .dm-row--new {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-color) 35%, transparent);
 }
-.dm-row--drag {
-  opacity: 0.45;
+/* A row moved by its handle: it rides above the others, which slide to make room, and glides into its place */
+.dm-list--moving {
+  user-select: none;
+  -webkit-user-select: none;
 }
-.dm-row--over {
-  transform: translateY(2px);
-  box-shadow: 0 -3px 0 0 var(--p-primary-color);
+.dm-list--moving .dm-row {
+  transition:
+    opacity 0.2s ease,
+    box-shadow 0.2s ease,
+    translate 0.2s ease;
+}
+.dm-list--moving .dm-row--lifted {
+  position: relative;
+  z-index: 5;
+  opacity: 1;
+  background: var(--p-content-background);
+  box-shadow: 0 18px 36px -14px rgb(15 23 42 / 45%);
+}
+.dm-list--moving .dm-row--lifted .dm-row__handle {
+  color: var(--p-primary-color);
+  cursor: grabbing;
+}
+.dm-list--moving .dm-row--held,
+.dm-list--settling .dm-row {
+  transition: none !important;
 }
 .dm-row__order {
   display: flex;
@@ -1057,29 +1110,174 @@ a.dm-row__domain:hover {
 .dm-tls--running {
   --tone: var(--p-primary-color);
 }
-.dm-row__cert-error {
-  display: flex;
+.dm-cert-why {
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.4rem;
-  padding: 0.35rem 0.6rem;
-  border-radius: 10px;
-  font-size: 0.82rem;
-  color: var(--p-red-600, #dc2626);
-  background: color-mix(in srgb, var(--p-red-500, #ef4444) 10%, transparent);
-  border: 1px solid color-mix(in srgb, var(--p-red-500, #ef4444) 30%, transparent);
+  gap: 0.4rem;
+  max-width: 100%;
+  padding: 0.1rem 0.15rem 0.1rem 0.35rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
 }
-.dm-row__cert-error-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  flex: 1;
-}
-.dm-row__cert-error-text span {
+.dm-cert-why__kind {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 600;
+  color: var(--p-red-600, #dc2626);
+}
+.dm-cert-why__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: none;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  color: var(--p-primary-color);
+  background: color-mix(in srgb, var(--p-primary-color) 10%, transparent);
+  transition: background-color 0.15s ease;
+}
+.dm-cert-why:hover .dm-cert-why__more {
+  background: color-mix(in srgb, var(--p-primary-color) 18%, transparent);
+}
+.dm-cert-why__more i {
+  font-size: 0.65rem;
+  transition: transform 0.25s ease;
+}
+.dm-cert-why--open .dm-cert-why__more i {
+  transform: rotate(180deg);
+}
+.dm-cert-why:focus-visible {
+  outline: 2px solid var(--p-primary-color);
+  outline-offset: 1px;
+}
+/* The opened error: a soft card under the row, its parts as in a guide (icon, title, numbered steps, details) */
+.dm-cert {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+.dm-cert__in {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.85rem 1rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--p-red-500, #ef4444) 22%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--p-red-500, #ef4444) 7%, transparent), color-mix(in srgb, var(--p-red-500, #ef4444) 2%, transparent));
+  font-size: 0.84rem;
+}
+.dm-cert__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+.dm-cert__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 10px;
+  color: var(--p-red-500, #ef4444);
+  background: color-mix(in srgb, var(--p-red-500, #ef4444) 13%, transparent);
+}
+.dm-cert__title {
+  margin: 0.1rem 0 0.2rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+.dm-cert__lead {
+  margin: 0;
+  line-height: 1.55;
   color: var(--p-text-muted-color);
+}
+.dm-cert__how {
+  margin: 0.15rem 0 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--p-text-muted-color);
+}
+.dm-cert__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.dm-cert__steps li {
+  position: relative;
+  padding-inline-start: 1.85rem;
+  line-height: 1.55;
+  counter-increment: step;
+}
+.dm-cert__steps li::before {
+  content: counter(step);
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.05rem;
+  display: grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--p-primary-contrast-color, #fff);
+  background: var(--p-primary-color);
+}
+.dm-cert__foot {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed color-mix(in srgb, var(--p-red-500, #ef4444) 22%, transparent);
+}
+.dm-cert__details {
+  min-width: 0;
+  flex: 1;
+}
+.dm-cert__details summary {
+  width: fit-content;
+  cursor: pointer;
+  color: var(--p-text-muted-color);
+}
+.dm-cert__details code {
+  display: block;
+  margin-top: 0.35rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--p-text-muted-color);
+  background: var(--p-content-hover-background, rgba(127, 127, 127, 0.08));
+}
+.dm-cert__retry {
+  flex: none;
+}
+/* Opening: the card unfolds (its height from 0) and fades in */
+.dm-cert-enter-active,
+.dm-cert-leave-active {
+  transition:
+    grid-template-rows 0.28s ease,
+    opacity 0.28s ease;
+}
+.dm-cert-enter-from,
+.dm-cert-leave-to {
+  grid-template-rows: 0fr;
+  opacity: 0;
 }
 /* TLS modes without a certificate of their own: Reality, Fake, DNS, the built-in fake-TLS servers */
 .dm-mode--reality {
@@ -1160,6 +1358,8 @@ a.dm-row__domain:hover {
     border-radius: 14px;
   }
   .dm-row__head {
+    /* the phone layout's lines already make every card as tall: no desktop minimum here */
+    min-height: 0;
     grid-template-columns: auto auto minmax(0, 1fr) auto;
     grid-template-areas:
       'order icon title title'
@@ -1197,14 +1397,6 @@ a.dm-row__domain:hover {
   .dm-row__line {
     font-size: 0.8rem;
   }
-  /* chosen proxies take the last line, beside the buttons, as the other lines do */
-  .dm-row__head--chosen {
-    grid-template-areas:
-      'order icon title title'
-      'order icon chips chips'
-      'chosen chosen chosen side'
-      'lines lines lines side';
-  }
   .dm-row__side {
     grid-area: side;
     align-self: end;
@@ -1231,6 +1423,147 @@ a.dm-row__domain:hover {
 </style>
 
 <style>
+/* The badges' hover cards (tlsTip / modeTip; PrimeVue puts the tooltip in <body>): a light card in the page's
+   colours with the badge's own colour on its top edge and icon */
+.p-tooltip.dm-tip {
+  max-width: 22rem;
+}
+.p-tooltip.dm-tip .p-tooltip-text {
+  padding: 0;
+  border-radius: 14px;
+  background: var(--p-content-background);
+  color: var(--p-text-color);
+  border: 1px solid var(--p-content-border-color);
+  box-shadow: 0 18px 40px -16px rgb(15 23 42 / 35%), 0 2px 6px rgb(15 23 42 / 6%);
+  white-space: normal;
+  overflow: hidden;
+}
+html.theme-glass .p-tooltip.dm-tip .p-tooltip-text {
+  background: var(--p-surface-0);
+}
+html.theme-glass.app-dark .p-tooltip.dm-tip .p-tooltip-text {
+  background: var(--p-surface-900);
+}
+.p-tooltip.dm-tip.p-tooltip-top .p-tooltip-arrow {
+  border-top-color: var(--p-content-border-color);
+}
+.dm-tip__card {
+  min-width: 17rem;
+  border-top: 3px solid var(--tip-tone);
+  font-size: 0.8rem;
+}
+.dm-tip__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.7rem 0.85rem 0.55rem;
+}
+.dm-tip__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 9px;
+  color: var(--tip-tone);
+  background: color-mix(in srgb, var(--tip-tone) 14%, transparent);
+}
+.dm-tip__title {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.dm-tip__sub {
+  margin-top: 0.1rem;
+  line-height: 1.45;
+  color: var(--p-text-muted-color);
+}
+.dm-tip__life {
+  --life: var(--tip-tone);
+  padding: 0 0.85rem 0.55rem;
+}
+.dm-tip__life--soon {
+  --life: #d97706;
+}
+.dm-tip__life--urgent {
+  --life: #dc2626;
+}
+.dm-tip__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--life) 15%, transparent);
+  overflow: hidden;
+}
+.dm-tip__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--life);
+}
+.dm-tip__dates {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--p-text-muted-color);
+}
+.dm-tip__dates b {
+  color: var(--life);
+}
+.dm-tip__rows {
+  margin: 0;
+  padding: 0 0.85rem 0.6rem;
+}
+.dm-tip__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  border-top: 1px solid var(--p-content-border-color);
+}
+.dm-tip__row dt {
+  flex: none;
+  color: var(--p-text-muted-color);
+}
+.dm-tip__row dd {
+  margin: 0;
+  min-width: 0;
+  font-weight: 600;
+  text-align: end;
+}
+.dm-tip__row code {
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+.dm-tip__chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+.dm-tip__chip {
+  padding: 0.05rem 0.4rem;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: var(--p-content-hover-background, rgba(127, 127, 127, 0.1));
+}
+.dm-tip__more {
+  font-size: 0.7rem;
+  color: var(--p-text-muted-color);
+}
+.dm-tip__note {
+  margin: 0 0.85rem 0.65rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #b91c1c;
+  background: color-mix(in srgb, #dc2626 8%, transparent);
+  overflow-wrap: anywhere;
+}
 .dm-menu--danger .p-menu-item-icon,
 .dm-menu--danger .p-menu-item-label {
   color: var(--p-red-500, #ef4444);

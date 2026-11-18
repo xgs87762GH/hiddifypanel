@@ -34,8 +34,8 @@
           </template>
         </Select>
         <Select
-          v-model="subFilter"
-          :options="subOptions"
+          v-model="permFilter"
+          :options="permOptions"
           option-label="label"
           option-value="value"
           :placeholder="t('admins.filter.anySub')"
@@ -44,7 +44,12 @@
           :aria-label="t('admins.filter.sub')"
         >
           <template #value="{ value, placeholder }">
-            <span class="admins-bar__filter-value"><i class="pi pi-sitemap" />{{ value ? subOptions.find((o) => o.value === value)?.label : placeholder }}</span>
+            <span class="admins-bar__filter-value">
+              <i class="pi" :class="permOptions.find((o) => o.value === value)?.icon ?? 'pi-key'" />{{ value ? permOptions.find((o) => o.value === value)?.label : placeholder }}
+            </span>
+          </template>
+          <template #option="{ option }">
+            <span class="admins-bar__filter-value"><i class="pi" :class="option.icon" />{{ option.label }}</span>
           </template>
         </Select>
       </div>
@@ -104,6 +109,15 @@
                       class="admins-chip admins-chip--sub"
                       v-tooltip.top="t('admins.canAddHint')"
                     ><i class="pi pi-sitemap" />{{ t('admins.canAddShort') }}</span>
+                    <component
+                      :is="tree?.read_only ? 'span' : 'button'"
+                      v-if="row(node).telegram_id"
+                      :type="tree?.read_only ? undefined : 'button'"
+                      class="admins-tg"
+                      :class="{ 'admins-tg--action': !tree?.read_only }"
+                      v-tooltip.top="tree?.read_only ? t('users.extra.telegramHint') : t('admins.telegramMessage')"
+                      @click.stop="!tree?.read_only && messageAdmin(row(node))"
+                    ><i class="pi pi-telegram" />Telegram</component>
                     <button
                       v-if="node.children?.length"
                       type="button"
@@ -158,14 +172,14 @@
                 </div>
               </div>
               <!-- The users column moves here on small screens, using the full width -->
-              <UsageMeters class="admins-who__meters" :stats="row(node).stats" :limits="row(node).limits" />
+              <UsageMeters class="admins-who__meters" :stats="row(node).stats" :limits="row(node).limits" :days-to-reset="row(node).days_to_reset" />
             </div>
           </template>
         </Column>
 
         <Column :header="t('admins.col.users')" header-class="admins-col--md" body-class="admins-col--md admins-col--users">
           <template #body="{ node }">
-            <UsageMeters :stats="row(node).stats" :limits="row(node).limits" />
+            <UsageMeters :stats="row(node).stats" :limits="row(node).limits" :days-to-reset="row(node).days_to_reset" />
           </template>
         </Column>
       </TreeTable>
@@ -188,6 +202,18 @@
 
     <MyConfigsDialog v-model:visible="myConfigsVisible" :admin="myRow" @saved="onMyConfigsSaved" />
     <AdminFormDialog v-model:visible="formVisible" :admin="editingAdmin" :tree="tree" @created="onCreated" @saved="onSaved" @reset-password="confirmReset" />
+    <!-- Send a Telegram message to one admin (the users page's message dialog) -->
+    <Dialog
+      v-model:visible="messageVisible"
+      modal
+      maximizable
+      :draggable="false"
+      :header="t('admins.messageTitle', { name: messageAdmin_?.name ?? '' })"
+      :style="{ width: 'min(72rem, 96vw)' }"
+      :breakpoints="{ '767px': '100vw' }"
+    >
+      <BroadcastComposer v-if="messageVisible && messageAdmin_" :ids="[messageAdmin_.id]" admins in-dialog />
+    </Dialog>
     <AdminLinkDialog v-model:visible="linkVisible" :admin="linkAdmin" :domains="tree?.link_domains ?? []" @reset-password="confirmReset" />
     <AdminCredentialsDialog v-model:visible="credentialsVisible" :name="credentialsName" :credentials="credentials" :kind="credentialsKind" />
   </div>
@@ -198,12 +224,13 @@ import ListFilterStatus from '@/shared/components/ListFilterStatus.vue'
 import ListNoMatch from '@/shared/components/ListNoMatch.vue'
 import NoteButton from '@/shared/components/NoteButton.vue'
 import { useHashState } from '@/shared/composables/useHashState'
-import { computed, defineComponent, h, onMounted, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, defineComponent, h, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
+import Dialog from 'primevue/dialog'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
@@ -223,7 +250,7 @@ import AdminFormDialog from '@/features/admins/components/AdminFormDialog.vue'
 import MyConfigsDialog from '@/features/admins/components/MyConfigsDialog.vue'
 import AdminLinkDialog from '@/features/admins/components/AdminLinkDialog.vue'
 import UsageMeters from '@/features/admins/components/UsageMeters.vue'
-import { adminsApi, type AdminCredentials, type AdminMode, type AdminRow, type AdminsTree } from '@/features/admins/api'
+import { ADMIN_CAPABILITIES, CAPABILITY_ICON, adminsApi, type AdminCapability, type AdminCredentials, type AdminMode, type AdminRow, type AdminsTree } from '@/features/admins/api'
 
 /** Highlights the search match inside a name or UUID. */
 const MarkText = defineComponent({
@@ -250,9 +277,17 @@ const loadError = ref<string | null>(null)
 const query = ref('')
 const expandedKeys = ref<Record<string, boolean>>({})
 const modeFilter = ref<AdminMode | null>(null)
-const subFilter = ref<'yes' | 'no' | null>(null)
-useHashState({ q: query, mode: modeFilter, sub: subFilter })
+/** Admins that have this permission (super admins have all); `none`: admins without any. */
+const permFilter = ref<AdminCapability | 'none' | null>(null)
+useHashState({ q: query, mode: modeFilter, perm: permFilter })
 const linkAdmin = ref<AdminRow | null>(null)
+const BroadcastComposer = defineAsyncComponent(() => import('@/features/broadcast/components/BroadcastComposer.vue'))
+const messageVisible = ref(false)
+const messageAdmin_ = ref<AdminRow | null>(null)
+function messageAdmin(admin: AdminRow) {
+  messageAdmin_.value = admin
+  messageVisible.value = true
+}
 const linkVisible = ref(false)
 const justChanged = ref<string | null>(null)
 
@@ -283,22 +318,24 @@ const modeOptions = computed(() => {
   const present = new Set<AdminMode>(['super_admin', 'agent', ...(tree.value?.admins ?? []).map((a) => a.mode)])
   return MODE_ORDER.filter((mode) => present.has(mode)).map((mode) => ({ value: mode, label: t(`admins.mode.${mode}`) }))
 })
-const subOptions = computed(() => [
-  { value: 'yes' as const, label: t('admins.filter.canAdd') },
-  { value: 'no' as const, label: t('admins.filter.cannotAdd') },
+/** Every permission, as in the edit dialog, then "none". */
+const permOptions = computed<{ value: AdminCapability | 'none'; label: string; icon: string }[]>(() => [
+  ...ADMIN_CAPABILITIES.map((key) => ({ value: key, label: t(`admins.capability.${key}`), icon: CAPABILITY_ICON[key] })),
+  { value: 'none', label: t('admins.form.capabilitiesNone'), icon: 'pi-ban' },
 ])
-const filtering = computed(() => Boolean(query.value.trim() || modeFilter.value || subFilter.value))
+const filtering = computed(() => Boolean(query.value.trim() || modeFilter.value || permFilter.value))
 
-
-function canAddSubs(admin: AdminRow): boolean {
-  return admin.mode === 'super_admin' || admin.can_add_admin
+function hasPermission(admin: AdminRow, perm: AdminCapability | 'none'): boolean {
+  const caps = admin.capabilities ?? {}
+  if (perm === 'none') return admin.mode !== 'super_admin' && !ADMIN_CAPABILITIES.some((key) => caps[key])
+  return admin.mode === 'super_admin' || Boolean(caps[perm]) || (perm === 'add_sub_admins' && admin.can_add_admin)
 }
 
 function matches(admin: AdminRow): boolean {
   const q = query.value.trim().toLowerCase()
   if (q && !admin.name.toLowerCase().includes(q) && !admin.uuid.toLowerCase().includes(q)) return false
   if (modeFilter.value && admin.mode !== modeFilter.value) return false
-  if (subFilter.value && canAddSubs(admin) !== (subFilter.value === 'yes')) return false
+  if (permFilter.value && !hasPermission(admin, permFilter.value)) return false
   return true
 }
 
@@ -307,7 +344,7 @@ const visibleAdmins = computed(() => (tree.value?.admins ?? []).filter(matches).
 function clearFilters() {
   query.value = ''
   modeFilter.value = null
-  subFilter.value = null
+  permFilter.value = null
 }
 
 /** Tree depth of each admin (0 = the signed-in admin). */
@@ -839,6 +876,36 @@ button.admins-avatar:focus-visible {
 .admins-chip--sub {
   color: var(--p-green-600, #16a34a);
   background: color-mix(in srgb, var(--p-green-500, #22c55e) 12%, transparent);
+}
+.admins-tg {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--p-content-border-color);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  color: var(--p-text-muted-color);
+}
+.admins-tg i {
+  font-size: 0.7rem;
+  color: var(--p-blue-500, #3b82f6);
+}
+.admins-tg--action {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.admins-tg--action:hover,
+.admins-tg--action:focus-visible {
+  background: color-mix(in srgb, #2aabee 18%, transparent);
+  color: #1e88c7;
+  outline: none;
 }
 .admins-chip--me {
   color: var(--p-primary-color);

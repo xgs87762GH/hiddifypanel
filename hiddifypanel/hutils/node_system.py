@@ -8,6 +8,7 @@ import hiddifypanel
 from hiddifypanel import hutils
 from hiddifypanel.hutils.flask import hurl_for
 from hiddifypanel.hutils.node.api_client import NodeApiClient, NodeApiErrorSchema
+from hiddifypanel.hutils.node.shared import contact_error
 from hiddifypanel.models import ConfigEnum, hconfig
 from hiddifypanel.models.child import Child, ChildMode
 from hiddifypanel.panel.commercial.restapi.v2.admin.dashboard_schema import (
@@ -58,12 +59,15 @@ def _node_from_snapshot(node_id: int, name: str, mode: str, metrics: MetricsSnap
     )
 
 
-def _failed_node(node_id: int, name: str, mode: str, error: str) -> DashboardNodeStats:
-    return DashboardNodeStats(id=node_id, name=name, mode=mode, ok=False, error=error)
+def _failed_node(node_id: int, name: str, mode: str, error: NodeApiErrorSchema | str) -> DashboardNodeStats:
+    code, detail = contact_error(error)
+    return DashboardNodeStats(id=node_id, name=name, mode=mode, ok=False, error=detail, error_code=code)
 
 
 def _local_node(metrics: MetricsSnapshot) -> DashboardNodeStats:
-    return _node_from_snapshot(0, "this-server", "local", metrics)
+    # The name an admin gave this server on the dashboard ("Root" until then: the dashboard shows "This server")
+    local = Child.query.filter(Child.id == 0).first()
+    return _node_from_snapshot(0, (local.name if local else "") or "this-server", "local", metrics)
 
 
 def _fetch_child(child: Child, process_limit: int, parent_key: str) -> DashboardNodeStats:
@@ -76,7 +80,7 @@ def _fetch_child(child: Child, process_limit: int, parent_key: str) -> Dashboard
         client = NodeApiClient(base, timeout=_NODE_TIMEOUT, max_retry=_NODE_RETRIES, apikey=parent_key)
         res = client.get(f"/api/v2/admin/dashboard/?include=system&processes={process_limit}", DashboardOutputSchema)
         if isinstance(res, NodeApiErrorSchema):
-            return _failed_node(child.id, name, mode, res.msg)
+            return _failed_node(child.id, name, mode, res)
         return DashboardNodeStats(
             id=child.id,
             name=name,
@@ -102,16 +106,17 @@ def fetch_disk_detail(child_id: int | None) -> DashboardDiskDetail:
 
     child = Child.by_id(child_id)
     if not child or child.mode != ChildMode.remote:
-        return DashboardDiskDetail(node_id=child_id, error="unknown_node")
+        return DashboardDiskDetail(node_id=child_id, error="", error_code="unknown")
 
     base = (child.node_base_url or "").strip()
     if not base:
-        return DashboardDiskDetail(node_id=child_id, error="no_url")
+        return DashboardDiskDetail(node_id=child_id, error="", error_code="no_url")
 
     client = NodeApiClient(base, timeout=_DISK_DETAIL_TIMEOUT, max_retry=1)
     res = client.get("/api/v2/admin/dashboard/disk/", DashboardDiskDetail)
     if isinstance(res, NodeApiErrorSchema):
-        return DashboardDiskDetail(node_id=child_id, error=res.msg)
+        code, detail = contact_error(res)
+        return DashboardDiskDetail(node_id=child_id, error=detail, error_code=code)
     res.node_id = child_id
     return res
 
@@ -119,7 +124,7 @@ def fetch_disk_detail(child_id: int | None) -> DashboardDiskDetail:
 def attach_panel_urls(node_stats: list[DashboardNodeStats], account_uuid: str, admin_base: str) -> None:
     """Link each remote node (online or offline) to its panel, same link as the legacy Node admin.
 
-    Nodes without a base URL fall back to their edit page in this panel's Node admin.
+    Nodes without a base URL fall back to this panel's Nodes page.
     """
     remote_ids = [row.id for row in node_stats if row.id != 0]
     if not remote_ids:
@@ -129,7 +134,26 @@ def attach_panel_urls(node_stats: list[DashboardNodeStats], account_uuid: str, a
         if row.id == 0 or is_debug_node(row.id):
             continue
         base = bases.get(row.id)
-        row.panel_url = f"{base}/{account_uuid}/" if base else hurl_for('flask.node.edit_view', id=row.id)
+        row.panel_url = f"{base}/{account_uuid}/" if base else hurl_for("admin.admin_v2", subpath="nodes")
+
+
+def attach_countries(node_stats: list[DashboardNodeStats]) -> None:
+    """Each node's country from its address, as on the Nodes page (cached a day); this server's from its own public IP."""
+    from hiddifypanel.panel.commercial.restapi.v2.admin.nodes_api import node_country
+
+    remote_ids = [row.id for row in node_stats if row.id != 0 and not is_debug_node(row.id)]
+    hosts = {}
+    if remote_ids:
+        for child in Child.query.filter(Child.id.in_(remote_ids)).all():
+            base = (child.node_base_url or "").strip()
+            hosts[child.id] = base.split("://", 1)[-1].split("/", 1)[0] if base else ""
+    own = ""
+    if any(row.id == 0 or is_debug_node(row.id) for row in node_stats):
+        # The known public addresses, without waiting for the network on a dashboard poll.
+        own = next((str(ip) for ip in hutils.network.get_ips_lazy() if ip.is_global), "")
+    for row in node_stats:
+        host = own if row.id == 0 or is_debug_node(row.id) else hosts.get(row.id, "")
+        row.country = node_country(host) if host else ""
 
 
 def collect_system_stats(child_id: int | None, process_limit: int = 8, debug_nodes: bool = False) -> NodeSystemCollection:

@@ -5,7 +5,6 @@ import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Message from 'primevue/message'
-import MultiSelect from 'primevue/multiselect'
 import Select from 'primevue/select'
 import ToggleSwitch from 'primevue/toggleswitch'
 import { apiErrorMessage } from '@/core/api/client'
@@ -14,6 +13,7 @@ import KindPicker from '@/features/domains/components/KindPicker.vue'
 import TlsPicker from '@/features/domains/components/TlsPicker.vue'
 import PortField from '@/features/domains/components/PortField.vue'
 import ProxyPicker from '@/features/domains/components/ProxyPicker.vue'
+import ShowDomainsPicker from '@/features/domains/components/ShowDomainsPicker.vue'
 import DomainTricksPanel from '@/features/domains/components/DomainTricksPanel.vue'
 import OperatorIpEditor from '@/shared/components/OperatorIpEditor.vue'
 import {
@@ -32,7 +32,6 @@ import {
   type DomainsState,
   type TlsMode,
 } from '@/features/domains/api'
-
 const Json5Editor = defineAsyncComponent(() => import('@/shared/components/Json5Editor.vue'))
 
 const props = defineProps<{ row: DomainRow | null; state: DomainsState | null; options: DomainsOptions | null }>()
@@ -135,16 +134,8 @@ watch(compatibleIds, (ids) => {
   if (visible.value) proxyIds.value = proxyIds.value.filter((id) => ids.includes(id))
 })
 
-/** Whose configs this domain shows: sub-link domains, or any real-certificate domain while there is no sub-link domain. */
-const showDomainsAllowed = computed(() => isSublink.value || (!meta.value?.has_sublink && fakeMode.value === 'valid'))
-/** Like the classic page: `Node[name] alias [domain] mode(tls)` for nodes' domains. */
-const showOptions = computed(() =>
-  (props.options?.show_options ?? []).map((d) => {
-    const name = d.alias && d.alias !== d.domain ? `${d.alias} [${d.domain || t('domains.noName')}]` : d.domain || t('domains.noName')
-    const kind = `${t(`domains.kind.${kindOf(d.mode)}.name`)} (${t(`domains.tlsMode.${d.fake_mode}`)})`
-    return { id: d.id, label: `${d.node ? `Node[${d.node}] ` : ''}${name} ${kind}` }
-  }),
-)
+/** Whose configs this domain shows: sub-link domains, or every domain while there is no sub-link domain. */
+const showDomainsAllowed = computed(() => isSublink.value || !meta.value?.has_sublink)
 const serverDomainOptions = computed(() =>
   others.value.filter((d) => (d.mode === 'direct' || d.mode === 'relay') && d.fake_mode === 'valid').map((d) => ({ id: d.id, label: d.domain })),
 )
@@ -281,18 +272,7 @@ async function save() {
 
       <section v-if="showDomainsAllowed" class="dd__section">
         <h3 class="dd__h">{{ t('domains.field.showDomains') }}</h3>
-        <MultiSelect
-          v-model="showIds"
-          :options="showOptions"
-          option-label="label"
-          option-value="id"
-          display="chip"
-          filter
-          :placeholder="t('domains.field.showAll')"
-          :max-selected-labels="4"
-          class="dd__ltr"
-          fluid
-        />
+        <ShowDomainsPicker v-model="showIds" :options="state?.show_options ?? options?.show_options ?? []" />
         <small class="dd__hint">{{ t('domains.field.showDomainsHint') }}</small>
       </section>
 
@@ -618,10 +598,16 @@ async function save() {
   border: 1px solid var(--p-content-border-color);
   cursor: pointer;
 }
+/* The switch keeps its width (its handle slides by the switch's set width: squeezed, the handle left the track and the
+   card); the text wraps instead */
+.dd__toggle :deep(.p-toggleswitch) {
+  flex: none;
+}
 .dd__toggle span {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+  min-width: 0;
 }
 .dd__toggle b {
   font-size: 0.86rem;
