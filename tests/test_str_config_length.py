@@ -17,7 +17,12 @@ class StrConfigLengthTests(unittest.TestCase):
 
     def test_existing_databases_are_altered_once(self):
         self.assertGreaterEqual(init_db.latest_db_version(), 200)
-        with mock.patch.object(init_db, "db", mock.Mock(engine=mock.Mock(dialect=mysql.dialect()))), mock.patch.object(init_db, "db_execute") as db_execute:
+        # _v200 除了改列还会同步内置预设（需要 app/数据库上下文）：这里把它挡掉，只验证改动列的路径
+        with (
+            mock.patch.object(init_db, "db", mock.Mock(engine=mock.Mock(dialect=mysql.dialect()))),
+            mock.patch.object(init_db, "sync_builtin_presets"),
+            mock.patch.object(init_db, "db_execute") as db_execute,
+        ):
             init_db._v200(1)  # a virtual child shares the table: nothing to do
             db_execute.assert_not_called()
             init_db._v200(0)
