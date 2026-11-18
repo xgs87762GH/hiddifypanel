@@ -20,8 +20,12 @@ def get_ssh_hostkeys(hconfigs, dojson=False) -> list[str] | str:
     raising, so a panel without generated host keys still renders its config.
     """
     host_keys = []
+    if not isinstance(hconfigs, dict):
+        return json.dumps(host_keys) if dojson else host_keys
     for key in (ConfigEnum.ssh_host_ed25519_pub, ConfigEnum.ssh_host_ecdsa_pub, ConfigEnum.ssh_host_rsa_pub):
-        value = hconfigs.get(key) or hconfigs.get(str(key)) if isinstance(hconfigs, dict) else None
+        # 不能写成 `a.get(k) or a.get(str(k)) if isinstance(a, dict) else None`：
+        # 那会被解析成 `a.get(k) or (...)`，非 dict 时先炸在 a.get 上。
+        value = hconfigs.get(key) or hconfigs.get(str(key))
         if value:
             host_keys.append(value)
     if dojson:
