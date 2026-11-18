@@ -49,7 +49,11 @@ class SublinkUriAllowInsecureTests(unittest.TestCase):
                 tls_layer=SimpleNamespace(alpns=lambda: ["h2", "http/1.1"]),
             ),
             hconfig=SimpleNamespace(utls="none", tls_fragment_enable=False),
-            platform=SimpleNamespace(xray=SimpleNamespace(version=TemplateVersion(""))),
+            # 14.5 的模板还会读 hiddify（core）版本决定是否继续发 fragment 参数
+            platform=SimpleNamespace(
+                xray=SimpleNamespace(version=TemplateVersion("")),
+                hiddify=SimpleNamespace(version=TemplateVersion("5.9.11")),
+            ),
         )
 
     def render(self, xray_version):
