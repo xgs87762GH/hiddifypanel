@@ -20,34 +20,34 @@
           :rows="18"
           spellcheck="false"
           :readonly="readonly"
-          @update:model-value="(value: string) => updateVmess(index, value)"
+          @update:model-value="(value?: string) => updateVmess(index, value ?? '')"
         />
         <Message v-if="vmessError[index]" severity="error" class="mt-2" :closable="false">{{ vmessError[index] }}</Message>
       </template>
       <template v-else>
         <HorizontalField :label="t('utils.protocol')" :input-id="`${idPrefix}proto-${index}`">
-          <InputText dir="ltr" :id="`${idPrefix}proto-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.protocol" @update:model-value="(value: string) => patchUri(index, { protocol: value })" />
+          <InputText dir="ltr" :id="`${idPrefix}proto-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.protocol" @update:model-value="(value?: string) => patchUri(index, { protocol: value ?? '' })" />
         </HorizontalField>
         <HorizontalField :label="t('utils.server')" :input-id="`${idPrefix}server-${index}`">
-          <InputText dir="ltr" :id="`${idPrefix}server-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.server" @update:model-value="(value: string) => patchUri(index, { server: value })" />
+          <InputText dir="ltr" :id="`${idPrefix}server-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.server" @update:model-value="(value?: string) => patchUri(index, { server: value ?? '' })" />
         </HorizontalField>
         <HorizontalField :label="t('utils.port')" :input-id="`${idPrefix}port-${index}`">
-          <InputText dir="ltr" :id="`${idPrefix}port-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.port" @update:model-value="(value: string) => patchUri(index, { port: value })" />
+          <InputText dir="ltr" :id="`${idPrefix}port-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.port" @update:model-value="(value?: string) => patchUri(index, { port: value ?? '' })" />
         </HorizontalField>
         <HorizontalField :label="t('utils.user')" :input-id="`${idPrefix}user-${index}`">
-          <InputText dir="ltr" :id="`${idPrefix}user-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.user" @update:model-value="(value: string) => patchUri(index, { user: value })" />
+          <InputText dir="ltr" :id="`${idPrefix}user-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.user" @update:model-value="(value?: string) => patchUri(index, { user: value ?? '' })" />
         </HorizontalField>
         <HorizontalField :label="t('utils.pass')" :input-id="`${idPrefix}pass-${index}`">
-          <InputText dir="ltr" :id="`${idPrefix}pass-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.password" @update:model-value="(value: string) => patchUri(index, { password: value })" />
+          <InputText dir="ltr" :id="`${idPrefix}pass-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.password" @update:model-value="(value?: string) => patchUri(index, { password: value ?? '' })" />
         </HorizontalField>
         <HorizontalField v-if="link.protocol === 'ss' || link.method" :label="t('utils.method')" :input-id="`${idPrefix}method-${index}`">
-          <InputText dir="ltr" :id="`${idPrefix}method-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.method" @update:model-value="(value: string) => patchUri(index, { method: value })" />
+          <InputText dir="ltr" :id="`${idPrefix}method-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.method" @update:model-value="(value?: string) => patchUri(index, { method: value ?? '' })" />
         </HorizontalField>
         <HorizontalField :label="t('utils.path')" :input-id="`${idPrefix}path-${index}`">
-          <InputText dir="ltr" :id="`${idPrefix}path-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.path" @update:model-value="(value: string) => patchUri(index, { path: value })" />
+          <InputText dir="ltr" :id="`${idPrefix}path-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.path" @update:model-value="(value?: string) => patchUri(index, { path: value ?? '' })" />
         </HorizontalField>
         <HorizontalField :label="t('utils.fragment')" :input-id="`${idPrefix}frag-${index}`">
-          <InputText dir="auto" :id="`${idPrefix}frag-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.fragment" @update:model-value="(value: string) => patchUri(index, { fragment: value })" />
+          <InputText dir="auto" :id="`${idPrefix}frag-${index}`" class="w-full sublink-code" :readonly="readonly" :model-value="link.fragment" @update:model-value="(value?: string) => patchUri(index, { fragment: value ?? '' })" />
         </HorizontalField>
 
         <div class="flex items-center justify-between mb-2 mt-3">
@@ -55,8 +55,8 @@
           <Button v-if="!readonly" icon="pi pi-plus" size="small" :label="t('utils.addQuery')" @click="addParam(index)" />
         </div>
         <div v-for="(param, pIndex) in link.params" :key="pIndex" class="flex gap-2 mb-2 items-start">
-          <InputText dir="ltr" class="w-36 shrink-0 sublink-code sublink-key" :placeholder="t('utils.queryKey')" :readonly="readonly" :model-value="param.key" @update:model-value="(value: string) => patchParam(index, pIndex, 'key', value)" />
-          <InputText dir="ltr" class="flex-auto min-w-0 sublink-code" :placeholder="t('utils.queryValue')" :readonly="readonly" :model-value="param.value" @update:model-value="(value: string) => patchParam(index, pIndex, 'value', value)" />
+          <InputText dir="ltr" class="w-36 shrink-0 sublink-code sublink-key" :placeholder="t('utils.queryKey')" :readonly="readonly" :model-value="param.key" @update:model-value="(value?: string) => patchParam(index, pIndex, 'key', value ?? '')" />
+          <InputText dir="ltr" class="flex-auto min-w-0 sublink-code" :placeholder="t('utils.queryValue')" :readonly="readonly" :model-value="param.value" @update:model-value="(value?: string) => patchParam(index, pIndex, 'value', value ?? '')" />
           <Button v-if="!readonly" icon="pi pi-times" text rounded severity="danger" :aria-label="t('common.delete')" @click="removeParam(index, pIndex)" />
         </div>
         <p v-if="!link.params.length" class="text-muted-color text-sm mt-0 mb-3">{{ t('utils.noQuery') }}</p>

@@ -46,6 +46,7 @@ export const CAPABILITY_COLOR: Record<AdminCapability, string> = {
   modify_user_extra: '#ec4899',
   modify_domains: '#10b981',
   modify_outbounds: '#8b5cf6',
+  modify_free_package: '#f43f5e',
 }
 
 /** Limits of one admin; they count its users and all its sub-admins' users. Null fields: no limit. */
