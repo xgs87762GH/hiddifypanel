@@ -237,6 +237,8 @@ class LiveClient {
     liveTransport.value = transport.kind
     liveProtocol.value = transport.protocol || null
     liveState.value = 'open'
+    // A way tried before this one failed: it is not what the channel goes on, so it must not stay on the page.
+    liveIssue.value = ''
     this.failures = 0
     for (const sub of this.subs.values()) {
       if (sub.ended || sub.paused || sub.httpOnly) continue

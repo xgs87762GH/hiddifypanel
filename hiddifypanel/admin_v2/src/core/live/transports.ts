@@ -41,6 +41,36 @@ function channelUrl(channel: Channel, path: string): URL {
   return new URL(`${getApiBase()}${channel}/${path}`, window.location.href)
 }
 
+/** How long a failed handshake waits for the status of the same path over HTTP. */
+const PROBE_TIMEOUT_MS = 3000
+
+/** The status a plain request to `url` gets (0: no answer); the browser hides the one of the WebSocket handshake. */
+async function probeStatus(url: URL): Promise<number> {
+  const controller = new AbortController()
+  const timer = window.setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS)
+  try {
+    const response = await fetch(url, { method: 'GET', credentials: 'include', cache: 'no-store', signal: controller.signal })
+    return response.status
+  } catch {
+    return 0
+  } finally {
+    window.clearTimeout(timer)
+  }
+}
+
+/**
+ * Why the handshake did not open. The browser neither shows the answer's status nor closes with the server's code (`1006`
+ * for anything before the upgrade), so the same path is asked over HTTP: it tells a refusal (signed out, another site's
+ * page) from a path that is not served at all (no live channel: `flask run`, a proxy that routes it elsewhere).
+ */
+async function failureReason(url: URL, event: CloseEvent, timedOut: boolean): Promise<string> {
+  if (timedOut) return `The WebSocket did not open within ${OPEN_TIMEOUT_MS / 1000} s`
+  const status = await probeStatus(url)
+  if (status === 401 || status === 403) return `The WebSocket was refused (HTTP ${status}: not signed in, or a page of another site)`
+  if (status === 0) return 'The WebSocket could not be opened (no answer: a proxy or the network dropped it)'
+  return `The WebSocket could not be opened (the same path answers HTTP ${status}; code ${event.code}${event.reason ? `: ${event.reason}` : ''})`
+}
+
 export class WebSocketTransport implements Transport {
   readonly kind = 'websocket'
   readonly protocol = 'websocket'
@@ -64,17 +94,26 @@ export class WebSocketTransport implements Transport {
       }
       this.socket = socket
       let opened = false
-      const timer = window.setTimeout(() => socket.readyState === WebSocket.CONNECTING && socket.close(), OPEN_TIMEOUT_MS)
+      let timedOut = false
+      const timer = window.setTimeout(() => {
+        if (socket.readyState !== WebSocket.CONNECTING) return
+        timedOut = true
+        socket.close()
+      }, OPEN_TIMEOUT_MS)
       socket.onopen = () => {
         window.clearTimeout(timer)
         opened = true
         resolve()
       }
       socket.onmessage = (event) => this.handlers.onMessage(String(event.data))
-      socket.onclose = () => {
+      // The status is asked only once the handshake has failed: a proxy in front may hide it, and a browser never tells.
+      socket.onclose = (event) => {
         window.clearTimeout(timer)
-        if (opened) this.handlers.onClose()
-        else reject(new Error('The WebSocket could not be opened'))
+        if (opened) {
+          this.handlers.onClose()
+          return
+        }
+        void failureReason(url, event, timedOut).then((reason) => reject(new Error(reason)))
       }
     })
   }
