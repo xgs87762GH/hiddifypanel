@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any, Literal, TypedDict, cast
@@ -14,7 +15,10 @@ from .abstract_driver import DriverABS
 
 USERS_USAGE = "tele:users-usage"
 API_URL = "http://localhost:10088/v1"
-API_TIMEOUT = 5
+# telemt 的 HTTP API 在同一台机器上：1.5 s 足够，5 s 会让 10 个面板线程在它挂掉时全部堵住。
+API_TIMEOUT = 1.5
+# 一次失败后先歇一会儿再试：telemt 没起来时，每次计时/上报都去等超时会把面板拖死。
+UNAVAILABLE_COOLDOWN = 60.0
 
 HttpMethod = Literal["GET", "PATCH", "DELETE"]
 
@@ -61,6 +65,8 @@ def tg_username(uuid: str) -> str:
 
 class TelemtApi(DriverABS):
     redis_client: "redis.Redis | None" = None
+    # telemt 不可用时的时间点（monotonic）；到点前所有请求立即失败，不再阻塞线程
+    _unavailable_until: float = 0.0
 
     def __init__(self) -> None:
         super().__init__()
@@ -95,9 +101,18 @@ class TelemtApi(DriverABS):
         return res
 
     def __request(self, method: HttpMethod, path: str, body: PatchUserRequest | None = None) -> requests.Response:
+        # 熔断：telemt 挂了以后不要每次调用都等超时（并发下会把面板线程全部堵死）
+        if time.monotonic() < TelemtApi._unavailable_until:
+            raise requests.ConnectionError("telemt API is unavailable (recent failure; retrying later)")
         # requests wants a JSON mapping; a TypedDict is open, so hand it over as a plain dict of JSON values
         json_body = cast("dict[str, str | bool | None] | None", dict(body) if body is not None else None)
-        return requests.request(method, f"{API_URL}{path}", json=json_body, timeout=API_TIMEOUT)
+        try:
+            resp = requests.request(method, f"{API_URL}{path}", json=json_body, timeout=API_TIMEOUT)
+        except requests.RequestException:
+            TelemtApi._unavailable_until = time.monotonic() + UNAVAILABLE_COOLDOWN
+            raise
+        TelemtApi._unavailable_until = 0.0
+        return resp
 
     def __get_tg_users(self) -> list[TelemtUser]:
         resp = self.__request("GET", "/users")
