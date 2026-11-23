@@ -4,6 +4,31 @@ from enum import auto
 from fast_enum import FastEnum
 from strenum import StrEnum
 
+#: Members that are not database settings. ``not_found`` is the lookup sentinel
+#: returned by ``ConfigEnum.__missing__``; it must never get a config row.
+NON_DB_CONFIG_KEYS = frozenset({"not_found"})
+
+#: Settings retired from the panel. The members stay for deserializing rows and
+#: backups written by older versions; ``_v210`` deletes their rows and
+#: ``upsert_config`` refuses to write them again. They are not returned by
+#: ``config_enum_members()``, so they disappear from the UI, templates and
+#: generated config variables.
+DEPRECATED_CONFIG_KEYS = frozenset(
+    {
+        "cdn_forced_host",
+        "create_easysetup_link",
+        "last_hash",
+        "path_v2ray",
+        "reality_port",
+        "restls1_2_domain",
+        "restls1_3_domain",
+        "ssh_host_dsa_pk",
+        "ssh_host_dsa_pub",
+        "ssh_server_redis_url",
+        "warp_enable",
+    }
+)
+
 
 class HEnum(StrEnum):
     @classmethod
@@ -454,11 +479,13 @@ class ConfigEnum(metaclass=FastEnum):
 
 
 def config_enum_members() -> list["ConfigEnum"]:
-    """Real config keys only — skips dbvalues and non-member entries."""
+    """Real config keys only — skips dbvalues, non-member entries and retired keys."""
     members: list[ConfigEnum] = []
     for cfg in ConfigEnum:
         name = getattr(cfg, "name", None)
         if not name or name == "dbvalues":
+            continue
+        if name in NON_DB_CONFIG_KEYS or name in DEPRECATED_CONFIG_KEYS:
             continue
         members.append(cfg)
     return members

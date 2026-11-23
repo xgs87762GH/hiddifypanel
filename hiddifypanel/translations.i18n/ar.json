@@ -4454,10 +4454,6 @@
       "description": "أدخل عنوانًا مخصصًا يظهر في صفحة المستخدم. (قبل نص الترحيب للمستخدم)",
       "label": "👁‍🗨 عنوان صفحة المستخدم"
     },
-    "cdn_forced_host": {
-      "description": "في هذا الجزء يمكنك استخدام مجموعة من النطاقات أو عناوين IP المحددة لخادمك لتحل محل الأصلية في روابط المستخدمين. \n\nإذا استخدمت <a href='https://ircf.space/export.php'>هذا القالب </a>، فسيتم اختيار IP المناسب بحسب مشغّل المستخدم، وإذا وضعت نطاقًا من عناوين IP فسيُختار IP عشوائيًا من ذلك النطاق.\nاستخدم <a target='_blank' href='https://ip-format.hiddify.com'>هذا الرابط</a> لضبط عناوين IP الشخصية.",
-      "label": "🔂 إجبار الكونفيغ على استخدام عناوين IP/النطاقات التالية"
-    },
     "cloudflare": {
       "description": "يرجى اتباع <a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>التعليمات</a> ولصق مفتاح Cloudflare API",
       "label": "🔑 Cloudflare API"
@@ -4480,10 +4476,6 @@
     "country": {
       "description": "يطبّق الإعدادات المناسبة لكل دولة بحسب ظروف الحجب في تلك الدولة",
       "label": "🌍 الدولة"
-    },
-    "create_easysetup_link": {
-      "description": "إنشاء رابط إعداد سهل للتهيئة لأول مرة",
-      "label": "إنشاء رابط الإعداد السهل"
     },
     "db_version": {
       "description": "وصف إصدار قاعدة البيانات",
@@ -4651,10 +4643,6 @@
       "ru": "🇷🇺 الروسية",
       "zh": "🇨🇳 الصينية"
     },
-    "last_hash": {
-      "description": "بصمة آخر إعداد تم تطبيقه",
-      "label": "آخر بصمة"
-    },
     "last_priodic_usage_check": {
       "description": "الطابع الزمني لآخر فحص دوري للاستهلاك",
       "label": "آخر فحص دوري للاستهلاك"
@@ -4773,10 +4761,6 @@
       "description": "اسم هذه العقدة، يظهر في اللوحة الرئيسية",
       "label": "اسم العقدة"
     },
-    "not_found": {
-      "description": "الكونفيغ غير موجود",
-      "label": "الكونفيغ غير موجود"
-    },
     "only_ipv4": {
       "description": "سيعطّل IPv6",
       "label": "ℹ️ IPv4 فقط"
@@ -4840,10 +4824,6 @@
       "description": "لروابط TROJAN",
       "label": "ℹ️ مسار Trojan"
     },
-    "path_v2ray": {
-      "description": "اضبط مسار كونفيغات V2Ray",
-      "label": "مسار V2Ray"
-    },
     "path_vless": {
       "description": "لمسار VLess",
       "label": "ℹ️ مسار VLess"
@@ -4892,10 +4872,6 @@
       "description": "عندما يزور GFW المواقع في أسماء الخوادم، سيُعاد توجيهه إلى هذا النطاق.",
       "label": "🌍 نطاق Reality الاحتياطي"
     },
-    "reality_port": {
-      "description": "منفذ Reality",
-      "label": "منفذ REALITY"
-    },
     "reality_private_key": {
       "description": "لا تغيّره",
       "label": "🔑 المفتاح الخاص"
@@ -4915,14 +4891,6 @@
     "restls": {
       "description": "إعدادات بروتوكول RestLS",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "النطاق المستخدم لـ RestLS 1.2",
-      "label": "نطاق RestLS 1.2"
-    },
-    "restls1_3_domain": {
-      "description": "النطاق المستخدم لـ RestLS 1.3",
-      "label": "نطاق RestLS 1.3"
     },
     "shadowsocks": {
       "description": "Shadowsocks نفق وكيل سريع يساعدك على تجاوز جدران الحماية",
@@ -4996,14 +4964,6 @@
       "description": "ℹ️ وكيل SSH، المعروف أيضًا بنفق SSH أو إعادة توجيه منافذ SSH، طريقة آمنة لإنشاء قناة اتصال آمنة بين جهازين عبر شبكة غير آمنة. لدينا تطبيق خاص يختلف تمامًا عن خادم SSH ولا يستطيع تنفيذ أي أوامر",
       "label": "وكيل SSH"
     },
-    "ssh_host_dsa_pk": {
-      "description": "المفتاح الخاص DSA لمضيف SSH",
-      "label": "المفتاح الخاص DSA لمضيف SSH"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "المفتاح العام DSA لمضيف SSH",
-      "label": "المفتاح العام DSA لمضيف SSH"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "المفتاح الخاص ECDSA لمضيف SSH",
       "label": "المفتاح الخاص ECDSA لمضيف SSH"
@@ -5035,10 +4995,6 @@
     "ssh_server_port": {
       "description": "هذا يختلف تمامًا عن خادم SSH الأصلي لديك. إنه برنامج مخصص.",
       "label": "↔️ منفذ وكيل SSH"
-    },
-    "ssh_server_redis_url": {
-      "description": "غير مستخدم",
-      "label": "عنوان قاعدة بيانات مستخدمي SSH"
     },
     "ssh_use_tls_port": {
       "description": "عند التفعيل، يشارك SSH منافذ TLS/HTTPS (مثل 443) عبر تعدد الإرسال L4 بدلًا من استخدام منفذ SSH عام مخصص. يتصل العملاء بمنفذ TLS نفسه؛ ويكتشف المُضاعف الطرفي SSH ويحوّله إلى خلفية وكيل SSH.",
@@ -5241,10 +5197,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "نطاق HTTPS المستخدم لتوجيه مواقع WARP",
-    "warp_enable": {
-      "description": "يساعدك WARP على تجاوز قيود Google وSpotify وNetflix بإخفاء IP الخادم ",
-      "label": "تفعيل WARP+"
-    },
     "warp_mode": {
       "description": "✴️ الكل: تستخدم كل المواقع عناوين Warp IP في الصادر\n<br>\n☑️ المواقع المحلية والمحجوبة فقط: تستخدم المواقع المحلية ومواقع مثل Google وSpotify وNetflix وOpenAi وIPinfo.io عناوين Warp IP في الصادر",
       "label": "✴️ نمط WARP+"

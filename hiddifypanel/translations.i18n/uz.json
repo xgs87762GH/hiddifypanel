@@ -4454,10 +4454,6 @@
       "description": "Foydalanuvchi sahifasida koʻrsatiladigan maxsus sarlavhani kiriting. (Foydalanuvchiga xush kelibsiz matnidan oldin)",
       "label": "👁‍🗨 Foydalanuvchi sahifasi sarlavhasi"
     },
-    "cdn_forced_host": {
-      "description": "Bu boʻlimda serveringiz uchun foydalanuvchi havolalarida almashtiriladigan maxsus domenlar yoki IP lar toʻplamidan foydalanishingiz mumkin. \n\n<a href='https://ircf.space/export.php'>Bu shablondan</a> foydalansangiz, tegishli IP foydalanuvchi operatoriga qarab tanlanadi, IP diapazonini kiritsangiz, IP shu diapazondan tasodifiy tanlanadi.\nShaxsiy IP larni belgilash uchun <a target='_blank' href='https://ip-format.hiddify.com'>bu havoladan</a> foydalaning.",
-      "label": "🔂 Konfiguratsiya quyidagi IP lar/domenlardan foydalansin"
-    },
     "cloudflare": {
       "description": "Iltimos, <a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>yoʻriqnomaga</a> amal qiling va Cloudflare API kalitini joylang",
       "label": "🔑 Cloudflare API"
@@ -4480,10 +4476,6 @@
     "country": {
       "description": "Har bir mamlakat uchun shu mamlakatdagi filtrlash sharoitlariga mos sozlamalarni qoʻllaydi",
       "label": "🌍 Mamlakat"
-    },
-    "create_easysetup_link": {
-      "description": "Birinchi sozlash uchun oson sozlash havolasini yaratish",
-      "label": "Oson sozlash havolasini yaratish"
     },
     "db_version": {
       "description": "Maʼlumotlar bazasi versiyasining tavsifi",
@@ -4651,10 +4643,6 @@
       "uz": "🇺🇿 Oʻzbekcha",
       "zh": "🇨🇳 Xitoycha"
     },
-    "last_hash": {
-      "description": "Oxirgi qoʻllangan konfiguratsiya xeshi",
-      "label": "Oxirgi xesh"
-    },
     "last_priodic_usage_check": {
       "description": "Oxirgi davriy sarf tekshiruvining vaqt belgisi",
       "label": "Oxirgi davriy sarf tekshiruvi"
@@ -4773,10 +4761,6 @@
       "description": "Bu tugunning asosiy panelda koʻrsatiladigan nomi",
       "label": "Tugun nomi"
     },
-    "not_found": {
-      "description": "Konfiguratsiya topilmadi",
-      "label": "Konfiguratsiya topilmadi"
-    },
     "only_ipv4": {
       "description": "U IPv6 ni oʻchiradi",
       "label": "ℹ️ Faqat IPv4"
@@ -4840,10 +4824,6 @@
       "description": "TROJAN havolalari uchun",
       "label": "ℹ️ Trojan yoʻli"
     },
-    "path_v2ray": {
-      "description": "V2Ray konfiguratsiyalari yoʻlini belgilash",
-      "label": "V2Ray yoʻli"
-    },
     "path_vless": {
       "description": "VLess yoʻli uchun",
       "label": "ℹ️ VLess yoʻli"
@@ -4892,10 +4872,6 @@
       "description": "GFW server nomlaridagi saytlarga kirsa, bu domenga yoʻnaltiriladi.",
       "label": "🌍 Reality zaxira domeni"
     },
-    "reality_port": {
-      "description": "Reality porti",
-      "label": "REALITY porti"
-    },
     "reality_private_key": {
       "description": "Uni oʻzgartirmang",
       "label": "🔑 Maxfiy kalit"
@@ -4915,14 +4891,6 @@
     "restls": {
       "description": "RestLS protokoli sozlamalari",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "RestLS 1.2 uchun ishlatiladigan domen",
-      "label": "RestLS 1.2 domeni"
-    },
-    "restls1_3_domain": {
-      "description": "RestLS 1.3 uchun ishlatiladigan domen",
-      "label": "RestLS 1.3 domeni"
     },
     "shadowsocks": {
       "description": "Shadowsocks xavfsizlik devorlarini aylanib oʻtishga yordam beradigan tez tunnel proksisi",
@@ -4996,14 +4964,6 @@
       "description": "ℹ️ SSH proksi, SSH tunnel yoki SSH port yoʻnaltirish deb ham ataladi, ishonchsiz tarmoq orqali ikki mashina orasida xavfsiz aloqa kanali yaratishning xavfsiz usuli. Bizda SSH serveridan butunlay farq qiladigan va hech qanday buyruq bajara olmaydigan maxsus ilova bor",
       "label": "SSH proksi"
     },
-    "ssh_host_dsa_pk": {
-      "description": "SSH host DSA maxfiy kaliti",
-      "label": "SSH host DSA maxfiy kaliti"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "SSH host DSA ochiq kaliti",
-      "label": "SSH host DSA ochiq kaliti"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "SSH host ECDSA maxfiy kaliti",
       "label": "SSH host ECDSA maxfiy kaliti"
@@ -5035,10 +4995,6 @@
     "ssh_server_port": {
       "description": "Bu sizning asl SSH serveringizdan butunlay farq qiladi. Bu maxsus dastur.",
       "label": "↔️ SSH proksi porti"
-    },
-    "ssh_server_redis_url": {
-      "description": "Ishlatilmaydi",
-      "label": "SSH foydalanuvchilar maʼlumotlar bazasi manzili"
     },
     "ssh_use_tls_port": {
       "description": "Yoqilganda SSH alohida ochiq SSH porti oʻrniga TLS/HTTPS portlarini (masalan, 443) L4 multiplekslash orqali ulashadi. Klientlar bir xil TLS portiga ulanadi; chekka multiplekser SSH ni aniqlab, SSH proksi backend iga uzatadi.",
@@ -5241,10 +5197,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "WARP sayt yoʻnaltirishi uchun ishlatiladigan HTTPS domeni",
-    "warp_enable": {
-      "description": "WARP server IP sini yashirib, Google, Spotify va Netflix cheklovlarini aylanib oʻtishga yordam beradi ",
-      "label": "WARP+ ni yoqish"
-    },
     "warp_mode": {
       "description": "✴️ Hammasi : barcha saytlar chiquvchi trafikda Warp IP laridan foydalanadi\n<br>\n☑️ Faqat ichki va bloklangan saytlar: faqat ichki saytlar hamda Google, Spotify, Netflix, OpenAi, IPinfo.io kabi saytlar chiquvchi trafikda Warp IP laridan foydalanadi",
       "label": "✴️ WARP+ rejimi"

@@ -4454,10 +4454,6 @@
       "description": "Voer een aangepaste titel in die op de gebruikerspagina wordt getoond. (Vóór de welkomsttekst voor de gebruiker)",
       "label": "👁‍🗨 Titel van de gebruikerspagina"
     },
-    "cdn_forced_host": {
-      "description": "In dit gedeelte kunt u een reeks specifieke domeinen of IP's voor uw server gebruiken die in de gebruikerslinks worden overschreven. \n\nAls u <a href='https://ircf.space/export.php'>deze sjabloon </a> gebruikt, wordt het relevante IP gekozen op basis van de provider van de gebruiker, en als u een IP-bereik invoert, wordt het IP willekeurig uit dat bereik gekozen.\nGebruik <a target='_blank' href='https://ip-format.hiddify.com'>deze link</a> om persoonlijke IP's in te stellen.",
-      "label": "🔂 Configuraties de volgende IP's/domeinen laten gebruiken"
-    },
     "cloudflare": {
       "description": "Volg <a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>de instructie</a> en plak de Cloudflare API-sleutel",
       "label": "🔑 Cloudflare API"
@@ -4480,10 +4476,6 @@
     "country": {
       "description": "Het past de juiste instellingen toe voor elk land, volgens de filteromstandigheden van dat land",
       "label": "🌍 Land"
-    },
-    "create_easysetup_link": {
-      "description": "Maak een easy-setup-link voor de eerste configuratie",
-      "label": "Easy Setup-link maken"
     },
     "db_version": {
       "description": "Beschrijving van de databaseversie",
@@ -4651,10 +4643,6 @@
       "ru": "🇷🇺 Russisch",
       "zh": "🇨🇳 Chinees"
     },
-    "last_hash": {
-      "description": "Hash van de laatst toegepaste configuratie",
-      "label": "Laatste hash"
-    },
     "last_priodic_usage_check": {
       "description": "Tijdstip van de laatste periodieke verbruikscontrole",
       "label": "Laatste periodieke verbruikscontrole"
@@ -4773,10 +4761,6 @@
       "description": "De naam van deze node, getoond in het bovenliggende paneel",
       "label": "Naam van de node"
     },
-    "not_found": {
-      "description": "Configuratie niet gevonden",
-      "label": "Configuratie niet gevonden"
-    },
     "only_ipv4": {
       "description": "Hiermee wordt IPv6 uitgeschakeld",
       "label": "ℹ️ Alleen IPv4"
@@ -4840,10 +4824,6 @@
       "description": "Voor TROJAN-links",
       "label": "ℹ️ Trojan-pad"
     },
-    "path_v2ray": {
-      "description": "Stel het pad van V2Ray-configuraties in",
-      "label": "V2Ray-pad"
-    },
     "path_vless": {
       "description": "Voor het VLess-pad",
       "label": "ℹ️ VLess-pad"
@@ -4892,10 +4872,6 @@
       "description": "Wanneer de GFW de websites in de servernamen bezoekt, wordt die doorgestuurd naar dit domein.",
       "label": "🌍 Reality-terugvaldomein"
     },
-    "reality_port": {
-      "description": "Reality-poort",
-      "label": "REALITY-poort"
-    },
     "reality_private_key": {
       "description": "Niet wijzigen",
       "label": "🔑 Privésleutel"
@@ -4915,14 +4891,6 @@
     "restls": {
       "description": "Instellingen van het RestLS-protocol",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "Domein dat voor RestLS 1.2 wordt gebruikt",
-      "label": "RestLS 1.2-domein"
-    },
-    "restls1_3_domain": {
-      "description": "Domein dat voor RestLS 1.3 wordt gebruikt",
-      "label": "RestLS 1.3-domein"
     },
     "shadowsocks": {
       "description": "Shadowsocks is een snelle tunnelproxy waarmee u firewalls kunt omzeilen",
@@ -4996,14 +4964,6 @@
       "description": "ℹ️ Een SSH-proxy, ook bekend als SSH-tunnel of SSH-poortdoorsturing, is een veilige methode om een veilig communicatiekanaal tussen twee machines over een onveilig netwerk te maken. We hebben een specifieke toepassing die volledig verschilt van een SSH-server en geen commando's kan uitvoeren",
       "label": "SSH-proxy"
     },
-    "ssh_host_dsa_pk": {
-      "description": "Privé-DSA-sleutel van de SSH-host",
-      "label": "Privé-DSA-sleutel van de SSH-host"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "Publieke DSA-sleutel van de SSH-host",
-      "label": "Publieke DSA-sleutel van de SSH-host"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "Privé-ECDSA-sleutel van de SSH-host",
       "label": "Privé-ECDSA-sleutel van de SSH-host"
@@ -5035,10 +4995,6 @@
     "ssh_server_port": {
       "description": "Dit is volledig anders dan uw oorspronkelijke SSH-server. Het is een speciaal programma.",
       "label": "↔️ Poort van de SSH-proxy"
-    },
-    "ssh_server_redis_url": {
-      "description": "Niet gebruikt",
-      "label": "Adres van de SSH-gebruikersdatabase"
     },
     "ssh_use_tls_port": {
       "description": "Indien ingeschakeld deelt SSH de TLS/HTTPS-poorten (zoals 443) via L4-multiplexing in plaats van een eigen openbare SSH-poort te gebruiken. Clients verbinden met dezelfde TLS-poort; de edge-multiplexer detecteert SSH en stuurt het door naar de SSH-proxybackend.",
@@ -5241,10 +5197,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "HTTPS-domein dat wordt gebruikt voor WARP-siterouting",
-    "warp_enable": {
-      "description": "WARP helpt u de beperkingen van Google, Spotify en Netflix te omzeilen door het server-IP te verbergen",
-      "label": "WARP+ inschakelen"
-    },
     "warp_mode": {
       "description": "✴️ Alles: alle sites gebruiken Warp-IP's in uitgaand verkeer\n<br>\n☑️ Alleen binnenlandse en geblokkeerde sites: alleen binnenlandse sites en websites zoals Google, Spotify, Netflix, OpenAi, IPinfo.io gebruiken Warp-IP's in uitgaand verkeer",
       "label": "✴️ WARP+-modus"

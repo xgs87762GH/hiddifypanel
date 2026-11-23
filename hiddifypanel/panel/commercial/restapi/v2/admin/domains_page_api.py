@@ -72,7 +72,6 @@ def is_host(name: str) -> bool:
 # Keeping the setting here locked the v12 port after the proxy had moved to another one.
 OTHER_SERVICE_PORTS = (
     ConfigEnum.wireguard_port,
-    ConfigEnum.reality_port,
     ConfigEnum.special_port,
     ConfigEnum.naive_port,
     ConfigEnum.mieru_tcp_ports,

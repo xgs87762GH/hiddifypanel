@@ -4454,10 +4454,6 @@
       "description": "Kullanıcı sayfasında gösterilecek özel bir başlık girin. (Kullanıcının Karşılama Metninden Önce)",
       "label": "👁‍🗨 Kullanıcı Sayfası Başlığı"
     },
-    "cdn_forced_host": {
-      "description": "Bu bölümde sunucunuz için kullanıcı bağlantılarında geçersiz kılınacak belirli alan adları veya IP'ler kümesi kullanabilirsiniz. \n\n<a href='https://ircf.space/export.php'>Bu şablonu</a> kullanırsanız ilgili IP kullanıcının operatörüne göre seçilir ve bir IP aralığı girerseniz IP o aralıktan rastgele seçilir.\nKişisel IP'leri ayarlamak için <a target='_blank' href='https://ip-format.hiddify.com'>bu bağlantıyı</a> kullanın.",
-      "label": "🔂 Yapılandırmayı Aşağıdaki IP'leri/Alan Adlarını Kullanmaya Zorla"
-    },
     "cloudflare": {
       "description": "Lütfen <a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>talimatları</a> izleyin ve Cloudflare API Anahtarını yapıştırın",
       "label": "🔑 Cloudflare API"
@@ -4480,10 +4476,6 @@
     "country": {
       "description": "Her ülkenin filtreleme koşullarına göre o ülke için uygun ayarları uygular",
       "label": "🌍 Ülke"
-    },
-    "create_easysetup_link": {
-      "description": "İlk kez yapılandırma için kolay kurulum bağlantısı oluştur",
-      "label": "Kolay Kurulum Bağlantısı Oluştur"
     },
     "db_version": {
       "description": "Veritabanı Sürümü Açıklaması",
@@ -4651,10 +4643,6 @@
       "tr": "🇹🇷 Türkçe",
       "zh": "🇨🇳 Çince"
     },
-    "last_hash": {
-      "description": "Son uygulanan yapılandırma karması",
-      "label": "Son Karma"
-    },
     "last_priodic_usage_check": {
       "description": "Son periyodik kullanım denetiminin zaman damgası",
       "label": "Son Periyodik Kullanım Denetimi"
@@ -4773,10 +4761,6 @@
       "description": "Bu düğümün ana panelde gösterilen adı",
       "label": "Düğüm adı"
     },
-    "not_found": {
-      "description": "Yapılandırma Bulunamadı",
-      "label": "Yapılandırma Bulunamadı"
-    },
     "only_ipv4": {
       "description": "IPv6'yı devre dışı bırakır",
       "label": "ℹ️ Yalnızca IPv4"
@@ -4840,10 +4824,6 @@
       "description": "TROJAN Bağlantıları İçin",
       "label": "ℹ️ Trojan Yolu"
     },
-    "path_v2ray": {
-      "description": "V2Ray Yapılandırma Yolunu Ayarla",
-      "label": "V2Ray Yolu"
-    },
     "path_vless": {
       "description": "VLess Yolu İçin",
       "label": "ℹ️ VLess Yolu"
@@ -4892,10 +4872,6 @@
       "description": "GFW Sunucu adlarındaki web sitelerini ziyaret ettiğinde bu Alan Adına yönlendirilir.",
       "label": "🌍 Reality Yedek Alan Adı"
     },
-    "reality_port": {
-      "description": "Reality Bağlantı Noktası",
-      "label": "REALITY Bağlantı Noktası"
-    },
     "reality_private_key": {
       "description": "Değiştirmeyin",
       "label": "🔑 Özel Anahtar"
@@ -4915,14 +4891,6 @@
     "restls": {
       "description": "RestLS protokolü ayarları",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "RestLS 1.2 için kullanılan alan adı",
-      "label": "RestLS 1.2 Alan Adı"
-    },
-    "restls1_3_domain": {
-      "description": "RestLS 1.3 için kullanılan alan adı",
-      "label": "RestLS 1.3 Alan Adı"
     },
     "shadowsocks": {
       "description": "Shadowsocks, güvenlik duvarlarını aşmanıza yardımcı olan hızlı bir tünel proxy'sidir",
@@ -4996,14 +4964,6 @@
       "description": "ℹ️ SSH proxy'si, SSH tüneli veya SSH bağlantı noktası yönlendirme olarak da bilinir; güvenli olmayan bir ağ üzerinden iki makine arasında güvenli bir iletişim kanalı oluşturmanın güvenli bir yöntemidir. SSH sunucusundan tamamen farklı, hiçbir komut çalıştıramayan özel bir uygulamamız var",
       "label": "SSH Proxy"
     },
-    "ssh_host_dsa_pk": {
-      "description": "SSH ana makine DSA özel anahtarı",
-      "label": "SSH Ana Makine DSA Özel Anahtarı"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "SSH ana makine DSA genel anahtarı",
-      "label": "SSH Ana Makine DSA Genel Anahtarı"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "SSH ana makine ECDSA özel anahtarı",
       "label": "SSH Ana Makine ECDSA Özel Anahtarı"
@@ -5035,10 +4995,6 @@
     "ssh_server_port": {
       "description": "Bu, özgün SSH sunucunuzdan tamamen farklıdır. Özel bir programdır.",
       "label": "↔️ SSH Proxy Bağlantı Noktası"
-    },
-    "ssh_server_redis_url": {
-      "description": "Kullanılmıyor",
-      "label": "SSH kullanıcı veritabanı adresi"
     },
     "ssh_use_tls_port": {
       "description": "Etkinleştirildiğinde SSH, ayrı bir genel SSH bağlantı noktası kullanmak yerine L4 çoklamayla TLS/HTTPS bağlantı noktalarını (443 gibi) paylaşır. İstemciler aynı TLS bağlantı noktasına bağlanır; uç çoklayıcı SSH'ı algılar ve SSH proxy arka ucuna iletir.",
@@ -5241,10 +5197,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "WARP site yönlendirmesi için kullanılan HTTPS alan adı",
-    "warp_enable": {
-      "description": "WARP, sunucu IP'sini gizleyerek Google, Spotify ve Netflix kısıtlamalarını aşmanıza yardımcı olur ",
-      "label": "WARP+'yı Etkinleştirir"
-    },
     "warp_mode": {
       "description": "✴️ Tümü : Tüm Siteler çıkışta Warp IP'lerini kullanır\n<br>\n☑️ Yalnızca Yurt İçi ve Engelli Siteler: Yalnızca Yurt İçi Siteler ile Google, Spotify, Netflix, OpenAi, IPinfo.io gibi web siteleri çıkışta Warp IP'lerini kullanır",
       "label": "✴️ WARP+ Modu"

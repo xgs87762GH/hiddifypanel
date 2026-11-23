@@ -3065,10 +3065,6 @@
       "description": "အသုံးပြုသူစာမျက်နှာတွင်ပြသရန် စိတ်ကြိုက်ခေါင်းစဉ်ကို ထည့်သွင်းပါ။ (အသုံးပြုသူ၏ကြိုဆိုရေးစာသား မတိုင်ခင်)",
       "label": "👁‍🗨 အသုံးပြုသူ စာမျက်နှာ ခေါင်းစဉ်"
     },
-    "cdn_forced_host": {
-      "description": "ဤအပိုင်းတွင် သင့်ဆာဗာအတွက် အသုံးပြုသူလင့်ခ်များပေါ်တွင် အစားထိုးရန် သတ်မှတ်ထားသော ဒိုမိန်းများ သို့မဟုတ် အိုင်ပီများကို သင်အသုံးပြုနိုင်ပါသည်။\n\n<a href='https://ircf.space/export.php'>ဤပုံစံကို</a> သင်အသုံးပြုပါက၊ အသုံးပြုသူ၏ အော်ပရေတာအတိုင်း သက်ဆိုင်ရာ အိုင်ပီကို ရွေးချယ်မည်ဖြစ်ပြီး အိုင်ပီ၏အကွာအဝေးကို ထည့်ပါက အိုင်ပီကို အဆိုပါအကွာအဝေးမှ ကျပန်းရွေးချယ်မည် ဖြစ်သည်။\nကိုယ်ပိုင် အိုင်ပီများကို သတ်မှတ်ရန် <a target='_blank' href='https://ip-format.hiddify.com'>ဤလင့်ခ်ကို</a> အသုံးပြုပါ။",
-      "label": "🔂 အောက်ပါ အိုင်ပီများကို အသုံးပြုရန် Config ကို အတင်းအကျပ်လုပ်ပါ။"
-    },
     "cloudflare": {
       "description": "<a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>ညွှန်ကြားချက်ကို</a> လိုက်နာပြီး Cloudflare API Key ကို ကူးထည့်ပါ။",
       "label": "🔑 Cloudflare API"
@@ -3095,10 +3091,6 @@
     "country": {
       "description": "၎င်းသည် နိုင်ငံတစ်ခုစီ၏ စစ်ထုတ်မှုအခြေအနေများနှင့်အညီ နိုင်ငံတစ်ခုစီအတွက် သင့်လျော်သောဆက်တင်များကို အသုံးပြုသည်။",
       "label": "🌍 နိုင်ငံ"
-    },
-    "create_easysetup_link": {
-      "description": "ပထမဆုံးစတင်သည့် ပြင်ဆင်မှုအတွက် လွယ်ကူသော setup လင့်ခ်ကို ဖန်တီးပါ",
-      "label": "လွယ်ကူသော Setup လင့်ခ် ဖန်တီးရန်"
     },
     "db_version": {
       "description": "ဒေတာဘေ့စ်ဗားရှင်းဖော်ပြချက်",
@@ -3265,10 +3257,6 @@
       "ru": "🇷🇺 ရုရှား",
       "zh": "🇨🇳 တရုတ်"
     },
-    "last_hash": {
-      "description": "နောက်ဆုံး အသုံးချထားသော ကွန်ဖစ် hash",
-      "label": "နောက်ဆုံး Hash"
-    },
     "last_priodic_usage_check": {
       "description": "နောက်ဆုံး ကာလပိုင်း အသုံးပြုမှုစစ်ဆေးချိန်",
       "label": "နောက်ဆုံး ကာလပိုင်း အသုံးပြုမှုစစ်ဆေးမှု"
@@ -3387,10 +3375,6 @@
       "description": "မိဘပန်နယ်တွင် ပြသမည့် ဤ node ၏အမည်",
       "label": "Node အမည်"
     },
-    "not_found": {
-      "description": "Config မတွေ့ပါ။",
-      "label": "Config မတွေ့ပါ။"
-    },
     "only_ipv4": {
       "description": "IPv6 ကို Disable လုပ်ပါလိမ့်မည်",
       "label": "ℹ️ IPv4 သာလျှင်"
@@ -3466,10 +3450,6 @@
       "description": "TROJAN-Links အတွက်",
       "label": "ℹ️ Trojan လမ်းကြောင်း"
     },
-    "path_v2ray": {
-      "description": "V2Ray Configs လမ်းကြောင်းကို သတ်မှတ်ပါ။",
-      "label": "V2Ray လမ်းကြောင်း"
-    },
     "path_vless": {
       "description": "VLess လမ်းကြောင်းအတွက်",
       "label": "ℹ️ VLess လမ်းကြောင်း"
@@ -3518,10 +3498,6 @@
       "description": "GFW သည် ဆာဗာအမည်များရှိ ဝဘ်ဆိုဒ်များသို့ သွားရောက်သည့်အခါ ၎င်းသည် ဤ ဒိုမိန်းသို့ ပြန်လည်ညွှန်းပေးမည်ဖြစ်သည်။",
       "label": "🌍 Reality Fallback ဒိုမိန်း"
     },
-    "reality_port": {
-      "description": "Reality ပို့တ်",
-      "label": "REALITY ပို့တ်"
-    },
     "reality_private_key": {
       "description": "ယင်းအား မပြောင်းလဲရ",
       "label": "🔑 Private Key"
@@ -3549,14 +3525,6 @@
     "restls": {
       "description": "RestLS protocol ဆက်တင်များ",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "RestLS 1.2 အတွက်သုံးသော ဒိုမိန်း",
-      "label": "RestLS 1.2 ဒိုမိန်း"
-    },
-    "restls1_3_domain": {
-      "description": "RestLS 1.3 အတွက်သုံးသော ဒိုမိန်း",
-      "label": "RestLS 1.3 ဒိုမိန်း"
     },
     "shadowsocks": {
       "description": "Shadowsocks သည် firewall များကိုကျော်ဖြတ်ရန် ကူညီပေးသည့် အမြန်လိုဏ်ခေါင်း ပရောက်စီတစ်ခုဖြစ်သည်။",
@@ -3630,14 +3598,6 @@
       "description": "ℹ️ SSH tunnel သို့မဟုတ် SSH port forwarding ဟုလည်းသိကြသော SSH ပရောက်စီသည် မလုံခြုံသေ ာကွန်ရက်တစ်ခုမှ စက်နှစ်လုံးကြားတွင် လုံခြုံသောဆက်သွယ်ရေးချန်နယ်တစ်ခုဖန်တီးရန် လုံခြုံသောနည်းလမ်းတစ်ခုဖြစ်သည်။ ကျွန်ုပ်တို့တွင် SSH ဆာဗာနှင့် လုံးဝကွာခြားပြီး မည်သည့်အမိန့်ကိုမှ လုပ်ဆောင်၍မရသော သီးခြားအက်ပလီကေးရှင်းတစ်ခုရှိသည်။",
       "label": "SSH ပရောက်စီ"
     },
-    "ssh_host_dsa_pk": {
-      "description": "SSH host DSA private key",
-      "label": "SSH Host DSA Private Key"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "SSH host DSA public key",
-      "label": "SSH Host DSA Public Key"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "SSH host ECDSA private key",
       "label": "SSH Host ECDSA Private Key"
@@ -3669,10 +3629,6 @@
     "ssh_server_port": {
       "description": "၎င်းသည် သင်၏ မူရင်း SSH ဆာဗာနှင့် လုံးဝကွဲပြားသည်။ ၎င်းသည် သီးသန့်အစီအစဉ်တစ်ခုဖြစ်သည်။",
       "label": "↔️ SSH ပရောက်စီ Port"
-    },
-    "ssh_server_redis_url": {
-      "description": "အသုံးမပြုထားပါ",
-      "label": "SSH အသုံးပြုသူ ဒေတာဘေ့စ် လိပ်စာ"
     },
     "ssh_use_tls_port": {
       "description": "ဖွင့်ထားပါက SSH သည် သီးခြားအများပြည်သူ SSH Port အစား TLS/HTTPS Port များ (ဥပမာ 443) ကို L4 multiplex ဖြင့် မျှဝေအသုံးပြုသည်။ Client များသည် တူညီသော TLS Port သို့ချိတ်ဆက်ပြီး edge multiplexer က SSH ကိုရှာဖွေ၍ SSH proxy backend သို့ပို့သည်။",
@@ -3874,10 +3830,6 @@
     "warp": {
       "description": "Warp သည် အထွက်လမ်းကြောင်းတွင် သင့်ဆာဗာ အိုင်ပီကို ဖုံးကွယ်ထားသည့် ကိရိယာတစ်ခုဖြစ်သည်။ အသုံးပြုသူများသည် ဝဘ်ဆိုက်တစ်ခုသို့ လည်ပတ်နေပါက ကျွန်ုပ်တို့၏ဆာဗာအိုင်ပီအစား Warp အိုင်ပီကို ထင်ရှားစေသည်။\n<br>\nဥပမာအားဖြင့်၊ သင်သည် Google တွင် captcha နှင့် ပြဿနာရှိပါက၊ ၎င်းကို ဤနည်းဖြင့် ဖြေရှင်းနိုင်သည်။",
       "label": "WARP"
-    },
-    "warp_enable": {
-      "description": "WARP သည် သင့်အား ဆာဗာ အိုင်ပီကိုဝှက်ထားခြင်းဖြင့် Google၊ Spotify နှင့် Netflix ကန့်သတ်ချက်များကို ကျော်လွှားရန် ကူညီပေးသည်။ ",
-      "label": "WARP+ ကို ဖွင့်ရန်"
     },
     "warp_mode": {
       "description": "✴️ အားလုံး : ဆိုဒ်အားလုံးသည် Outbound တွင် Warp IP များကို အသုံးပြုပါသည်။\n<br>\n☑️ ပြည်တွင်းနှင့် ပိတ်ဆို့ထားသောဆိုက်များသာ- Google၊ Spotify၊ Netflix၊ OpenAi၊ IPinfo.io ကဲ့သို့သော ပြည်တွင်းဆိုက်များနှင့် ဝဘ်ဆိုဒ်များကသာ Outbound တွင် Warp IP ကို အသုံးပြုသည်",

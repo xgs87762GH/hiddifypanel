@@ -4454,10 +4454,6 @@
       "description": "Пайдаланушы бетінде көрсетілетін жеке тақырыпты енгізіңіз. (Пайдаланушыға құттықтау мәтінінен бұрын)",
       "label": "👁‍🗨 Пайдаланушы беті тақырыбы"
     },
-    "cdn_forced_host": {
-      "description": "Бұл бөлімде серверіңіз үшін пайдаланушы сілтемелерінде ауыстырылатын нақты домендер немесе IP жиынын қолдана аласыз. \n\n<a href='https://ircf.space/export.php'>Осы үлгіні </a> қолдансаңыз, тиісті IP пайдаланушы операторына қарай таңдалады, ал IP ауқымын қойсаңыз, IP сол ауқымнан кездейсоқ таңдалады.\nЖеке IP-лерді орнату үшін <a target='_blank' href='https://ip-format.hiddify.com'>осы сілтемені</a> қолданыңыз.",
-      "label": "🔂 Конфигурацияларды мына IP-лерді/домендерді қолдануға мәжбүрлеу"
-    },
     "cloudflare": {
       "description": "<a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>Нұсқауды</a> орындап, Cloudflare API кілтін қойыңыз",
       "label": "🔑 Cloudflare API"
@@ -4480,10 +4476,6 @@
     "country": {
       "description": "Әр елдің сүзу жағдайларына сай сол ел үшін қолайлы баптауларды қолданады",
       "label": "🌍 Ел"
-    },
-    "create_easysetup_link": {
-      "description": "Алғашқы баптау үшін оңай баптау сілтемесін жасау",
-      "label": "Оңай баптау сілтемесін жасау"
     },
     "db_version": {
       "description": "Дерекқор нұсқасының сипаттамасы",
@@ -4651,10 +4643,6 @@
       "ru": "🇷🇺 Орыс",
       "zh": "🇨🇳 Қытай"
     },
-    "last_hash": {
-      "description": "Соңғы қолданылған конфигурация хэші",
-      "label": "Соңғы хэш"
-    },
     "last_priodic_usage_check": {
       "description": "Соңғы кезеңдік пайдалану тексерісінің уақыт белгісі",
       "label": "Соңғы кезеңдік пайдалану тексерісі"
@@ -4773,10 +4761,6 @@
       "description": "Осы түйіннің негізгі панельде көрсетілетін аты",
       "label": "Түйін аты"
     },
-    "not_found": {
-      "description": "Конфигурация табылмады",
-      "label": "Конфигурация табылмады"
-    },
     "only_ipv4": {
       "description": "Ол IPv6-ны өшіреді",
       "label": "ℹ️ Тек IPv4"
@@ -4840,10 +4824,6 @@
       "description": "TROJAN сілтемелері үшін",
       "label": "ℹ️ Trojan жолы"
     },
-    "path_v2ray": {
-      "description": "V2Ray конфигурация жолын орнату",
-      "label": "V2Ray жолы"
-    },
     "path_vless": {
       "description": "VLess жолы үшін",
       "label": "ℹ️ VLess жолы"
@@ -4892,10 +4872,6 @@
       "description": "GFW сервер атауларындағы сайттарға кірсе, ол осы доменге бағытталады.",
       "label": "🌍 Reality қосалқы домені"
     },
-    "reality_port": {
-      "description": "Reality порты",
-      "label": "REALITY порты"
-    },
     "reality_private_key": {
       "description": "Оны өзгертпеңіз",
       "label": "🔑 Жеке кілт"
@@ -4915,14 +4891,6 @@
     "restls": {
       "description": "RestLS протоколының баптаулары",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "RestLS 1.2 үшін қолданылатын домен",
-      "label": "RestLS 1.2 домені"
-    },
-    "restls1_3_domain": {
-      "description": "RestLS 1.3 үшін қолданылатын домен",
-      "label": "RestLS 1.3 домені"
     },
     "shadowsocks": {
       "description": "Shadowsocks — брандмауэрлерді айналып өтуге көмектесетін жылдам туннельдік прокси",
@@ -4996,14 +4964,6 @@
       "description": "ℹ️ SSH проксиі, SSH туннелі немесе SSH порт бағыттауы деп те аталады, — қауіпсіз емес желі арқылы екі машина арасында қауіпсіз байланыс арнасын жасаудың қауіпсіз әдісі. Бізде SSH серверінен мүлдем өзгеше және ешқандай команда орындай алмайтын арнайы қолданба бар",
       "label": "SSH проксиі"
     },
-    "ssh_host_dsa_pk": {
-      "description": "SSH хостының DSA жеке кілті",
-      "label": "SSH хостының DSA жеке кілті"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "SSH хостының DSA ашық кілті",
-      "label": "SSH хостының DSA ашық кілті"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "SSH хостының ECDSA жеке кілті",
       "label": "SSH хостының ECDSA жеке кілті"
@@ -5035,10 +4995,6 @@
     "ssh_server_port": {
       "description": "Бұл сіздің түпнұсқа SSH серверіңізден мүлдем өзгеше. Бұл арнайы бағдарлама.",
       "label": "↔️ SSH прокси порты"
-    },
-    "ssh_server_redis_url": {
-      "description": "Қолданылмайды",
-      "label": "SSH пайдаланушылар дерекқорының мекенжайы"
     },
     "ssh_use_tls_port": {
       "description": "Қосылғанда SSH жеке ашық SSH портының орнына TLS/HTTPS порттарын (мысалы, 443) L4 мультиплекстеу арқылы бөліседі. Клиенттер сол TLS портына қосылады; шеткі мультиплексор SSH-ты анықтап, SSH прокси бэкендіне жібереді.",
@@ -5241,10 +5197,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "WARP сайтын бағыттау үшін қолданылатын HTTPS домені",
-    "warp_enable": {
-      "description": "WARP сервер IP-ін жасыру арқылы Google, Spotify және Netflix шектеулерін айналып өтуге көмектеседі ",
-      "label": "WARP+ қосу"
-    },
     "warp_mode": {
       "description": "✴️ Барлығы : Барлық сайттар шығыста Warp IP-лерін қолданады\n<br>\n☑️ Тек отандық және бұғатталған сайттар: Тек отандық сайттар және Google, Spotify, Netflix, OpenAi, IPinfo.io сияқты сайттар шығыста Warp IP-лерін қолданады",
       "label": "✴️ WARP+ режимі"

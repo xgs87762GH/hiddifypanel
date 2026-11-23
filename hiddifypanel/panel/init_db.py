@@ -17,14 +17,33 @@ from hiddifypanel.hutils.network.server_ip_sync import sync_server_ips
 from hiddifypanel.panel.usage_procedure import ADD_USAGE_JSON_PROC_DDL
 from hiddifypanel.models import *
 from hiddifypanel.models import ConfigEnum
-from hiddifypanel.models.config_enum import DomainLabelMode
+from hiddifypanel.models.config_enum import DEPRECATED_CONFIG_KEYS, DomainLabelMode
 from hiddifypanel.proxy_v3.builtin_proxy_sync.orchestrator import seed_proxy_catalog
 from hiddifypanel.proxy_v3.template_catalog.custom_proxy_presets import (
     sync_builtin_presets,
 )
 from hiddifypanel.proxy_v3.tls_store_sync import import_legacy_certificates, migrate_certs_to_data_cert
 
-MAX_DB_VERSION = 209
+MAX_DB_VERSION = 210
+
+
+def _v210(child_id):
+    """Add settings that old restores never created; drop settings retired in 14.5."""
+    add_config_if_not_exist(ConfigEnum.telegram_adtag, "", child_id)
+    ssr_fake_domain = hutils.network.get_random_decoy_domain() or "www.wikipedia.org"
+    add_config_if_not_exist(ConfigEnum.ssr_fakedomain, ssr_fake_domain, child_id)
+
+    if child_id != 0:
+        return
+
+    deprecated = [ConfigEnum[name] for name in DEPRECATED_CONFIG_KEYS]
+    bool_keys = [key for key in deprecated if key.type is bool]
+    str_keys = [key for key in deprecated if key.type is not bool]
+    if bool_keys:
+        BoolConfig.query.filter(BoolConfig.key.in_(bool_keys)).delete(synchronize_session=False)
+    if str_keys:
+        StrConfig.query.filter(StrConfig.key.in_(str_keys)).delete(synchronize_session=False)
+    db.session.commit()
 
 
 def _v209(child_id):
@@ -810,8 +829,6 @@ def _v101(child_id):
 
 def _v97(child_id):
     keys = hutils.crypto.generate_ssh_host_keys()
-    # set_hconfig(ConfigEnum.ssh_host_dsa_pk, keys['dsa']['pk'])
-    # set_hconfig(ConfigEnum.ssh_host_dsa_pub, keys['dsa']['pub'])
     set_hconfig(ConfigEnum.ssh_host_rsa_pk, keys["rsa"]["pk"])
     set_hconfig(ConfigEnum.ssh_host_rsa_pub, keys["rsa"]["pub"])
     set_hconfig(ConfigEnum.ssh_host_ed25519_pk, keys["ed25519"]["pk"])
@@ -1374,9 +1391,6 @@ def get_proxy_rows_v1():
                 "grpc relay vmess",
                 "faketls relay ss",
                 "WS relay v2ray",
-                # "restls1_2 direct ss",
-                # "restls1_3 direct ss",
-                # "tcp direct ssr",
                 "WS CDN v2ray",
                 "WS CDN vless",
                 "WS CDN trojan",

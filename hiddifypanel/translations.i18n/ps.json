@@ -4454,10 +4454,6 @@
       "description": "یو ځانګړی سرلیک ولیکئ چې د کاروونکي په پاڼه کې ښودل کیږي. (د کاروونکي له هرکلي متن مخکې)",
       "label": "👁‍🗨 د کاروونکي د پاڼې سرلیک"
     },
-    "cdn_forced_host": {
-      "description": "په دې برخه کې تاسو کولای شئ د خپل سرور لپاره د ځانګړو ډومېنونو یا IPs ټولګه وکاروئ چې د کاروونکو په لینکونو کې بدله شي. \n\nکه تاسو <a href='https://ircf.space/export.php'>دا کېلب </a> وکاروئ، اړونده IP به د کاروونکي د اپراتور له مخې وټاکل شي، او که تاسو د IPs یو رینج کېږدئ IP به د هغه رینج څخه تصادفي ټاکل شي.\nد شخصي IPs د ټاکلو لپاره <a target='_blank' href='https://ip-format.hiddify.com'>دا لینک</a> وکاروئ.",
-      "label": "🔂 کانفیګ اړ کړئ چې دا IPs/ډومېنونه وکاروي"
-    },
     "cloudflare": {
       "description": "مهرباني وکړئ <a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>لارښوونې</a> تعقیب کړئ او د Cloudflare API کلیدي پیسټ کړئ",
       "label": "🔑 Cloudflare API"
@@ -4480,10 +4476,6 @@
     "country": {
       "description": "دا د هر هیواد لپاره د هغه هیواد د فلټرینګ شرایطو سره سم مناسب تنظیمات پلي کوي",
       "label": "🌍 هیواد"
-    },
-    "create_easysetup_link": {
-      "description": "د لومړي ځل ترتیب لپاره د اسانه ترتیب لینک جوړ کړئ",
-      "label": "د اسانه ترتیب لینک جوړ کړئ"
     },
     "db_version": {
       "description": "د ډیټابیس نسخې توضیح",
@@ -4651,10 +4643,6 @@
       "ru": "🇷🇺 Russian",
       "zh": "🇨🇳 Chinese"
     },
-    "last_hash": {
-      "description": "د وروستي پلي شوي کانفیګوریشن hash",
-      "label": "وروستی Hash"
-    },
     "last_priodic_usage_check": {
       "description": "د وروستۍ دوره یي د کارونې کتنې وخت نښه",
       "label": "وروستۍ دوره یي د کارونې کتنه"
@@ -4773,10 +4761,6 @@
       "description": "د دې نوډ نوم، چې په مورنی پینل کې ښودل کیږي",
       "label": "د نوډ نوم"
     },
-    "not_found": {
-      "description": "کانفیګ ونه موندل شو",
-      "label": "کانفیګ ونه موندل شو"
-    },
     "only_ipv4": {
       "description": "دا به IPv6 بند کړي",
       "label": "ℹ️ یوازې IPv4"
@@ -4840,10 +4824,6 @@
       "description": "د TROJAN لینکونو لپاره",
       "label": "ℹ️ د Trojan لار"
     },
-    "path_v2ray": {
-      "description": "د V2Ray کانفیګونو لار وټاکئ",
-      "label": "د V2Ray لار"
-    },
     "path_vless": {
       "description": "د VLess لار لپاره",
       "label": "ℹ️ د VLess لار"
@@ -4892,10 +4872,6 @@
       "description": "کله چې GFW د سرور نومونو کې سایټونه لیدنه کوي، دې ډومېن ته بیا لیږل کیږي.",
       "label": "🌍 د Reality بیرته راګرځېدو ډومېن"
     },
-    "reality_port": {
-      "description": "د Reality پورټ",
-      "label": "REALITY پورټ"
-    },
     "reality_private_key": {
       "description": "دا مه بدلوئ",
       "label": "🔑 خصوصي کلیدي"
@@ -4915,14 +4891,6 @@
     "restls": {
       "description": "د RestLS پروتوکول تنظیمات",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "هغه ډومېن چې د RestLS 1.2 لپاره کارول کیږي",
-      "label": "د RestLS 1.2 ډومېن"
-    },
-    "restls1_3_domain": {
-      "description": "هغه ډومېن چې د RestLS 1.3 لپاره کارول کیږي",
-      "label": "د RestLS 1.3 ډومېن"
     },
     "shadowsocks": {
       "description": "Shadowsocks یو چټک تونل پراکسي دی چې تاسو سره د فایروالونو ټپلو کې مرسته کوي",
@@ -4996,14 +4964,6 @@
       "description": "ℹ️ یو SSH پراکسي، چې د SSH تونل یا SSH پورټ فارورډینګ په نوم هم پېژندل کیږي، د ناخوندي شبکې له لارې د دوو ماشینونو ترمنځ د خوندي اړیکې کانال جوړولو یوه خوندي طریقه ده. موږ یو ځانګړی اپلیکېشن لرو چې له SSH سرور څخه بالکل توپیر لري او هیڅ کمانډ نشي اجرا کولی",
       "label": "SSH پراکسي"
     },
-    "ssh_host_dsa_pk": {
-      "description": "د SSH host DSA خصوصي کلیدي",
-      "label": "د SSH Host DSA خصوصي کلیدي"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "د SSH host DSA عامه کلیدي",
-      "label": "د SSH Host DSA عامه کلیدي"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "د SSH host ECDSA خصوصي کلیدي",
       "label": "د SSH Host ECDSA خصوصي کلیدي"
@@ -5035,10 +4995,6 @@
     "ssh_server_port": {
       "description": "دا ستاسو له اصلي SSH سرور څخه بالکل توپیر لري. دا یو ځانګړی برنامه ده.",
       "label": "↔️ د SSH پراکسي پورټ"
-    },
-    "ssh_server_redis_url": {
-      "description": "نه کارول کیږي",
-      "label": "د SSH کاروونکو ډیټابیس پته"
     },
     "ssh_use_tls_port": {
       "description": "کله چې فعال وي، SSH د ځانګړي عامه SSH پورټ پر ځای د L4 multiplexing له لارې د TLS/HTTPS پورټونه (لکه 443) شریکوي. کلاینټونه په ورته TLS پورټ وصلیږي؛ edge multiplexer SSH کشف کوي او د SSH پراکسي backend ته یې لیږي.",
@@ -5241,10 +5197,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "د WARP سایټ لارښوونې لپاره کارول شوی HTTPS ډومېن",
-    "warp_enable": {
-      "description": "WARP تاسو سره د Google، Spotify او Netflix محدودیتونو په تېرولو کې مرسته کوي د سرور IP په پټولو سره ",
-      "label": "WARP+ فعالوي"
-    },
     "warp_mode": {
       "description": "✴️ ټول: ټول سایټونه په بهرني ټرافیک کې د Warp IPs کاروي\n<br>\n☑️ یوازې کورني او بند شوي سایټونه: یوازې کورني سایټونه او هغه وېبسایټونه لکه Google، Spotify، Netflix، OpenAi، IPinfo.io په بهرني ټرافیک کې د Warp IPs کاروي",
       "label": "✴️ د WARP+ حالت"

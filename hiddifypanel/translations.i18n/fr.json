@@ -4459,10 +4459,6 @@
       "description": "Saisissez un titre personnalisé à afficher sur la page utilisateur. (Avant le texte de bienvenue de l'utilisateur)",
       "label": "👁‍🗨 Titre de la page utilisateur"
     },
-    "cdn_forced_host": {
-      "description": "Dans cette partie, vous pouvez utiliser un ensemble de domaines ou d'IP spécifiques pour votre serveur, qui remplaceront ceux des liens des utilisateurs. \n\nSi vous utilisez <a href='https://ircf.space/export.php'>ce modèle </a>, l'IP correspondante sera choisie selon l'opérateur de l'utilisateur, et si vous indiquez une plage d'IP, l'IP sera choisie au hasard dans cette plage.\nUtilisez <a target='_blank' href='https://ip-format.hiddify.com'>ce lien</a> pour définir des IP personnelles.",
-      "label": "🔂 Forcer les configurations à utiliser les IP/domaines suivants"
-    },
     "cloudflare": {
       "description": "Veuillez suivre <a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>les instructions</a> et coller la clé API Cloudflare",
       "label": "🔑 API Cloudflare"
@@ -4485,10 +4481,6 @@
     "country": {
       "description": "Applique les paramètres adaptés à chaque pays selon les conditions de filtrage de ce pays",
       "label": "🌍 Pays"
-    },
-    "create_easysetup_link": {
-      "description": "Crée un lien de configuration facile pour la première configuration",
-      "label": "Créer un lien de configuration facile"
     },
     "db_version": {
       "description": "Description de la version de la base de données",
@@ -4656,10 +4648,6 @@
       "ru": "🇷🇺 Russe",
       "zh": "🇨🇳 Chinois"
     },
-    "last_hash": {
-      "description": "Dernier hachage de configuration appliqué",
-      "label": "Dernier hachage"
-    },
     "last_priodic_usage_check": {
       "description": "Horodatage de la dernière vérification périodique de consommation",
       "label": "Dernière vérification périodique de consommation"
@@ -4778,10 +4766,6 @@
       "description": "Le nom de ce nœud, affiché dans le panneau parent",
       "label": "Nom du nœud"
     },
-    "not_found": {
-      "description": "Configuration introuvable",
-      "label": "Configuration introuvable"
-    },
     "only_ipv4": {
       "description": "Désactive IPv6",
       "label": "ℹ️ IPv4 uniquement"
@@ -4845,10 +4829,6 @@
       "description": "Pour les liens TROJAN",
       "label": "ℹ️ Chemin Trojan"
     },
-    "path_v2ray": {
-      "description": "Définit le chemin des configurations V2Ray",
-      "label": "Chemin V2Ray"
-    },
     "path_vless": {
       "description": "Pour le chemin VLess",
       "label": "ℹ️ Chemin VLess"
@@ -4897,10 +4877,6 @@
       "description": "Quand le GFW visite les sites web des noms de serveur, il est redirigé vers ce domaine.",
       "label": "🌍 Domaine de repli Reality"
     },
-    "reality_port": {
-      "description": "Port Reality",
-      "label": "Port REALITY"
-    },
     "reality_private_key": {
       "description": "Ne le modifiez pas",
       "label": "🔑 Clé privée"
@@ -4920,14 +4896,6 @@
     "restls": {
       "description": "Paramètres du protocole RestLS",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "Domaine utilisé pour RestLS 1.2",
-      "label": "Domaine RestLS 1.2"
-    },
-    "restls1_3_domain": {
-      "description": "Domaine utilisé pour RestLS 1.3",
-      "label": "Domaine RestLS 1.3"
     },
     "shadowsocks": {
       "description": "Shadowsocks est un proxy tunnel rapide qui aide à contourner les pare-feu",
@@ -5001,14 +4969,6 @@
       "description": "ℹ️ Un proxy SSH, aussi appelé tunnel SSH ou redirection de port SSH, est une méthode sécurisée pour créer un canal de communication sécurisé entre deux machines sur un réseau non sécurisé. Nous avons une application spécifique, totalement différente d'un serveur SSH, qui ne peut exécuter aucune commande",
       "label": "Proxy SSH"
     },
-    "ssh_host_dsa_pk": {
-      "description": "Clé privée DSA de l'hôte SSH",
-      "label": "Clé privée DSA de l'hôte SSH"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "Clé publique DSA de l'hôte SSH",
-      "label": "Clé publique DSA de l'hôte SSH"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "Clé privée ECDSA de l'hôte SSH",
       "label": "Clé privée ECDSA de l'hôte SSH"
@@ -5040,10 +5000,6 @@
     "ssh_server_port": {
       "description": "C'est totalement différent de votre serveur SSH d'origine. C'est un programme dédié.",
       "label": "↔️ Port du proxy SSH"
-    },
-    "ssh_server_redis_url": {
-      "description": "Non utilisé",
-      "label": "Adresse de la base de données des utilisateurs SSH"
     },
     "ssh_use_tls_port": {
       "description": "Si activé, SSH partage les ports TLS/HTTPS (comme 443) via un multiplexage L4 au lieu d'utiliser un port SSH public dédié. Les clients se connectent au même port TLS ; le multiplexeur en périphérie détecte SSH et le transmet au backend du proxy SSH.",
@@ -5246,10 +5202,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "Domaine HTTPS utilisé pour le routage des sites WARP",
-    "warp_enable": {
-      "description": "WARP vous aide à contourner les restrictions de Google, Spotify et Netflix en masquant l'IP du serveur ",
-      "label": "Activer WARP+"
-    },
     "warp_mode": {
       "description": "✴️ Tous : tous les sites utilisent les IP Warp en sortie\n<br>\n☑️ Sites nationaux et bloqués uniquement : seuls les sites nationaux et des sites comme Google, Spotify, Netflix, OpenAi, IPinfo.io utilisent les IP Warp en sortie",
       "label": "✴️ Mode WARP+"

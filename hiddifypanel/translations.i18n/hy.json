@@ -4454,10 +4454,6 @@
       "description": "Մուտքագրեք հարմարեցված վերնագիր, որը կցուցադրվի օգտատիրոջ էջում։ (Օգտատիրոջ ողջույնի տեքստից առաջ)",
       "label": "👁‍🗨 Օգտատիրոջ էջի վերնագիր"
     },
-    "cdn_forced_host": {
-      "description": "Այս մասում կարող եք օգտագործել որոշակի դոմենների կամ IP-ների հավաքածու ձեր սերվերի համար՝ օգտատերերի հղումներում վերասահմանելու համար։ \n\nԵթե օգտագործեք <a href='https://ircf.space/export.php'>այս ձևանմուշը </a>, համապատասխան IP-ն կընտրվի օգտատիրոջ օպերատորի համաձայն, իսկ եթե դնեք IP-ների միջակայք, IP-ն պատահականորեն կընտրվի այդ միջակայքից։\nՕգտագործեք <a target='_blank' href='https://ip-format.hiddify.com'>այս հղումը</a> անձնական IP-ներ սահմանելու համար։",
-      "label": "🔂 Ստիպել կոնֆիգին օգտագործել հետևյալ IP-ները/դոմենները"
-    },
     "cloudflare": {
       "description": "Խնդրում ենք հետևել <a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>հրահանգին</a> և տեղադրել Cloudflare API բանալին",
       "label": "🔑 Cloudflare API"
@@ -4480,10 +4476,6 @@
     "country": {
       "description": "Կիրառում է յուրաքանչյուր երկրի համար համապատասխան կարգավորումները՝ ըստ այդ երկրի զտման պայմանների",
       "label": "🌍 Երկիր"
-    },
-    "create_easysetup_link": {
-      "description": "Ստեղծել հեշտ կարգավորման հղում առաջին անգամ կոնֆիգուրացիայի համար",
-      "label": "Ստեղծել հեշտ կարգավորման հղում"
     },
     "db_version": {
       "description": "Տվյալների բազայի տարբերակի նկարագրություն",
@@ -4651,10 +4643,6 @@
       "ru": "🇷🇺 Ռուսերեն",
       "zh": "🇨🇳 Չինարեն"
     },
-    "last_hash": {
-      "description": "Վերջին կիրառված կոնֆիգուրացիայի հեշը",
-      "label": "Վերջին հեշ"
-    },
     "last_priodic_usage_check": {
       "description": "Օգտագործման վերջին պարբերական ստուգման ժամանակի դրոշմը",
       "label": "Օգտագործման վերջին պարբերական ստուգում"
@@ -4773,10 +4761,6 @@
       "description": "Այս հանգույցի անունը, որը ցուցադրվում է մայր վահանակում",
       "label": "Հանգույցի անուն"
     },
-    "not_found": {
-      "description": "Կոնֆիգը չի գտնվել",
-      "label": "Կոնֆիգը չի գտնվել"
-    },
     "only_ipv4": {
       "description": "Այն կանջատի IPv6-ը",
       "label": "ℹ️ Միայն IPv4"
@@ -4840,10 +4824,6 @@
       "description": "TROJAN հղումների համար",
       "label": "ℹ️ Trojan ուղի"
     },
-    "path_v2ray": {
-      "description": "Սահմանել V2Ray կոնֆիգների ուղին",
-      "label": "V2Ray ուղի"
-    },
     "path_vless": {
       "description": "VLess ուղու համար",
       "label": "ℹ️ VLess ուղի"
@@ -4892,10 +4872,6 @@
       "description": "Երբ GFW-ն այցելում է Server names-ի կայքերը, այն կվերահղվի այս դոմենին։",
       "label": "🌍 Reality fallback դոմեն"
     },
-    "reality_port": {
-      "description": "Reality պորտ",
-      "label": "REALITY պորտ"
-    },
     "reality_private_key": {
       "description": "Մի փոխեք",
       "label": "🔑 Մասնավոր բանալի"
@@ -4915,14 +4891,6 @@
     "restls": {
       "description": "RestLS արձանագրության կարգավորումներ",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "RestLS 1.2-ի համար օգտագործվող դոմեն",
-      "label": "RestLS 1.2 դոմեն"
-    },
-    "restls1_3_domain": {
-      "description": "RestLS 1.3-ի համար օգտագործվող դոմեն",
-      "label": "RestLS 1.3 դոմեն"
     },
     "shadowsocks": {
       "description": "Shadowsocks-ը արագ թունելային պրոքսի է, որն օգնում է շրջանցել firewall-ները",
@@ -4996,14 +4964,6 @@
       "description": "ℹ️ SSH պրոքսին, որը հայտնի է նաև որպես SSH թունել կամ SSH port forwarding, անվտանգ մեթոդ է երկու մեքենաների միջև անվտանգ հաղորդակցության ալիք ստեղծելու համար՝ անապահով ցանցի վրա։ Մենք ունենք հատուկ հավելված, որը լրիվ տարբերվում է SSH սերվերից և չի կարող կատարել որևէ հրաման",
       "label": "SSH պրոքսի"
     },
-    "ssh_host_dsa_pk": {
-      "description": "SSH host-ի DSA մասնավոր բանալի",
-      "label": "SSH host-ի DSA մասնավոր բանալի"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "SSH host-ի DSA հանրային բանալի",
-      "label": "SSH host-ի DSA հանրային բանալի"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "SSH host-ի ECDSA մասնավոր բանալի",
       "label": "SSH host-ի ECDSA մասնավոր բանալի"
@@ -5035,10 +4995,6 @@
     "ssh_server_port": {
       "description": "Սա լրիվ տարբերվում է ձեր բնօրինակ SSH սերվերից։ Այն հատուկ ծրագիր է։",
       "label": "↔️ SSH պրոքսիի պորտ"
-    },
-    "ssh_server_redis_url": {
-      "description": "Չի օգտագործվում",
-      "label": "SSH օգտատերերի տվյալների բազայի հասցե"
     },
     "ssh_use_tls_port": {
       "description": "Միացնելու դեպքում SSH-ը կիսում է TLS/HTTPS պորտերը (օրինակ՝ 443) L4 multiplexing-ով՝ նվիրված հանրային SSH պորտ օգտագործելու փոխարեն։ Կլիենտները միանում են նույն TLS պորտին. եզրային multiplexer-ը հայտնաբերում է SSH-ը և փոխանցում այն SSH պրոքսիի backend-ին։",
@@ -5241,10 +5197,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "WARP կայքերի երթուղավորման համար օգտագործվող HTTPS դոմեն",
-    "warp_enable": {
-      "description": "WARP-ը օգնում է շրջանցել Google-ի, Spotify-ի և Netflix-ի սահմանափակումները՝ թաքցնելով սերվերի IP-ն ",
-      "label": "Միացնում է WARP+"
-    },
     "warp_mode": {
       "description": "✴️ Բոլորը. բոլոր կայքերը ելքում օգտագործում են Warp IP-ներ\n<br>\n☑️ Միայն ներքին և արգելափակված կայքերը. միայն ներքին կայքերը և այնպիսի կայքեր, ինչպիսիք են Google-ը, Spotify-ը, Netflix-ը, OpenAi-ը, IPinfo.io-ն, ելքում օգտագործում են Warp IP-ներ",
       "label": "✴️ WARP+ ռեժիմ"

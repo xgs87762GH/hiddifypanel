@@ -4454,10 +4454,6 @@
       "description": "በተጠቃሚ ገጽ ላይ የሚታይ ብጁ ርዕስ ያስገቡ። (ከተጠቃሚው የእንኳን ደህና መጡ ጽሑፍ በፊት)",
       "label": "👁‍🗨 የተጠቃሚ ገጽ ርዕስ"
     },
-    "cdn_forced_host": {
-      "description": "በዚህ ክፍል በተጠቃሚ ሊንኮች ውስጥ የሰርቨርዎን ለመተካት የተወሰኑ ዶሜይኖችን ወይም IPs ን መጠቀም ይችላሉ። \n\n<a href='https://ircf.space/export.php'>ይህን አብነት</a> ከተጠቀሙ፣ ተዛማጁ IP እንደ ተጠቃሚው ኦፕሬተር ይመረጣል፤ የIPs ክልል ካስገቡ IP ከዚያ ክልል በዘፈቀደ ይመረጣል።\nየግል IPs ለማዘጋጀት <a target='_blank' href='https://ip-format.hiddify.com'>ይህን ሊንክ</a> ይጠቀሙ።",
-      "label": "🔂 ኮንፊግ የሚከተሉትን IPs/ዶሜይኖች እንዲጠቀም አስገድድ"
-    },
     "cloudflare": {
       "description": "እባክዎ <a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>መመሪያውን</a> ይከተሉ እና የCloudflare API ቁልፍን ይለጥፉ",
       "label": "🔑 Cloudflare API"
@@ -4480,10 +4476,6 @@
     "country": {
       "description": "በዚያ አገር የማጣራት ሁኔታዎች መሠረት ለእያንዳንዱ አገር ተስማሚ ቅንብሮችን ይተገብራል",
       "label": "🌍 አገር"
-    },
-    "create_easysetup_link": {
-      "description": "ለመጀመሪያ ጊዜ ማዋቀር ቀላል የማዋቀሪያ ሊንክ ይፍጠሩ",
-      "label": "ቀላል የማዋቀሪያ ሊንክ ፍጠር"
     },
     "db_version": {
       "description": "የዳታቤዝ ስሪት መግለጫ",
@@ -4651,10 +4643,6 @@
       "ru": "🇷🇺 ሩስኛ",
       "zh": "🇨🇳 ቻይንኛ"
     },
-    "last_hash": {
-      "description": "በመጨረሻ የተተገበረው የውቅር ሃሽ",
-      "label": "የመጨረሻ ሃሽ"
-    },
     "last_priodic_usage_check": {
       "description": "የመጨረሻው ወቅታዊ የውሂብ አጠቃቀም ፍተሻ የጊዜ ማህተም",
       "label": "የመጨረሻ ወቅታዊ የውሂብ አጠቃቀም ፍተሻ"
@@ -4773,10 +4761,6 @@
       "description": "በወላጅ ፓነል ውስጥ የሚታይ የዚህ ኖድ ስም",
       "label": "የኖድ ስም"
     },
-    "not_found": {
-      "description": "ኮንፊግ አልተገኘም",
-      "label": "ኮንፊግ አልተገኘም"
-    },
     "only_ipv4": {
       "description": "IPv6 ን ያሰናክላል",
       "label": "ℹ️ IPv4 ብቻ"
@@ -4840,10 +4824,6 @@
       "description": "ለTROJAN ሊንኮች",
       "label": "ℹ️ Trojan መንገድ"
     },
-    "path_v2ray": {
-      "description": "የV2Ray ኮንፊጎች መንገድ ያዘጋጁ",
-      "label": "V2Ray መንገድ"
-    },
     "path_vless": {
       "description": "ለVLess መንገድ",
       "label": "ℹ️ VLess መንገድ"
@@ -4892,10 +4872,6 @@
       "description": "GFW በServer names ውስጥ ያሉትን ድር ጣቢያዎች ሲጎበኝ ወደዚህ ዶሜይን ይዛወራል።",
       "label": "🌍 የReality መመለሻ ዶሜይን"
     },
-    "reality_port": {
-      "description": "የReality ወደብ",
-      "label": "REALITY ወደብ"
-    },
     "reality_private_key": {
       "description": "አይቀይሩት",
       "label": "🔑 የግል ቁልፍ"
@@ -4915,14 +4891,6 @@
     "restls": {
       "description": "የRestLS ፕሮቶኮል ቅንብሮች",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "ለRestLS 1.2 የሚያገለግል ዶሜይን",
-      "label": "RestLS 1.2 ዶሜይን"
-    },
-    "restls1_3_domain": {
-      "description": "ለRestLS 1.3 የሚያገለግል ዶሜይን",
-      "label": "RestLS 1.3 ዶሜይን"
     },
     "shadowsocks": {
       "description": "Shadowsocks ፋየርዎሎችን ለማለፍ የሚረዳ ፈጣን የዋሻ ፕሮክሲ ነው",
@@ -4996,14 +4964,6 @@
       "description": "ℹ️ SSH ፕሮክሲ፣ SSH ዋሻ ወይም SSH port forwarding በመባልም የሚታወቅ፣ ደህንነቱ ባልተጠበቀ አውታረ መረብ ላይ በሁለት ማሽኖች መካከል ደህንነቱ የተጠበቀ የመገናኛ ቻናል የመፍጠር ዘዴ ነው። ከSSH ሰርቨር ፈጽሞ የተለየ እና ምንም ትዕዛዝ ማስፈጸም የማይችል የተወሰነ መተግበሪያ አለን",
       "label": "SSH ፕሮክሲ"
     },
-    "ssh_host_dsa_pk": {
-      "description": "የSSH host DSA የግል ቁልፍ",
-      "label": "የSSH Host DSA የግል ቁልፍ"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "የSSH host DSA ይፋዊ ቁልፍ",
-      "label": "የSSH Host DSA ይፋዊ ቁልፍ"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "የSSH host ECDSA የግል ቁልፍ",
       "label": "የSSH Host ECDSA የግል ቁልፍ"
@@ -5035,10 +4995,6 @@
     "ssh_server_port": {
       "description": "ይህ ከመጀመሪያው SSH ሰርቨርዎ ፈጽሞ የተለየ ነው። የተወሰነ ፕሮግራም ነው።",
       "label": "↔️ SSH ፕሮክሲ ወደብ"
-    },
-    "ssh_server_redis_url": {
-      "description": "ጥቅም ላይ አይውልም",
-      "label": "የSSH ተጠቃሚ ዳታቤዝ አድራሻ"
     },
     "ssh_use_tls_port": {
       "description": "ሲነቃ SSH የተወሰነ ይፋዊ SSH ወደብ ከመጠቀም ይልቅ TLS/HTTPS ወደቦችን (እንደ 443) በL4 multiplexing ይጋራል። ደንበኞች ከተመሳሳዩ TLS ወደብ ጋር ይገናኛሉ፤ የጠርዝ multiplexer SSH ን አውቆ ወደ SSH ፕሮክሲ ጀርባ ያስተላልፈዋል።",
@@ -5241,10 +5197,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "ለWARP ድር ጣቢያ አመራር የሚያገለግል የHTTPS ዶሜይን",
-    "warp_enable": {
-      "description": "WARP የሰርቨር IP ን በመደበቅ የGoogle፣ Spotify እና Netflix ገደቦችን እንዲያልፉ ይረዳዎታል ",
-      "label": "WARP+ አንቃ"
-    },
     "warp_mode": {
       "description": "✴️ ሁሉም፦ ሁሉም ድር ጣቢያዎች በውጪ ትራፊክ ውስጥ የWarp IPs ይጠቀማሉ\n<br>\n☑️ የአገር ውስጥ እና የታገዱ ድር ጣቢያዎች ብቻ፦ የአገር ውስጥ ድር ጣቢያዎች እና እንደ Google፣ Spotify፣ Netflix፣ OpenAi፣ IPinfo.io ያሉ ድር ጣቢያዎች ብቻ በውጪ ትራፊክ ውስጥ የWarp IPs ይጠቀማሉ",
       "label": "✴️ WARP+ ሁነታ"

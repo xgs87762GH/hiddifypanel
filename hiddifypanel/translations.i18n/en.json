@@ -4898,10 +4898,6 @@
       "description": "Enter a customized title to be shown on user page. (Before User's Welcome Text)",
       "label": "👁‍🗨 User Page Title"
     },
-    "cdn_forced_host": {
-      "description": "In this part you can use a set of specific domains or IPs for your server to be override in the user links. \n\nIf you use <a href='https://ircf.space/export.php'>this template </a>, the relevant IP will be selected according to the user's operator, and if you put a range of IPs The IP will be randomly selected from that range.\nUse <a target='_blank' href='https://ip-format.hiddify.com'>this link</a> to set personal IPs.",
-      "label": "🔂 Force Config to Use Following IPs/Domains"
-    },
     "cloudflare": {
       "description": "Please follow <a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>the instruction</a> and paste the Cloudflare API Key",
       "label": "🔑 Cloudflare API"
@@ -4928,10 +4924,6 @@
     "country": {
       "description": "It applies the appropriate settings for each country according to the filtering conditions of that country",
       "label": "🌍 Country"
-    },
-    "create_easysetup_link": {
-      "description": "Create an easy-setup link for first-time configuration",
-      "label": "Create Easy Setup Link"
     },
     "db_version": {
       "description": "Database Version Description",
@@ -5120,10 +5112,6 @@
       "uz": "🇺🇿 Uzbek",
       "zh": "🇨🇳 Chinese"
     },
-    "last_hash": {
-      "description": "Last applied configuration hash",
-      "label": "Last Hash"
-    },
     "last_priodic_usage_check": {
       "description": "Timestamp of the last periodic usage check",
       "label": "Last Periodic Usage Check"
@@ -5242,10 +5230,6 @@
       "description": "The name of this node, shown in the parent panel",
       "label": "Node name"
     },
-    "not_found": {
-      "description": "Config Not Found",
-      "label": "Config Not Found"
-    },
     "only_ipv4": {
       "description": "It will Disable IPv6",
       "label": "ℹ️ Only IPv4"
@@ -5321,10 +5305,6 @@
       "description": "For TROJAN-Links",
       "label": "ℹ️ Trojan Path"
     },
-    "path_v2ray": {
-      "description": "Set V2Ray Configs Path",
-      "label": "V2Ray Path"
-    },
     "path_vless": {
       "description": "For the VLess Path",
       "label": "ℹ️ VLess Path"
@@ -5373,10 +5353,6 @@
       "description": "When the GFW visit the Websites in Server names, it will be redirect to this Domain.",
       "label": "🌍 Reality Fallback Domain"
     },
-    "reality_port": {
-      "description": "Reality Port",
-      "label": "REALITY Port"
-    },
     "reality_private_key": {
       "description": "Do Not Change It",
       "label": "🔑 Private Key"
@@ -5404,14 +5380,6 @@
     "restls": {
       "description": "RestLS protocol settings",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "Domain used for RestLS 1.2",
-      "label": "RestLS 1.2 Domain"
-    },
-    "restls1_3_domain": {
-      "description": "Domain used for RestLS 1.3",
-      "label": "RestLS 1.3 Domain"
     },
     "shadowsocks": {
       "description": "Shadowsocks is a fast tunnel proxy that helps you bypass firewalls",
@@ -5485,14 +5453,6 @@
       "description": "ℹ️ An SSH proxy, also known as an SSH tunnel or SSH port forwarding, is a secure method of creating a secure communication channel between two machines over an insecure network. We have a specific application which is completely different from SSH server and can not execute any commands",
       "label": "SSH Proxy"
     },
-    "ssh_host_dsa_pk": {
-      "description": "SSH host DSA private key",
-      "label": "SSH Host DSA Private Key"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "SSH host DSA public key",
-      "label": "SSH Host DSA Public Key"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "SSH host ECDSA private key",
       "label": "SSH Host ECDSA Private Key"
@@ -5524,10 +5484,6 @@
     "ssh_server_port": {
       "description": "This is completely different from your original SSH server. It is a dedicated program.",
       "label": "↔️ SSH Proxy Port"
-    },
-    "ssh_server_redis_url": {
-      "description": "Not Used",
-      "label": "SSH user database address"
     },
     "ssh_use_tls_port": {
       "description": "When enabled, SSH shares the TLS/HTTPS ports (such as 443) via L4 multiplexing instead of using a dedicated public SSH port. Clients connect to the same TLS port; the edge multiplexer detects SSH and forwards it to the SSH proxy backend.",
@@ -5729,10 +5685,6 @@
     "warp": {
       "description": "Warp is a tool that hides your server IP in outbound traffic. It means if the users are visiting a website the Warp IP is exposed instead of our server IP.\n<br>\nFor example, if you have a problem with captcha on Google, it might be fixed this way.",
       "label": "WARP"
-    },
-    "warp_enable": {
-      "description": "WARP helps you bypass Google, Spotify and Netflix restrictions by hiding server IP ",
-      "label": "Enables WARP+"
     },
     "warp_mode": {
       "description": "✴️ All : All Sites use Warp IPs in outbound\n<br>\n☑️ Only Domestic and Blocked Sites: Only Domestic Sites and websites like Google, Spotify, Netflix, OpenAi, IPinfo.io use Warp IPs in outbound",

@@ -4454,10 +4454,6 @@
       "description": "İstifadəçi səhifəsində göstəriləcək fərdi başlıq daxil edin. (İstifadəçinin xoş gəldin mətnindən əvvəl)",
       "label": "👁‍🗨 İstifadəçi səhifəsinin başlığı"
     },
-    "cdn_forced_host": {
-      "description": "Bu bölmədə serveriniz üçün istifadəçi keçidlərində əvəz ediləcək xüsusi domenlər və ya IP'lər dəstindən istifadə edə bilərsiniz. \n\n<a href='https://ircf.space/export.php'>Bu şablondan</a> istifadə etsəniz, müvafiq IP istifadəçinin operatoruna görə seçiləcək, IP diapazonu yazsanız isə IP həmin diapazondan təsadüfi seçiləcək.\nŞəxsi IP'lər təyin etmək üçün <a target='_blank' href='https://ip-format.hiddify.com'>bu keçiddən</a> istifadə edin.",
-      "label": "🔂 Konfiqurasiyanı aşağıdakı IP'lərdən/domenlərdən istifadəyə məcbur et"
-    },
     "cloudflare": {
       "description": "<a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>Təlimatı</a> izləyin və Cloudflare API açarını yapışdırın",
       "label": "🔑 Cloudflare API"
@@ -4480,10 +4476,6 @@
     "country": {
       "description": "Hər ölkənin filtrləmə şərtlərinə uyğun olaraq həmin ölkə üçün müvafiq ayarları tətbiq edir",
       "label": "🌍 Ölkə"
-    },
-    "create_easysetup_link": {
-      "description": "İlk dəfə quraşdırma üçün asan quraşdırma keçidi yaradın",
-      "label": "Asan quraşdırma keçidi yarat"
     },
     "db_version": {
       "description": "Verilənlər bazasının versiyası təsviri",
@@ -4651,10 +4643,6 @@
       "ru": "🇷🇺 Rus",
       "zh": "🇨🇳 Çin"
     },
-    "last_hash": {
-      "description": "Son tətbiq edilmiş konfiqurasiya heşi",
-      "label": "Son heş"
-    },
     "last_priodic_usage_check": {
       "description": "Son dövri istifadə yoxlamasının vaxt damğası",
       "label": "Son dövri istifadə yoxlaması"
@@ -4773,10 +4761,6 @@
       "description": "Bu node-un ana paneldə göstərilən adı",
       "label": "Node adı"
     },
-    "not_found": {
-      "description": "Konfiqurasiya tapılmadı",
-      "label": "Konfiqurasiya tapılmadı"
-    },
     "only_ipv4": {
       "description": "IPv6'nı söndürəcək",
       "label": "ℹ️ Yalnız IPv4"
@@ -4840,10 +4824,6 @@
       "description": "TROJAN keçidləri üçün",
       "label": "ℹ️ Trojan yolu"
     },
-    "path_v2ray": {
-      "description": "V2Ray konfiqurasiya yolunu təyin edin",
-      "label": "V2Ray yolu"
-    },
     "path_vless": {
       "description": "VLess yolu üçün",
       "label": "ℹ️ VLess yolu"
@@ -4892,10 +4872,6 @@
       "description": "GFW Server names-dəki vebsaytlara baxanda bu domenə yönləndiriləcək.",
       "label": "🌍 Reality ehtiyat domeni"
     },
-    "reality_port": {
-      "description": "Reality portu",
-      "label": "REALITY portu"
-    },
     "reality_private_key": {
       "description": "Dəyişdirməyin",
       "label": "🔑 Şəxsi açar"
@@ -4915,14 +4891,6 @@
     "restls": {
       "description": "RestLS protokol ayarları",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "RestLS 1.2 üçün istifadə olunan domen",
-      "label": "RestLS 1.2 domeni"
-    },
-    "restls1_3_domain": {
-      "description": "RestLS 1.3 üçün istifadə olunan domen",
-      "label": "RestLS 1.3 domeni"
     },
     "shadowsocks": {
       "description": "Shadowsocks firewall-ları keçməyə kömək edən sürətli tunel proksisidir",
@@ -4996,14 +4964,6 @@
       "description": "ℹ️ SSH proksisi, həmçinin SSH tuneli və ya SSH port yönləndirməsi kimi tanınır, etibarsız şəbəkə üzərindən iki maşın arasında təhlükəsiz rabitə kanalı yaratmağın təhlükəsiz üsuludur. Bizim SSH serverindən tamamilə fərqli xüsusi tətbiqimiz var və o, heç bir əmri icra edə bilməz",
       "label": "SSH proksisi"
     },
-    "ssh_host_dsa_pk": {
-      "description": "SSH host DSA şəxsi açarı",
-      "label": "SSH host DSA şəxsi açarı"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "SSH host DSA açıq açarı",
-      "label": "SSH host DSA açıq açarı"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "SSH host ECDSA şəxsi açarı",
       "label": "SSH host ECDSA şəxsi açarı"
@@ -5035,10 +4995,6 @@
     "ssh_server_port": {
       "description": "Bu, orijinal SSH serverinizdən tamamilə fərqlidir. O, xüsusi proqramdır.",
       "label": "SSH proksi portu"
-    },
-    "ssh_server_redis_url": {
-      "description": "İstifadə olunmur",
-      "label": "SSH istifadəçi verilənlər bazasının ünvanı"
     },
     "ssh_use_tls_port": {
       "description": "Aktiv olduqda SSH xüsusi açıq SSH portundan istifadə etmək əvəzinə TLS/HTTPS portlarını (məsələn, 443) L4 multipleksləmə ilə bölüşür. Klientlər eyni TLS portuna qoşulur; edge multiplexer SSH'ı aşkar edib SSH proksi backend-inə ötürür.",
@@ -5241,10 +5197,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "WARP saytının yönləndirilməsi üçün istifadə olunan HTTPS domeni",
-    "warp_enable": {
-      "description": "WARP server IP'sini gizlətməklə Google, Spotify və Netflix məhdudiyyətlərini keçməyə kömək edir ",
-      "label": "WARP+ aktiv edir"
-    },
     "warp_mode": {
       "description": "✴️ Hamısı: Bütün saytlar çıxış trafikində WARP IP'lərindən istifadə edir\n<br>\n☑️ Yalnız yerli və bloklanmış saytlar: Yalnız yerli saytlar və Google, Spotify, Netflix, OpenAi, IPinfo.io kimi vebsaytlar çıxış trafikində WARP IP'lərindən istifadə edir",
       "label": "✴️ WARP+ rejimi"

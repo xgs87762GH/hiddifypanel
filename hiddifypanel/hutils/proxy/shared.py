@@ -419,8 +419,6 @@ def make_proxy(hconfigs: dict, proxy: Proxy, domain_db: Domain, phttp=80, ptls=4
         if proxy.l3 in [ProxyL3.h3_quic]:
             alpn = "h3"
 
-    # cdn_forced_host = domain_db.cdn_ip or (domain_db.domain if domain_db.mode != DomainType.reality else hutils.network.get_direct_host_or_ip(4))
-    # is_cdn = ProxyCDN.CDN == proxy.cdn or ProxyCDN.Fake == proxy.cdn
     domain_data = sni_host_server_extractor(domain_db, hconfigs)
     base = {
         **domain_data,

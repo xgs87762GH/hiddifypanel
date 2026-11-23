@@ -4454,10 +4454,6 @@
       "description": "यूज़र पेज पर दिखाने के लिए कस्टम शीर्षक लिखें। (यूज़र के स्वागत टेक्स्ट से पहले)",
       "label": "👁‍🗨 यूज़र पेज का शीर्षक"
     },
-    "cdn_forced_host": {
-      "description": "इस हिस्से में आप अपने सर्वर के लिए कुछ खास डोमेन या IP का एक सेट चुन सकते हैं, जो यूज़र के लिंक में बदल दिए जाएँगे। \n\nअगर आप <a href='https://ircf.space/export.php'>इस टेम्पलेट</a> का उपयोग करते हैं, तो यूज़र के ऑपरेटर के अनुसार संबंधित IP चुना जाएगा, और अगर आप IP की कोई रेंज देते हैं तो उस रेंज से IP रैंडम चुना जाएगा।\nनिजी IP सेट करने के लिए <a target='_blank' href='https://ip-format.hiddify.com'>इस लिंक</a> का उपयोग करें।",
-      "label": "🔂 कॉन्फ़िग को इन IP/डोमेन का उपयोग करने को बाध्य करें"
-    },
     "cloudflare": {
       "description": "कृपया <a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>निर्देशों</a> का पालन करें और Cloudflare API Key पेस्ट करें",
       "label": "🔑 Cloudflare API"
@@ -4480,10 +4476,6 @@
     "country": {
       "description": "यह हर देश के लिए उस देश की फ़िल्टरिंग की स्थितियों के अनुसार उचित सेटिंग लागू करता है",
       "label": "🌍 देश"
-    },
-    "create_easysetup_link": {
-      "description": "पहली बार के कॉन्फ़िगरेशन के लिए एक आसान-सेटअप लिंक बनाएँ",
-      "label": "आसान सेटअप लिंक बनाएँ"
     },
     "db_version": {
       "description": "डेटाबेस संस्करण का विवरण",
@@ -4651,10 +4643,6 @@
       "ru": "🇷🇺 रूसी",
       "zh": "🇨🇳 चीनी"
     },
-    "last_hash": {
-      "description": "आखिरी अप्लाई किए गए कॉन्फ़िगरेशन का हैश",
-      "label": "आखिरी हैश"
-    },
     "last_priodic_usage_check": {
       "description": "आखिरी आवधिक उपयोग जाँच का टाइमस्टैम्प",
       "label": "आखिरी आवधिक उपयोग जाँच"
@@ -4773,10 +4761,6 @@
       "description": "इस नोड का नाम, जो पैरेंट पैनल में दिखता है",
       "label": "नोड का नाम"
     },
-    "not_found": {
-      "description": "कॉन्फ़िग नहीं मिला",
-      "label": "कॉन्फ़िग नहीं मिला"
-    },
     "only_ipv4": {
       "description": "यह IPv6 बंद कर देगा",
       "label": "ℹ️ केवल IPv4"
@@ -4840,10 +4824,6 @@
       "description": "TROJAN लिंक के लिए",
       "label": "ℹ️ Trojan पाथ"
     },
-    "path_v2ray": {
-      "description": "V2Ray कॉन्फ़िग का पाथ सेट करें",
-      "label": "V2Ray पाथ"
-    },
     "path_vless": {
       "description": "VLess पाथ के लिए",
       "label": "ℹ️ VLess पाथ"
@@ -4892,10 +4872,6 @@
       "description": "जब GFW सर्वर नामों की वेबसाइट पर जाता है, तो उसे इस डोमेन पर भेज दिया जाएगा।",
       "label": "🌍 Reality फ़ॉलबैक डोमेन"
     },
-    "reality_port": {
-      "description": "Reality पोर्ट",
-      "label": "REALITY पोर्ट"
-    },
     "reality_private_key": {
       "description": "इसे न बदलें",
       "label": "🔑 प्राइवेट कुंजी"
@@ -4915,14 +4891,6 @@
     "restls": {
       "description": "RestLS प्रोटोकॉल सेटिंग",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "RestLS 1.2 के लिए इस्तेमाल होने वाला डोमेन",
-      "label": "RestLS 1.2 डोमेन"
-    },
-    "restls1_3_domain": {
-      "description": "RestLS 1.3 के लिए इस्तेमाल होने वाला डोमेन",
-      "label": "RestLS 1.3 डोमेन"
     },
     "shadowsocks": {
       "description": "Shadowsocks एक तेज़ टनल प्रॉक्सी है जो फ़ायरवॉल को पार करने में मदद करती है",
@@ -4996,14 +4964,6 @@
       "description": "ℹ️ SSH प्रॉक्सी, जिसे SSH टनल या SSH पोर्ट फ़ॉरवर्डिंग भी कहते हैं, असुरक्षित नेटवर्क पर दो मशीनों के बीच सुरक्षित संचार चैनल बनाने का एक सुरक्षित तरीका है। हमारा एक खास ऐप्लिकेशन है जो SSH सर्वर से पूरी तरह अलग है और कोई कमांड नहीं चला सकता",
       "label": "SSH प्रॉक्सी"
     },
-    "ssh_host_dsa_pk": {
-      "description": "SSH होस्ट DSA प्राइवेट कुंजी",
-      "label": "SSH होस्ट DSA प्राइवेट कुंजी"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "SSH होस्ट DSA पब्लिक कुंजी",
-      "label": "SSH होस्ट DSA पब्लिक कुंजी"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "SSH होस्ट ECDSA प्राइवेट कुंजी",
       "label": "SSH होस्ट ECDSA प्राइवेट कुंजी"
@@ -5035,10 +4995,6 @@
     "ssh_server_port": {
       "description": "यह आपके मूल SSH सर्वर से पूरी तरह अलग है। यह एक समर्पित प्रोग्राम है।",
       "label": "↔️ SSH प्रॉक्सी पोर्ट"
-    },
-    "ssh_server_redis_url": {
-      "description": "इस्तेमाल नहीं होता",
-      "label": "SSH यूज़र डेटाबेस का पता"
     },
     "ssh_use_tls_port": {
       "description": "चालू होने पर SSH अलग सार्वजनिक SSH पोर्ट की जगह L4 मल्टीप्लेक्सिंग से TLS/HTTPS पोर्ट (जैसे 443) साझा करता है। क्लाइंट उसी TLS पोर्ट से कनेक्ट होते हैं; एज मल्टीप्लेक्सर SSH को पहचानकर उसे SSH प्रॉक्सी बैकएंड को भेज देता है।",
@@ -5241,10 +5197,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "WARP साइट रूटिंग के लिए इस्तेमाल होने वाला HTTPS डोमेन",
-    "warp_enable": {
-      "description": "WARP सर्वर का IP छिपाकर Google, Spotify और Netflix की पाबंदियाँ पार करने में आपकी मदद करता है ",
-      "label": "WARP+ चालू करें"
-    },
     "warp_mode": {
       "description": "✴️ सभी : सभी साइट आउटबाउंड में Warp IP इस्तेमाल करती हैं\n<br>\n☑️ केवल घरेलू और ब्लॉक की गई साइट: केवल घरेलू साइट और Google, Spotify, Netflix, OpenAi, IPinfo.io जैसी वेबसाइट आउटबाउंड में Warp IP इस्तेमाल करती हैं",
       "label": "✴️ WARP+ मोड"

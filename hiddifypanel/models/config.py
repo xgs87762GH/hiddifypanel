@@ -9,7 +9,7 @@ from hiddifypanel import Events
 from hiddifypanel.cache import CacheMode, cache
 from hiddifypanel.database import db
 from hiddifypanel.models.child import Child, ChildMode
-from hiddifypanel.models.config_enum import ConfigEnum
+from hiddifypanel.models.config_enum import ConfigEnum, DEPRECATED_CONFIG_KEYS
 
 if TYPE_CHECKING:
     from hiddifypanel.models.external_model.node import HConfigModel
@@ -201,6 +201,11 @@ def upsert_config(data: "HConfigModel", *, commit: bool = True, child_id: int | 
         child_id = Child.current().id
     ckey = data.key
     if ckey is None:  # unknown key (e.g. from a newer/older panel)
+        return
+    if ckey.name in DEPRECATED_CONFIG_KEYS:
+        # Old backups may still carry retired rows. Accept the backup but do not
+        # recreate the setting: _v210 deletes it and the key is gone from the UI.
+        logger.debug("ignoring retired config key {}", ckey.name)
         return
     if ckey == ConfigEnum.unique_id and not override_unique_id:
         return

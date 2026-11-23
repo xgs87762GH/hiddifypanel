@@ -4454,10 +4454,6 @@
       "description": "Ulanyjy sahypasynda görkeziljek ýörite at giriziň. (Ulanyjynyň Salamlaşma tekstinden öň)",
       "label": "👁‍🗨 Ulanyjy sahypasynyň ady"
     },
-    "cdn_forced_host": {
-      "description": "Bu bölümde serweriňiz üçin ulanyjy salgylarynda çalşyljak belli domenleriň ýa-da IP-leriň toplumyny ulanyp bilersiňiz. \n\nEger <a href='https://ircf.space/export.php'>bu şablony </a> ulansaňyz, ulanyjynyň operatoryna görä degişli IP saýlanar, we IP diapazonyny goýsaňyz IP şol diapazondan tötänleýin saýlanar.\nŞahsy IP-leri goýmak üçin <a target='_blank' href='https://ip-format.hiddify.com'>bu salgyny</a> ulanyň.",
-      "label": "🔂 Konfigleri şu IP-leri/domenleri ulanmaga mejbur et"
-    },
     "cloudflare": {
       "description": "<a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>Görkezmäni</a> ýerine ýetiriň we Cloudflare API açaryny ýelmäň",
       "label": "🔑 Cloudflare API"
@@ -4480,10 +4476,6 @@
     "country": {
       "description": "Her ýurduň süzgüç şertlerine görä şol ýurt üçin laýyk sazlamalary ulanýar",
       "label": "🌍 Ýurt"
-    },
-    "create_easysetup_link": {
-      "description": "Ilkinji gurnama üçin ýeňil gurnama salgysyny döret",
-      "label": "Ýeňil gurnama salgysyny döret"
     },
     "db_version": {
       "description": "Maglumat bazasynyň wersiýasynyň düşündirişi",
@@ -4651,10 +4643,6 @@
       "tk": "🇹🇲 Türkmençe",
       "zh": "🇨🇳 Hytaýça"
     },
-    "last_hash": {
-      "description": "Soňky ulanylan konfigurasiýa haşy",
-      "label": "Soňky haş"
-    },
     "last_priodic_usage_check": {
       "description": "Soňky wagtal-wagtal ulanyş barlagynyň wagt belgisi",
       "label": "Soňky wagtal-wagtal ulanyş barlagy"
@@ -4773,10 +4761,6 @@
       "description": "Bu düwüniň ady, esasy panelde görkezilýär",
       "label": "Düwün ady"
     },
-    "not_found": {
-      "description": "Konfig tapylmady",
-      "label": "Konfig tapylmady"
-    },
     "only_ipv4": {
       "description": "Ol IPv6-ny öçürýär",
       "label": "ℹ️ Diňe IPv4"
@@ -4840,10 +4824,6 @@
       "description": "TROJAN salgylary üçin",
       "label": "ℹ️ Trojan ýoly"
     },
-    "path_v2ray": {
-      "description": "V2Ray konfigurasiýa ýolyny goýuň",
-      "label": "V2Ray ýoly"
-    },
     "path_vless": {
       "description": "VLess ýoly üçin",
       "label": "ℹ️ VLess ýoly"
@@ -4892,10 +4872,6 @@
       "description": "GFW serwer atlaryndaky web sahypalara girende, ol şu domene ugrukdyrylar.",
       "label": "🌍 Reality fallback domeni"
     },
-    "reality_port": {
-      "description": "Reality porty",
-      "label": "REALITY porty"
-    },
     "reality_private_key": {
       "description": "Ony üýtgetmäň",
       "label": "🔑 Şahsy açar"
@@ -4915,14 +4891,6 @@
     "restls": {
       "description": "RestLS protokol sazlamalary",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "RestLS 1.2 üçin ulanylýan domen",
-      "label": "RestLS 1.2 domeni"
-    },
-    "restls1_3_domain": {
-      "description": "RestLS 1.3 üçin ulanylýan domen",
-      "label": "RestLS 1.3 domeni"
     },
     "shadowsocks": {
       "description": "Shadowsocks firewall-lary aýlanyp geçmäge kömek edýän çalt tunel proksi",
@@ -4996,14 +4964,6 @@
       "description": "ℹ️ SSH proksi, SSH tuneli ýa-da SSH port ugrukdyrmasy diýlip hem bilinýär, howpsuz däl tor arkaly iki maşynyň arasynda howpsuz aragatnaşyk kanalyny döretmegiň howpsuz usulydyr. Bizde SSH serwerinden doly tapawutly we hiç bir buýruk ýerine ýetirip bilmeýän aýratyn programma bar",
       "label": "SSH proksi"
     },
-    "ssh_host_dsa_pk": {
-      "description": "SSH host DSA şahsy açary",
-      "label": "SSH host DSA şahsy açary"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "SSH host DSA umumy açary",
-      "label": "SSH host DSA umumy açary"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "SSH host ECDSA şahsy açary",
       "label": "SSH host ECDSA şahsy açary"
@@ -5035,10 +4995,6 @@
     "ssh_server_port": {
       "description": "Bu asyl SSH serweriňizden doly tapawutly. Ol aýratyn programma.",
       "label": "↔️ SSH proksi porty"
-    },
-    "ssh_server_redis_url": {
-      "description": "Ulanylmaýar",
-      "label": "SSH ulanyjy maglumat bazasynyň salgysy"
     },
     "ssh_use_tls_port": {
       "description": "Açykda SSH aýratyn umumy SSH portuny ulanmagyň ýerine L4 multipleksirlemek arkaly TLS/HTTPS portlaryny (443 ýaly) paýlaşýar. Müşderiler şol bir TLS portuna birigýär; çetdäki multipleksor SSH-ni anyklaýar we SSH proksi backend-e ugradýar.",
@@ -5241,10 +5197,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "WARP saýt ugrukdyrmasy üçin ulanylýan HTTPS domeni",
-    "warp_enable": {
-      "description": "WARP serweriň IP-sini gizläp, Google, Spotify we Netflix çäklendirmelerini aýlanyp geçmäge kömek edýär ",
-      "label": "WARP+ açýar"
-    },
     "warp_mode": {
       "description": "✴️ Hemmesi: Ähli saýtlar çykyşda Warp IP-lerini ulanýar\n<br>\n☑️ Diňe içki we petiklenen saýtlar: Diňe içki saýtlar we Google, Spotify, Netflix, OpenAi, IPinfo.io ýaly web sahypalar çykyşda Warp IP-lerini ulanýar",
       "label": "✴️ WARP+ režimi"

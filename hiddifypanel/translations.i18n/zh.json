@@ -3334,10 +3334,6 @@
       "description": "输入要在用户页面上显示的自定义标题。 （在 yser 的欢迎文字之前）",
       "label": "👁‍🗨 用户页面标题"
     },
-    "cdn_forced_host": {
-      "description": "在此部分中，您可以使用一组特定域或 IP 来在用户链接中覆盖您的服务器。\n\n如果你使用<a href='https://ircf.space/export.php'>这个模板</a>，会根据用户的运营商选择相关的IP，如果你输入了一系列IP的IP将从该范围中随机选择。\n使用<a target='_blank' href='https://ip-format.hiddify.com'>此链接</a>设置个人 IP。",
-      "label": "🔂 强制配置使用以下 IP"
-    },
     "cloudflare": {
       "description": "请按照<a href='https://github.com/hiddify/hiddify-config/wiki/Get-Cloudflare-API' target='_blank'>说明</a>并粘贴 Cloudflare API 密钥",
       "label": "🔑 Cloudflare API"
@@ -3356,10 +3352,6 @@
     "country": {
       "description": "它根据每个国家/地区的过滤条件应用适当的设置",
       "label": "🌍国家"
-    },
-    "create_easysetup_link": {
-      "description": "创建用于首次配置的便捷设置链接",
-      "label": "创建便捷设置链接"
     },
     "db_version": {
       "description": "数据库版本说明",
@@ -3517,10 +3509,6 @@
       "ru": "🇷🇺 俄语",
       "zh": "🇨🇳 中文"
     },
-    "last_hash": {
-      "description": "config.last_hash.描述",
-      "label": "配置.last_hash.label"
-    },
     "last_priodic_usage_check": {
       "description": "配置.last_priodic_usage_check.description",
       "label": "config.last_priodic_usage_check.标签"
@@ -3639,10 +3627,6 @@
       "description": "此节点的名称，显示在父面板中",
       "label": "节点名称"
     },
-    "not_found": {
-      "description": "未找到配置",
-      "label": "未找到配置"
-    },
     "only_ipv4": {
       "description": "它将禁用 IPv6",
       "label": "ℹ️仅限IPv4"
@@ -3706,10 +3690,6 @@
       "description": "对于 Trojan 链接",
       "label": "ℹ️ Trojan 路径"
     },
-    "path_v2ray": {
-      "description": "设置 V2Ray 配置路径",
-      "label": "V2Ray路径"
-    },
     "path_vless": {
       "description": "对于 VLess 路径",
       "label": "ℹ️ VLess 路径"
@@ -3758,10 +3738,6 @@
       "description": "当 GFW 访问服务器名称中的网站时，将被重定向到该域。",
       "label": "🌍 现实后备域"
     },
-    "reality_port": {
-      "description": "Reality 端口",
-      "label": "REALITY 端口"
-    },
     "reality_private_key": {
       "description": "不要改变它",
       "label": "🔑 私钥"
@@ -3789,14 +3765,6 @@
     "restls": {
       "description": "RestLS 协议设置",
       "label": "配置.restls.标签"
-    },
-    "restls1_2_domain": {
-      "description": "用于 RestLS 1.2 的域名",
-      "label": "RestLS 1.2 域名"
-    },
-    "restls1_3_domain": {
-      "description": "用于 RestLS 1.3 的域名",
-      "label": "RestLS 1.3 域名"
     },
     "shadowsocks": {
       "description": "Shadowsocks 是一款快速隧道代理，可帮助你绕过防火墙",
@@ -3870,14 +3838,6 @@
       "description": "ℹ️ SSH 代理，也称为 SSH 隧道或 SSH 端口转发，是一种通过不安全网络在两台计算机之间创建安全通信通道的安全方法。我们有一个与 ssh 服务器完全不同的特定应用程序，无法执行任何命令",
       "label": "SSH 代理"
     },
-    "ssh_host_dsa_pk": {
-      "description": "SSH 主机 DSA 私钥",
-      "label": "SSH 主机 DSA 私钥"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "SSH 主机 DSA 公钥",
-      "label": "SSH 主机 DSA 公钥"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "SSH 主机 ECDSA 私钥",
       "label": "SSH 主机 ECDSA 私钥"
@@ -3909,10 +3869,6 @@
     "ssh_server_port": {
       "description": "这与你原来的 SSH 服务器完全不同。这是一个专用程序。",
       "label": "↔️ SSH 代理端口"
-    },
-    "ssh_server_redis_url": {
-      "description": "不曾用过",
-      "label": "SSH用户数据库地址"
     },
     "ssh_use_tls_port": {
       "description": "启用后，SSH 将通过 L4 多路复用共享 TLS/HTTPS 端口（如 443），而不是使用独立的公开 SSH 端口。客户端连接到相同的 TLS 端口；边缘多路复用器识别 SSH 流量并将其转发到 SSH 代理后端。",
@@ -4113,10 +4069,6 @@
     "warp": {
       "description": "Warp 是一种在出站流量中隐藏服务器 IP 的工具。这意味着如果用户访问网站，则暴露的是 Warp IP，而不是我们的服务器 IP。\n<br>\n例如，如果您在 Google 上遇到验证码问题，则可能会通过这种方式修复。",
       "label": "WARP➕"
-    },
-    "warp_enable": {
-      "description": "WARP 通过隐藏服务器 IP 帮助您绕过 Google、Spotify 和 Netflix 限制",
-      "label": "启用 WARP+"
     },
     "warp_mode": {
       "description": "✴️ 全部：所有站点在出站中使用 Warp IP\n<br>\n☑️ 仅国内和被阻止的网站：仅国内网站和 Google、Spotify、Netflix、OpenAi、IPinfo.io 等网站在出站中使用 Warp IP",

@@ -4454,10 +4454,6 @@
       "description": "Сарлавҳаи фармоишиеро ворид кунед, ки дар саҳифаи корбар нишон дода мешавад. (Пеш аз матни хушомадгӯии корбар)",
       "label": "👁‍🗨 Сарлавҳаи саҳифаи корбар"
     },
-    "cdn_forced_host": {
-      "description": "Дар ин қисмат шумо метавонед маҷмӯи доменҳо ё IP-ҳои махсусро барои сервери худ истифода баред, то дар истинодҳои корбарон иваз карда шаванд. \n\nАгар шумо <a href='https://ircf.space/export.php'>ин қолабро</a> истифода баред, IP-и дахлдор мувофиқи оператори корбар интихоб мешавад ва агар доираи IP-ҳо гузоред, IP тасодуфӣ аз он доира интихоб мешавад.\nБарои таъини IP-ҳои шахсӣ аз <a target='_blank' href='https://ip-format.hiddify.com'>ин истинод</a> истифода баред.",
-      "label": "🔂 Маҷбур кардани конфиг ба истифодаи IP/доменҳои зерин"
-    },
     "cloudflare": {
       "description": "Лутфан <a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>дастур</a>-ро пайравӣ кунед ва калиди API-и Cloudflare-ро гузоред",
       "label": "🔑 API-и Cloudflare"
@@ -4480,10 +4476,6 @@
     "country": {
       "description": "Он танзимоти мувофиқро барои ҳар кишвар мутобиқи шароити филтркунии он кишвар татбиқ мекунад",
       "label": "🌍 Кишвар"
-    },
-    "create_easysetup_link": {
-      "description": "Барои танзими аввалин истиноди танзими осон эҷод кунед",
-      "label": "Эҷоди истиноди танзими осон"
     },
     "db_version": {
       "description": "Тавсифи нусхаи пойгоҳи додаҳо",
@@ -4651,10 +4643,6 @@
       "tg": "🇹🇯 Тоҷикӣ",
       "zh": "🇨🇳 Хитоӣ"
     },
-    "last_hash": {
-      "description": "Хэши конфигуратсияи охирин татбиқшуда",
-      "label": "Хэши охирин"
-    },
     "last_priodic_usage_check": {
       "description": "Вақти охирин санҷиши даврии истифода",
       "label": "Охирин санҷиши даврии истифода"
@@ -4773,10 +4761,6 @@
       "description": "Номи ин нод, ки дар панели асосӣ нишон дода мешавад",
       "label": "Номи нод"
     },
-    "not_found": {
-      "description": "Конфиг ёфт нашуд",
-      "label": "Конфиг ёфт нашуд"
-    },
     "only_ipv4": {
       "description": "Он IPv6-ро хомӯш мекунад",
       "label": "ℹ️ Танҳо IPv4"
@@ -4840,10 +4824,6 @@
       "description": "Барои истинодҳои TROJAN",
       "label": "ℹ️ Масири Trojan"
     },
-    "path_v2ray": {
-      "description": "Масири конфигҳои V2Ray-ро таъин кунед",
-      "label": "Масири V2Ray"
-    },
     "path_vless": {
       "description": "Барои масири VLess",
       "label": "ℹ️ Масири VLess"
@@ -4892,10 +4872,6 @@
       "description": "Вақте GFW ба сайтҳои дар Server names буда дохил мешавад, он ба ин домен равона карда мешавад.",
       "label": "🌍 Домени эҳтиётии Reality"
     },
-    "reality_port": {
-      "description": "Порти Reality",
-      "label": "Порти REALITY"
-    },
     "reality_private_key": {
       "description": "Онро тағйир надиҳед",
       "label": "🔑 Калиди хусусӣ"
@@ -4915,14 +4891,6 @@
     "restls": {
       "description": "Танзимоти протоколи RestLS",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "Домене, ки барои RestLS 1.2 истифода мешавад",
-      "label": "Домени RestLS 1.2"
-    },
-    "restls1_3_domain": {
-      "description": "Домене, ки барои RestLS 1.3 истифода мешавад",
-      "label": "Домени RestLS 1.3"
     },
     "shadowsocks": {
       "description": "Shadowsocks прокси-и туннелии тез аст, ки ба шумо барои гузаштан аз девори оташ кӯмак мекунад",
@@ -4996,14 +4964,6 @@
       "description": "ℹ️ Прокси-и SSH, ки бо номи тунели SSH ё интиқоли порти SSH низ маълум аст, усули бехатари эҷоди канали муоширати бехатар байни ду мошин тавассути шабакаи ноамн аст. Мо барномаи махсус дорем, ки аз сервери SSH комилан фарқ мекунад ва ягон фармонро иҷро карда наметавонад",
       "label": "Прокси-и SSH"
     },
-    "ssh_host_dsa_pk": {
-      "description": "Калиди хусусии DSA-и мизбони SSH",
-      "label": "Калиди хусусии DSA-и мизбони SSH"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "Калиди оммавии DSA-и мизбони SSH",
-      "label": "Калиди оммавии DSA-и мизбони SSH"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "Калиди хусусии ECDSA-и мизбони SSH",
       "label": "Калиди хусусии ECDSA-и мизбони SSH"
@@ -5035,10 +4995,6 @@
     "ssh_server_port": {
       "description": "Ин аз сервери аслии SSH-и шумо комилан фарқ мекунад. Он барномаи махсус аст.",
       "label": "↔️ Порти прокси-и SSH"
-    },
-    "ssh_server_redis_url": {
-      "description": "Истифода намешавад",
-      "label": "Суроғаи пойгоҳи додаҳои корбарони SSH"
     },
     "ssh_use_tls_port": {
       "description": "Вақте фаъол бошад, SSH ба ҷои порти алоҳидаи оммавии SSH портҳои TLS/HTTPS-ро (масалан 443) тавассути multiplexing-и L4 мубодила мекунад. Клиентҳо ба ҳамон порти TLS мепайванданд; multiplexer-и канорӣ SSH-ро ошкор карда, ба backend-и прокси-и SSH равона мекунад.",
@@ -5241,10 +5197,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "Домени HTTPS, ки барои масирдиҳии сайти WARP истифода мешавад",
-    "warp_enable": {
-      "description": "WARP ба шумо кӯмак мекунад, ки аз маҳдудиятҳои Google, Spotify ва Netflix тавассути пинҳон кардани IP-и сервер гузаред ",
-      "label": "Фаъол кардани WARP+"
-    },
     "warp_mode": {
       "description": "✴️ Ҳама: ҳамаи сайтҳо IP-ҳои Warp-ро дар хуруҷӣ истифода мебаранд\n<br>\n☑️ Танҳо сайтҳои дохилӣ ва масдуд: танҳо сайтҳои дохилӣ ва сайтҳое мисли Google, Spotify, Netflix, OpenAi, IPinfo.io IP-ҳои Warp-ро дар хуруҷӣ истифода мебаранд",
       "label": "✴️ Ҳолати WARP+"

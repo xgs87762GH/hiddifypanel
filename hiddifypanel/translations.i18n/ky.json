@@ -4454,10 +4454,6 @@
       "description": "Колдонуучу баракчасында көрсөтүлө турган өзгөчө аталышты киргизиңиз. (Колдонуучунун саламдашуу текстинин алдында)",
       "label": "👁‍🗨 Колдонуучу баракчасынын аталышы"
     },
-    "cdn_forced_host": {
-      "description": "Бул бөлүмдө сервериңиз үчүн колдонуучулардын шилтемелериндеги маанилерди алмаштыруучу атайын домендерди же IP-лерди колдонсоңуз болот. \n\n<a href='https://ircf.space/export.php'>Бул үлгүнү</a> колдонсоңуз, тиешелүү IP колдонуучунун операторуна жараша тандалат, ал эми IP диапазонун койсоңуз, IP ошол диапазондон кокус тандалат.\nӨзүңүздүн IP-лериңизди коюу үчүн <a target='_blank' href='https://ip-format.hiddify.com'>бул шилтемени</a> колдонуңуз.",
-      "label": "🔂 Конфигурацияларды төмөнкү IP-лерди/домендерди колдонууга мажбурлоо"
-    },
     "cloudflare": {
       "description": "<a href='https://hiddify.com/manager/domain-worker-cdn-and-tunneling/Get-Cloudflare-API/' target='_blank'>Нускамага</a> ылайык Cloudflare API ачкычын чаптаңыз",
       "label": "🔑 Cloudflare API"
@@ -4480,10 +4476,6 @@
     "country": {
       "description": "Ал өлкөнүн бөгөттөө шарттарына жараша ар бир өлкө үчүн тиешелүү жөндөөлөрдү колдонот",
       "label": "🌍 Өлкө"
-    },
-    "create_easysetup_link": {
-      "description": "Биринчи жолу жөндөө үчүн оңой жөндөө шилтемесин түзүү",
-      "label": "Оңой жөндөө шилтемесин түзүү"
     },
     "db_version": {
       "description": "Маалымат базасынын версиясынын сүрөттөмөсү",
@@ -4651,10 +4643,6 @@
       "ru": "🇷🇺 Орусча",
       "zh": "🇨🇳 Кытайча"
     },
-    "last_hash": {
-      "description": "Акыркы колдонулган конфигурациянын хэши",
-      "label": "Акыркы хэш"
-    },
     "last_priodic_usage_check": {
       "description": "Акыркы мезгилдүү колдонуу текшерүүсүнүн убактысы",
       "label": "Акыркы мезгилдүү колдонуу текшерүүсү"
@@ -4773,10 +4761,6 @@
       "description": "Бул түйүндүн башкы панелде көрсөтүлгөн аты",
       "label": "Түйүндүн аты"
     },
-    "not_found": {
-      "description": "Конфигурация табылган жок",
-      "label": "Конфигурация табылган жок"
-    },
     "only_ipv4": {
       "description": "Ал IPv6-ны өчүрөт",
       "label": "ℹ️ Гана IPv4"
@@ -4840,10 +4824,6 @@
       "description": "TROJAN шилтемелери үчүн",
       "label": "ℹ️ Trojan жолу"
     },
-    "path_v2ray": {
-      "description": "V2Ray конфигурацияларынын жолун коюу",
-      "label": "V2Ray жолу"
-    },
     "path_vless": {
       "description": "VLess жолу үчүн",
       "label": "ℹ️ VLess жолу"
@@ -4892,10 +4872,6 @@
       "description": "GFW Server names ичиндеги веб-сайттарга киргенде, ал ушул доменге багытталат.",
       "label": "🌍 Reality Fallback домени"
     },
-    "reality_port": {
-      "description": "Reality порту",
-      "label": "REALITY порту"
-    },
     "reality_private_key": {
       "description": "Аны өзгөртпөңүз",
       "label": "🔑 Жеке ачкыч"
@@ -4915,14 +4891,6 @@
     "restls": {
       "description": "RestLS протоколунун жөндөөлөрү",
       "label": "RestTLS"
-    },
-    "restls1_2_domain": {
-      "description": "RestLS 1.2 үчүн колдонулган домен",
-      "label": "RestLS 1.2 домени"
-    },
-    "restls1_3_domain": {
-      "description": "RestLS 1.3 үчүн колдонулган домен",
-      "label": "RestLS 1.3 домени"
     },
     "shadowsocks": {
       "description": "Shadowsocks — брандмауэрлерди айланып өтүүгө жардам берген ылдам туннель прокси",
@@ -4996,14 +4964,6 @@
       "description": "ℹ️ SSH прокси, ошондой эле SSH туннели же SSH порт багыттоо деп аталат, коопсуз эмес тармак аркылуу эки машинанын ортосунда коопсуз байланыш каналын түзүүнүн коопсуз ыкмасы. Бизде SSH серверинен таптакыр башка атайын колдонмо бар жана ал эч кандай буйрукту аткара албайт",
       "label": "SSH прокси"
     },
-    "ssh_host_dsa_pk": {
-      "description": "SSH хосттун DSA жеке ачкычы",
-      "label": "SSH хосттун DSA жеке ачкычы"
-    },
-    "ssh_host_dsa_pub": {
-      "description": "SSH хосттун DSA ачык ачкычы",
-      "label": "SSH хосттун DSA ачык ачкычы"
-    },
     "ssh_host_ecdsa_pk": {
       "description": "SSH хосттун ECDSA жеке ачкычы",
       "label": "SSH хосттун ECDSA жеке ачкычы"
@@ -5035,10 +4995,6 @@
     "ssh_server_port": {
       "description": "Бул сиздин баштапкы SSH серверинизден таптакыр башка. Бул атайын программа.",
       "label": "↔️ SSH прокси порту"
-    },
-    "ssh_server_redis_url": {
-      "description": "Колдонулбайт",
-      "label": "SSH колдонуучулар базасынын дареги"
     },
     "ssh_use_tls_port": {
       "description": "Иштетилгенде SSH өзүнчө ачык SSH портун колдонбой, L4 multiplexing аркылуу TLS/HTTPS порттору менен (мисалы 443) бөлүшөт. Клиенттер ошол эле TLS портуна туташат; четки multiplexer SSH-ты аныктап, аны SSH прокси бэкендине багыттайт.",
@@ -5241,10 +5197,6 @@
       "label": "WARP"
     },
     "warp-https-domain-for-warp-site": "WARP сайт багыттоосу үчүн колдонулган HTTPS домени",
-    "warp_enable": {
-      "description": "WARP сервердин IP-син жашыруу менен Google, Spotify жана Netflix чектөөлөрүн айланып өтүүгө жардам берет ",
-      "label": "WARP+ иштетүү"
-    },
     "warp_mode": {
       "description": "✴️ Баары: Бардык сайттар чыгуучу трафикте Warp IP-лерин колдонот\n<br>\n☑️ Жергиликтүү жана бөгөттөлгөн сайттар гана: Жергиликтүү сайттар жана Google, Spotify, Netflix, OpenAi, IPinfo.io сыяктуу веб-сайттар гана чыгуучу трафикте Warp IP-лерин колдонот",
       "label": "✴️ WARP+ режими"
